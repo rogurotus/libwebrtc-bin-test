@@ -5,7 +5,6 @@ on:
     paths-ignore:
       - '**.md'
       - 'LICENSE'
-  pull_request:
 
 jobs:
   build-linux:
@@ -59,13 +58,13 @@ jobs:
       - name: Upload artifact x64
         uses: actions/upload-artifact@v2
         with:
-          name: libwebrtc-win-x64.7z
-          path: package/libwebrtc-win-x64.7z
+          name: libwebrtc-win-x64.tar.gz
+          path: package/libwebrtc-win-x64.tar.gz
       - name: Upload artifact x86
         uses: actions/upload-artifact@v2
         with:
-          name: libwebrtc-win-x86.7z
-          path: package/libwebrtc-win-x86.7z
+          name: libwebrtc-win-x86.tar.gz
+          path: package/libwebrtc-win-x86.tar.gz
 
   build-ios:
     runs-on: macos-11
@@ -116,11 +115,11 @@ jobs:
             ext: zip
             type: application/zip
           - name: win-x64
-            ext: 7z
-            type: application/x-7z-compressed
+            ext: tar.gz
+            type: application/gzip
           - name: win-x86
-            ext: 7z
-            type: application/x-7z-compressed
+            ext: tar.gz
+            type: application/gzip
     name: Release ${{ matrix.name }}
     if: contains(github.ref, 'tags/')
     needs:
@@ -143,4 +142,4 @@ jobs:
           prerelease: false
           artifactContentType: ${{ matrix.type }}
           artifacts: libwebrtc-${{ matrix.name }}.${{ matrix.ext }}
-          token: ${{ secrets.PERSONAL_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
