@@ -12,7 +12,7 @@ include ../common.mk
 EXTRA_GN_ARGS := \
 	is_debug=false \
 	is_java_debug=false \
-	$(RTC_USE_H264) \
+	rtc_use_h264=true \
 	rtc_build_tools=false \
 	rtc_build_examples=false \
 	rtc_include_tests=false \
@@ -28,7 +28,7 @@ all: clean build package
 .PHONY: package
 package: copy
 	cd $(PACKAGE_DIR) && \
-	tar -Jcf $(subst $(space),,$(PACKAGE_NAME)).tar.xz aar jar include lib NOTICE VERSION
+	tar -czvf $(subst $(space),,$(PACKAGE_NAME)).tar.gz aar jar include lib NOTICE VERSION
 
 .PHONY: copy
 copy:
@@ -58,7 +58,7 @@ copy:
 patch: common-patch
 	cd $(SRC_DIR) \
 	&& patch -p2 < $(PATCH_DIR)/android_version.patch \
-	&& $(SCRIPTS_DIR)/generate_android_version.sh $(SRC_DIR) $(WEBRTC_COMMIT) $(WEBRTC_SEMANTIC_VERSION)
+	&& $(SCRIPTS_DIR)/generate_android_version.sh $(SRC_DIR) $(WEBRTC_COMMIT) $(WEBRTC_VERSION)
 
 
 define build-android
@@ -76,10 +76,10 @@ endef
 build: patch
 	cd $(SRC_DIR) && \
 	python3 $(SRC_DIR)/tools_webrtc/android/build_aar.py \
-	  --build-dir $(BUILD_DIR)/aar \
-	  --output $(BUILD_DIR)/libwebrtc.aar \
-	  --arch armeabi-v7a arm64-v8a x86_64 \
-	  --extra-gn-args '$(EXTRA_GN_ARGS) $(CC_WRAPPER)'
+		--build-dir $(BUILD_DIR)/aar \
+		--output $(BUILD_DIR)/libwebrtc.aar \
+		--arch armeabi-v7a arm64-v8a x86_64 \
+		--extra-gn-args '$(EXTRA_GN_ARGS) $(CC_WRAPPER)'
 
 	$(call build-android,armeabi-v7a,arm,arm_version=7)
 	$(call build-android,arm64-v8a,arm64)
@@ -90,4 +90,3 @@ build: patch
 	rm -rf jni && \
 	rm -f AndroidManifest.xml && \
 	mv classes.jar libwebrtc.jar
-

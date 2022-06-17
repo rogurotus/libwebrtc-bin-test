@@ -46,11 +46,11 @@ define generateRules
 
 .PHONY: $(1).prepare
 $(1).prepare:
-	rm -rf VERSION LICENSE build config scripts Dockerfile
-	cp -a ../VERSION ../LICENSE ../build ../config ../scripts .
+	rm -rf VERSION build scripts Dockerfile
+	cp -a ../VERSION ../build ../scripts .
 	cp -a ./${1}/Dockerfile ./
-	DOCKER_BUILDKIT=1 $(DOCKER) build -t libwebrtc-$(1):$(IMAGE_VERSION) .
-	rm -rf VERSION LICENSE build config scripts Dockerfile
+	DOCKER_BUILDKIT=1 $(DOCKER) build --pull -t libwebrtc-$(1):$(IMAGE_VERSION) .
+	rm -rf VERSION build scripts Dockerfile
 
 .PHONY: $(1).edit
 $(1).edit: $(1).prepare
@@ -77,4 +77,3 @@ endef
 endif
 
 $(foreach pkg, $(DOCKER_PACKAGE_NAMES), $(eval $(call generateRules,$(pkg))))
-

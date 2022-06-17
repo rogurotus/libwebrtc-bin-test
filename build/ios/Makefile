@@ -24,7 +24,7 @@ all: clean build package
 package:
 	mkdir -p $(PACKAGE_DIR) && \
 	cd $(BUILD_DIR) && \
-	zip -9 -r $(PACKAGE_DIR)/$(subst $(space),,$(PACKAGE_NAME)).zip WebRTC.xcframework/*
+	tar -czvf $(PACKAGE_DIR)/$(subst $(space),,$(PACKAGE_NAME)).tar.gz WebRTC.xcframework/*
 
 .PHONY: patch
 patch: common-patch
@@ -36,4 +36,3 @@ patch: common-patch
 build: patch
 	cd $(SRC_DIR)/tools_webrtc/ios && \
 	python3 build_ios_libs.py -o $(BUILD_DIR) --build_config release --bitcode --extra-gn-args '$(EXTRA_GN_ARGS) $(CC_WRAPPER)'
-

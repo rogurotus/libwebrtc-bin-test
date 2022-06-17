@@ -1,10 +1,13 @@
 CCACHE_VERSION=4.6
-WEBRTC_VERSION=m102.5005{\#6}
-WEBRTC_SEMANTIC_VERSION=102.5005.6.0
-WEBRTC_COMMIT=a67d412acb133c00e6529aea7b0185e1788c1804
+
+# WebRTC doesn't have its own versioning, so we use Chromium versions:
+# https://chromiumdash.appspot.com/releases
+WEBRTC_VERSION=101.0.4951.64
+# Look for the concrete revision for WebRTC in:
+# https://chromium.googlesource.com/chromium/src/+/refs/tags/<WEBRTC_VERSION>/DEPS
+WEBRTC_COMMIT=34e12465a46da3c220eab0489881cd89a4d659d2
 
 PACKAGE_NAMES= \
-  linux-arm \
   linux-arm64 \
   linux-x64 \
   macos-x64 \
@@ -13,7 +16,6 @@ PACKAGE_NAMES= \
   android
 
 DOCKER_PACKAGE_NAMES= \
-  linux-arm \
   linux-arm64 \
   linux-x64 \
   android

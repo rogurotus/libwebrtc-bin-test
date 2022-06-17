@@ -14,8 +14,6 @@ help:
 	@echo ""
 	@echo "<option>:"
 	@echo " - USE_CCACHE=1"
-	@echo " - USE_H264=1"
-	@echo " - USE_X11=1"
 	@echo ""
 	@echo "<packageName>:"
 	@for pkg in $(PACKAGE_NAMES); do echo " - $$pkg"; done
@@ -51,7 +49,7 @@ $(1).clean:
 	make -C $(1) clean
 
 $(1).fetch: depot_tools
-	$(SCRIPTS_DIR)/fetch_webrtc.sh $(WEBRTC_DIR) $(DEPOT_TOOLS_DIR) $(WEBRTC_COMMIT) $(CONFIG_DIR)/$(1)
+	$(SCRIPTS_DIR)/fetch_webrtc.sh $(WEBRTC_DIR) $(DEPOT_TOOLS_DIR) $(WEBRTC_COMMIT) $(1)
 
 .PHONY: $(1).build
 $(1).build: prepare $(CCACHE) $(1).fetch sync
