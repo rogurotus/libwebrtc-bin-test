@@ -91,6 +91,9 @@ jobs:
       - name: Generate SHA256 checksums
         run: ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"
         working-directory: package/
+      - name: Show generated SHA256 checksums
+        run: cat *.sha256sum
+        working-directory: package/
 
       - uses: softprops/action-gh-release@v1
         with:
