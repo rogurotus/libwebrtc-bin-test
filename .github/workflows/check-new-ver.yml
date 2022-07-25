@@ -1,0 +1,27 @@
+name: Check new version
+
+on:
+  schedule:
+    - cron: "30 5 * * 1"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: ./upgrade-ver.sh
+        id: new
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: Upgrade to ${{ steps.new.outputs.version }} version
+          branch: upgrade-to-${{ steps.new.outputs.version }}
+          delete-branch: true
+          title: Upgrade to ${{ steps.new.outputs.version }}
+          body: Upgrade `libwebrtc` version to ${{ steps.new.outputs.version }}.
+          labels: |
+            enhancement
+            k::version
+          token: ${{ secrets.GH_INSTRUMENTISTO_BOT_PAT }}
