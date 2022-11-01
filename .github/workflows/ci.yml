@@ -90,12 +90,13 @@ jobs:
 
       - name: Parse release version
         id: release
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+        run: echo "version=${GITHUB_REF#refs/tags/}"
+             >> $GITHUB_OUTPUT
       - name: Verify release version matches VERSION file
-        run: >-
-          test "${{ steps.release.outputs.VERSION }}" \
-             == $(grep 'WEBRTC_VERSION=' VERSION | cut -d '=' -f2 | tr -d '\n')
-        if: ${{ !contains(steps.release.outputs.VERSION, '-') }}
+        run: |
+          test "${{ steps.release.outputs.version }}" \
+            == "$(grep 'WEBRTC_VERSION=' VERSION | cut -d '=' -f2 | tr -d '\n')"
+        if: ${{ !contains(steps.release.outputs.version, '-') }}
 
       - uses: actions/download-artifact@v3
         with:
@@ -111,11 +112,11 @@ jobs:
 
       - uses: softprops/action-gh-release@v1
         with:
-          name: ${{ steps.release.outputs.VERSION }}
+          name: ${{ steps.release.outputs.version }}
           files: |
             package/libwebrtc-*.tar.gz
             package/libwebrtc-*.tar.gz.sha256sum
             package/libwebrtc-*.zip
             package/libwebrtc-*.zip.sha256sum
           fail_on_unmatched_files: true
-          prerelease: ${{ contains(steps.release.outputs.VERSION, '-') }}
+          prerelease: ${{ contains(steps.release.outputs.version, '-') }}
