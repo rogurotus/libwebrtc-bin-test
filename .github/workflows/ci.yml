@@ -73,9 +73,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
-      - run: gem install cocoapods
+      - uses: maxim-lobanov/setup-cocoapods@v1
+        with:
+          version: latest
 
-      - run: pod lib lint --allow-warnings
+      - run: pod spec lint --allow-warnings --verbose
       - run: pod trunk push --allow-warnings
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
