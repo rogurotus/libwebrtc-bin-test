@@ -120,4 +120,5 @@ webrtc/
 webrtc-cache/
 webrtc_build/
 
-/VERSION.bk
+# Backup files produced by CLI tools
+*.bk
