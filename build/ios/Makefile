@@ -24,10 +24,13 @@ all: clean build package
 package:
 	mkdir -p $(PACKAGE_DIR) && \
 	cd $(BUILD_DIR) && \
-	zip -r $(PACKAGE_DIR)/$(subst $(space),,$(PACKAGE_NAME)).zip WebRTC.xcframework/*
+	zip -9 -r $(PACKAGE_DIR)/$(subst $(space),,$(PACKAGE_NAME)).zip WebRTC.xcframework/*
 
 .PHONY: patch
 patch: common-patch
+	echo "apply iOS patches ..." && \
+	cd $(SRC_DIR) && \
+	patch -p2 < $(PATCH_DIR)/macos_h264_encoder.patch
 
 .PHONY: build
 build: patch

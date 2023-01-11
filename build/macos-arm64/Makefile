@@ -33,13 +33,22 @@ all: clean build package
 .PHONY: package
 package: copy
 	cd $(PACKAGE_DIR) && \
-	tar -czvf $(subst $(space),,$(PACKAGE_NAME)).tar.gz include debug release NOTICE VERSION
+	tar -czvf $(subst $(space),,$(PACKAGE_NAME)).tar.gz include debug release NOTICE VERSION Frameworks
 
 .PHONY: copy
 copy: common-copy
+	rm -f $(PACKAGE_DIR)/lib/libboringssl.a
+	rm -rf $(PACKAGE_DIR)/Frameworks/WebRTC.xcframework
+	xcodebuild \
+		-create-xcframework \
+		-framework $(BUILD_DIR_RELEASE)/WebRTC.framework \
+		-debug-symbols $(BUILD_DIR_RELEASE)/WebRTC.dSYM \
+		-output $(PACKAGE_DIR)/Frameworks/WebRTC.xcframework
 
 .PHONY: patch
 patch: common-patch
+	cd $(SRC_DIR) && \
+	patch -p2 < $(PATCH_DIR)/macos_h264_encoder.patch
 
 .PHONY: build
 build: patch

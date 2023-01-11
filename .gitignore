@@ -122,3 +122,4 @@ webrtc_build/
 
 # Backup files produced by CLI tools
 *.bk
+depot_tools/

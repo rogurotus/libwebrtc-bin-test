@@ -115,6 +115,7 @@ if (!(Test-Path $BUILD_DIR)) {
 
 Exec { gclient sync --with_branch_heads -r $WEBRTC_COMMIT }
 Exec { git apply --ignore-space-change -v $PATCH_DIR\add_licenses.patch }
+Exec { git apply --ignore-space-change -v $PATCH_DIR\4k.patch }
 Exec { git apply --ignore-space-change -v $PATCH_DIR\webrtc_voice_engine.patch }
 Exec { git apply --ignore-space-change -v $PATCH_DIR\win_dynamic_crt.patch }
 Exec { git apply --ignore-space-change -v $PATCH_DIR\windows_fix_towupper.patch }
