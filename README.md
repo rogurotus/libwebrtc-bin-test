@@ -48,4 +48,4 @@ Forked from [`crow-misia/libwebrtc-bin`](https://github.com/crow-misia/libwebrtc
 
 [`crow-misia/libwebrtc-bin`]: https://github.com/crow-misia/libwebrtc-bin
 [`libwebrtc`]: https://webrtc.googlesource.com/src
-[Medea Flutter-WebRTC]: https://github.com/instrumentisto/flutter-webrtc
+[Medea Flutter-WebRTC]: https://github.com/instrumentisto/medea-flutter-webrtc
