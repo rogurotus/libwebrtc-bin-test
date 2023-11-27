@@ -28,6 +28,8 @@ package:
 
 .PHONY: patch
 patch: common-patch
+	cd $(SRC_DIR) && \
+	patch -p2 < $(PATCH_DIR)/scala.patch
 
 .PHONY: build
 build: patch
