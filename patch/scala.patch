@@ -1,7 +1,47 @@
-diff --git a/src/sdk/android/api/org/webrtc/RtpParameters.java b/src/sdk//android/api/org/webrtc/RtpParameters.java
-index 9ca8311..0a1eb17 100644
---- a/src/sdk/android/api/org/webrtc/RtpParameters.java
-+++ b/src/sdk//android/api/org/webrtc/RtpParameters.java
+diff --git a/sdk/BUILD.gn b/sdk/BUILD.gn
+index 4f5ceb5..a743579 100644
+--- a/sdk/BUILD.gn
++++ b/sdk/BUILD.gn
+@@ -991,6 +991,15 @@ if (is_ios || is_mac) {
+         "objc/api/peerconnection/RTCRtcpParameters+Private.h",
+         "objc/api/peerconnection/RTCRtcpParameters.h",
+         "objc/api/peerconnection/RTCRtcpParameters.mm",
++        "objc/api/peerconnection/RTCRtpCapabilities.h",
++        "objc/api/peerconnection/RTCRtpCapabilities.mm",
++        "objc/api/peerconnection/RTCRtpCapabilities+Private.h",
++        "objc/api/peerconnection/RTCRtpCodecCapability.h",
++        "objc/api/peerconnection/RTCRtpCodecCapability.mm",
++        "objc/api/peerconnection/RTCRtpCodecCapability+Private.h",
++        "objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h",
++        "objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm",
++        "objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h",
+         "objc/api/peerconnection/RTCRtpCodecParameters+Private.h",
+         "objc/api/peerconnection/RTCRtpCodecParameters.h",
+         "objc/api/peerconnection/RTCRtpCodecParameters.mm",
+@@ -1309,6 +1318,9 @@ if (is_ios || is_mac) {
+           "objc/api/peerconnection/RTCPeerConnectionFactory.h",
+           "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
+           "objc/api/peerconnection/RTCRtcpParameters.h",
++          "objc/api/peerconnection/RTCRtpCapabilities.h",
++          "objc/api/peerconnection/RTCRtpCodecCapability.h",
++          "objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h",
+           "objc/api/peerconnection/RTCRtpCodecParameters.h",
+           "objc/api/peerconnection/RTCRtpEncodingParameters.h",
+           "objc/api/peerconnection/RTCRtpHeaderExtension.h",
+@@ -1423,6 +1435,9 @@ if (is_ios || is_mac) {
+           "objc/api/peerconnection/RTCPeerConnectionFactory.h",
+           "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
+           "objc/api/peerconnection/RTCRtcpParameters.h",
++          "objc/api/peerconnection/RTCRtpCapabilities.h",
++          "objc/api/peerconnection/RTCRtpCodecCapability.h",
++          "objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h",
+           "objc/api/peerconnection/RTCRtpCodecParameters.h",
+           "objc/api/peerconnection/RTCRtpEncodingParameters.h",
+           "objc/api/peerconnection/RTCRtpHeaderExtension.h",
+diff --git a/sdk/android/api/org/webrtc/RtpParameters.java b/sdk/android/api/org/webrtc/RtpParameters.java
+index 9ca8311..1fcffe7 100644
+--- a/sdk/android/api/org/webrtc/RtpParameters.java
++++ b/sdk/android/api/org/webrtc/RtpParameters.java
 @@ -73,6 +73,8 @@ public class RtpParameters {
      @Nullable public Integer maxFramerate;
      // The number of temporal layers for video.
@@ -34,17 +74,17 @@ index 9ca8311..0a1eb17 100644
  
 +    @Nullable
 +    @CalledByNative("Encoding")
-+    Integer getScalabilityMode() {
++    String getScalabilityMode() {
 +      return scalabilityMode;
 +    }
 +
      @Nullable
      @CalledByNative("Encoding")
      Double getScaleResolutionDownBy() {
-diff --git a/src/sdk/android/src/jni/pc/rtp_parameters.cc b/src/sdk//android/src/jni/pc/rtp_parameters.cc
+diff --git a/sdk/android/src/jni/pc/rtp_parameters.cc b/sdk/android/src/jni/pc/rtp_parameters.cc
 index 4bd9ee0..1f5957b 100644
---- a/src/sdk/android/src/jni/pc/rtp_parameters.cc
-+++ b/src/sdk//android/src/jni/pc/rtp_parameters.cc
+--- a/sdk/android/src/jni/pc/rtp_parameters.cc
++++ b/sdk/android/src/jni/pc/rtp_parameters.cc
 @@ -52,6 +52,7 @@ ScopedJavaLocalRef<jobject> NativeToJavaRtpEncodingParameter(
        NativeToJavaInteger(env, encoding.min_bitrate_bps),
        NativeToJavaInteger(env, encoding.max_framerate),
@@ -65,10 +105,10 @@ index 4bd9ee0..1f5957b 100644
    ScopedJavaLocalRef<jobject> j_scale_resolution_down_by =
        Java_Encoding_getScaleResolutionDownBy(jni, j_encoding_parameters);
    encoding.scale_resolution_down_by =
-diff --git a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h b/src/sdk//objc/api/peerconnection/RTCPeerConnectionFactory.h
+diff --git a/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h b/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
 index 5575af9..f8dfae1 100644
---- a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
-+++ b/src/sdk//objc/api/peerconnection/RTCPeerConnectionFactory.h
+--- a/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
++++ b/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
 @@ -23,6 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
  @class RTC_OBJC_TYPE(RTCVideoSource);
  @class RTC_OBJC_TYPE(RTCVideoTrack);
@@ -91,10 +131,10 @@ index 5575af9..f8dfae1 100644
  /** Initialize an RTCAudioSource with constraints. */
  - (RTC_OBJC_TYPE(RTCAudioSource) *)audioSourceWithConstraints:
      (nullable RTC_OBJC_TYPE(RTCMediaConstraints) *)constraints;
-diff --git a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm b/src/sdk//objc/api/peerconnection/RTCPeerConnectionFactory.mm
+diff --git a/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm b/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
 index 62b5554..e63104d 100644
---- a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
-+++ b/src/sdk//objc/api/peerconnection/RTCPeerConnectionFactory.mm
+--- a/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
++++ b/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
 @@ -21,6 +21,9 @@
  #import "RTCPeerConnection+Private.h"
  #import "RTCVideoSource+Private.h"
@@ -126,11 +166,11 @@ index 62b5554..e63104d 100644
  - (instancetype)initNative {
    if (self = [super init]) {
      _networkThread = rtc::Thread::CreateWithSocketServer();
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h b/src/sdk//objc/api/peerconnection/RTCRtpCapabilities+Private.h
+diff --git a/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h b/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h
 new file mode 100644
 index 0000000..15c8fe3
 --- /dev/null
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpCapabilities+Private.h
++++ b/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h
 @@ -0,0 +1,33 @@
 +/*
 + * Copyright 2023 LiveKit
@@ -166,11 +206,11 @@ index 0000000..15c8fe3
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.h b/src/sdk//objc/api/peerconnection/RTCRtpCapabilities.h
+diff --git a/sdk/objc/api/peerconnection/RTCRtpCapabilities.h b/sdk/objc/api/peerconnection/RTCRtpCapabilities.h
 new file mode 100644
 index 0000000..1e4aee1
 --- /dev/null
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpCapabilities.h
++++ b/sdk/objc/api/peerconnection/RTCRtpCapabilities.h
 @@ -0,0 +1,36 @@
 +/*
 + * Copyright 2023 LiveKit
@@ -209,11 +249,11 @@ index 0000000..1e4aee1
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm b/src/sdk//objc/api/peerconnection/RTCRtpCapabilities.mm
+diff --git a/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm b/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm
 new file mode 100644
 index 0000000..64c6f09
 --- /dev/null
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpCapabilities.mm
++++ b/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm
 @@ -0,0 +1,62 @@
 +/*
 + * Copyright 2023 LiveKit
@@ -278,11 +318,11 @@ index 0000000..64c6f09
 +
 +@end
 \ No newline at end of file
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h b/src/sdk//objc/api/peerconnection/RTCRtpCodecCapability+Private.h
+diff --git a/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h b/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h
 new file mode 100644
 index 0000000..b36d26c
 --- /dev/null
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpCodecCapability+Private.h
++++ b/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h
 @@ -0,0 +1,33 @@
 +/*
 + * Copyright 2023 LiveKit
@@ -318,11 +358,11 @@ index 0000000..b36d26c
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h b/src/sdk//objc/api/peerconnection/RTCRtpCodecCapability.h
+diff --git a/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h b/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h
 new file mode 100644
 index 0000000..0daf40e
 --- /dev/null
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpCodecCapability.h
++++ b/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h
 @@ -0,0 +1,63 @@
 +/*
 + * Copyright 2023 LiveKit
@@ -388,11 +428,11 @@ index 0000000..0daf40e
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm b/src/sdk//objc/api/peerconnection/RTCRtpCodecCapability.mm
+diff --git a/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm b/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm
 new file mode 100644
 index 0000000..341cde4
 --- /dev/null
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpCodecCapability.mm
++++ b/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm
 @@ -0,0 +1,138 @@
 +/*
 + * Copyright 2023 LiveKit
@@ -533,10 +573,10 @@ index 0000000..341cde4
 +
 +@end
 \ No newline at end of file
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h b/src/sdk//objc/api/peerconnection/RTCRtpEncodingParameters.h
+diff --git a/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h b/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
 index 07f6b7a..d055115 100644
---- a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpEncodingParameters.h
+--- a/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
++++ b/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
 @@ -51,6 +51,10 @@ RTC_OBJC_EXPORT
   */
  @property(nonatomic, copy, nullable) NSNumber *numTemporalLayers;
@@ -548,10 +588,10 @@ index 07f6b7a..d055115 100644
  /** Scale the width and height down by this factor for video. If nil,
   * implementation default scaling factor will be used.
   */
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm b/src/sdk//objc/api/peerconnection/RTCRtpEncodingParameters.mm
+diff --git a/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm b/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
 index d6087da..e2020bb 100644
---- a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpEncodingParameters.mm
+--- a/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
++++ b/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
 @@ -20,6 +20,7 @@
  @synthesize minBitrateBps = _minBitrateBps;
  @synthesize maxFramerate = _maxFramerate;
@@ -580,11 +620,11 @@ index d6087da..e2020bb 100644
    if (_scaleResolutionDownBy != nil) {
      parameters.scale_resolution_down_by =
          absl::optional<double>(_scaleResolutionDownBy.doubleValue);
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h b/src/sdk//objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
+diff --git a/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
 new file mode 100644
 index 0000000..14ea0c7
 --- /dev/null
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
++++ b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
 @@ -0,0 +1,33 @@
 +/*
 + * Copyright 2023 LiveKit
@@ -620,11 +660,11 @@ index 0000000..14ea0c7
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h b/src/sdk//objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
+diff --git a/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
 new file mode 100644
 index 0000000..6d5bdfd
 --- /dev/null
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
++++ b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
 @@ -0,0 +1,35 @@
 +/*
 + * Copyright 2023 LiveKit
@@ -662,11 +702,11 @@ index 0000000..6d5bdfd
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm b/src/sdk//objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
+diff --git a/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
 new file mode 100644
 index 0000000..7a8710c
 --- /dev/null
-+++ b/src/sdk//objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
++++ b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
 @@ -0,0 +1,54 @@
 +/*
 + * Copyright 2023 LiveKit
