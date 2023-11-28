@@ -208,10 +208,10 @@ index 0000000..15c8fe3
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.h b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.h
 new file mode 100644
-index 0000000..1e4aee1
+index 0000000..2dea41a
 --- /dev/null
 +++ b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.h
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,37 @@
 +/*
 + * Copyright 2023 LiveKit
 + *
@@ -233,6 +233,7 @@ index 0000000..1e4aee1
 +#import "RTCMacros.h"
 +
 +@class RTC_OBJC_TYPE(RTCRtpCodecCapability);
++@class RTC_OBJC_TYPE(RTCRtpHeaderExtensionCapability);
 +
 +NS_ASSUME_NONNULL_BEGIN
 +
@@ -243,7 +244,7 @@ index 0000000..1e4aee1
 +
 +@property(nonatomic, readonly) NSArray<RTC_OBJC_TYPE(RTCRtpCodecCapability) *> *codecs;
 +
-+@property(nonatomic, readonly) NSArray<RTC_OBJC_TYPE(RTCRtpHeaderExtension) *> *header_extensions;
++@property(nonatomic, readonly) NSArray<RTC_OBJC_TYPE(RTCRtpHeaderExtensionCapability) *> *header_extensions;
 +
 +@end
 +
@@ -251,10 +252,10 @@ index 0000000..1e4aee1
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm
 new file mode 100644
-index 0000000..64c6f09
+index 0000000..7f73108
 --- /dev/null
 +++ b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm
-@@ -0,0 +1,62 @@
+@@ -0,0 +1,63 @@
 +/*
 + * Copyright 2023 LiveKit
 + *
@@ -273,6 +274,7 @@ index 0000000..64c6f09
 +
 +#import "RTCRtpCapabilities+Private.h"
 +#import "RTCRtpCodecCapability+Private.h"
++#import "RTCRtpHeaderExtensionCapability+Private.h"
 +
 +#import "RTCMediaStreamTrack.h"
 +#import "helpers/NSString+StdString.h"
@@ -622,7 +624,7 @@ index d6087da..e2020bb 100644
          absl::optional<double>(_scaleResolutionDownBy.doubleValue);
 diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
 new file mode 100644
-index 0000000..14ea0c7
+index 0000000..2fa8c25
 --- /dev/null
 +++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
 @@ -0,0 +1,33 @@
@@ -642,7 +644,7 @@ index 0000000..14ea0c7
 + * limitations under the License.
 + */
 +
-+#import "RTCRtpCodecCapability.h"
++#import "RTCRtpHeaderExtensionCapability.h"
 +
 +#include "api/rtp_parameters.h"
 +
