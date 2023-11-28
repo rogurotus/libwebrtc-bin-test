@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.github.instrumentisto</groupId>
+  <artifactId>libwebrtc-bin</artifactId>
+  <versioning>
+    <release>refs/pull/1/merge</release>
+    <versions>
+      <version>refs/pull/1/merge</version>
+    </versions>
+    <lastUpdated>20231128212651</lastUpdated>
+  </versioning>
+</metadata>
