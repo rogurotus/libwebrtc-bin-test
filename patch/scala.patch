@@ -664,7 +664,7 @@ index 0000000..2fa8c25
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
 new file mode 100644
-index 0000000..6d5bdfd
+index 0000000..f371ebc
 --- /dev/null
 +++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
 @@ -0,0 +1,35 @@
@@ -695,10 +695,10 @@ index 0000000..6d5bdfd
 +@property(nonatomic, copy) NSString *uri;
 +
 +// Preferred value of ID that goes in the packet.
-+@property(nonatomic, assign) NSNumber preferred_id;
++@property(nonatomic, assign) NSNumber *preferred_id;
 +
 +// If true, it's preferred that the value in the header is encrypted.
-+@property(nonatomic, copy, nullable) BOOL preferred_encrypt;
++@property(nonatomic, assign) BOOL preferred_encrypt;
 +
 +@end
 +
@@ -706,7 +706,7 @@ index 0000000..6d5bdfd
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
 new file mode 100644
-index 0000000..7a8710c
+index 0000000..e36d2b4
 --- /dev/null
 +++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
 @@ -0,0 +1,54 @@
@@ -751,16 +751,16 @@ index 0000000..7a8710c
 +}
 +
 +- (NSString *)uri {
-+  return [NSString stringWithUTF8String:_nativeCodecCapability.uri.c_str()];
++  return [NSString stringWithUTF8String:_nativeHeaderExtensionCapability.uri.c_str()];
 +}
 +
 +- (NSNumber *)preferredId {
-+  return [NSNumber numberWithInt:*_nativeCodecCapability.preferred_id];
++  return [NSNumber numberWithInt:*_nativeHeaderExtensionCapability.preferred_id];
 +
 +}
 +
 +- (BOOL)preferredEncrypt {
-+  return _nativeCodecCapability.preferred_encrypt;
++  return _nativeHeaderExtensionCapability.preferred_encrypt;
 +}
 +
 +@end
