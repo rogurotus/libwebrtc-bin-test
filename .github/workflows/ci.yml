@@ -71,6 +71,7 @@ jobs:
 
   publish-android:
     name: publish (Android)
+    needs: ["build"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
