@@ -664,10 +664,10 @@ index 0000000..2fa8c25
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
 new file mode 100644
-index 0000000..f371ebc
+index 0000000..856f9be
 --- /dev/null
 +++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,37 @@
 +/*
 + * Copyright 2023 LiveKit
 + *
@@ -685,6 +685,8 @@ index 0000000..f371ebc
 + */
 +
 +#import <Foundation/Foundation.h>
++
++#import "RTCMacros.h"
 +
 +NS_ASSUME_NONNULL_BEGIN
 +
