@@ -664,7 +664,7 @@ index 0000000..2fa8c25
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
 new file mode 100644
-index 0000000..856f9be
+index 0000000..27bb0e5
 --- /dev/null
 +++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
 @@ -0,0 +1,37 @@
@@ -694,7 +694,7 @@ index 0000000..856f9be
 +@interface RTC_OBJC_TYPE (RTCRtpHeaderExtensionCapability) : NSObject
 +
 +// URI of this extension, as defined in RFC8285.
-+@property(nonatomic, copy) NSString *uri;
++@property(nonatomic, readonly) NSString *uri;
 +
 +// Preferred value of ID that goes in the packet.
 +@property(nonatomic, assign) NSNumber *preferred_id;
