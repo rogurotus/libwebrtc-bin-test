@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.instrumentisto</groupId>
   <artifactId>libwebrtc-bin</artifactId>
-  <version>refs/pull/1/merge</version>
+  <version>119.0.0.0</version>
   <packaging>aar</packaging>
   <description>POM was created from install:install-file</description>
 </project>
