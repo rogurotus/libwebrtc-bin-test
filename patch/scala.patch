@@ -1,5 +1,5 @@
 diff --git a/src/media/base/media_engine.cc b/src/media/base/media_engine.cc
-index 7304ab0..25f03e5 100644
+index 7304ab0..2b99776 100644
 --- a/src/media/base/media_engine.cc
 +++ b/src/media/base/media_engine.cc
 @@ -15,6 +15,8 @@
@@ -30,7 +30,7 @@ index 7304ab0..25f03e5 100644
          }
  
          if (!scalabilityModeFound) {
-+          throw std::runtime_error(ss.str());
++          std::cout << ss.str() << std::end;
            LOG_AND_RETURN_ERROR(
                RTCErrorType::INVALID_MODIFICATION,
                "Attempted to set RtpParameters scalabilityMode "
@@ -49,7 +49,7 @@ index 7304ab0..25f03e5 100644
            }
          }
          if (!scalabilityModeFound) {
-+          throw std::runtime_error(ss.str());
++          std::cout << ss.str() << std::end;
            LOG_AND_RETURN_ERROR(
                RTCErrorType::INVALID_MODIFICATION,
                "Attempted to set RtpParameters scalabilityMode "
