@@ -1,3 +1,113 @@
+diff --git a/media/base/media_engine.cc b/media/base/media_engine.cc
+index 7304ab0..25f03e5 100644
+--- a/media/base/media_engine.cc
++++ b/media/base/media_engine.cc
+@@ -15,6 +15,8 @@
+ #include <cstdint>
+ #include <string>
+ #include <utility>
++#include <sstream>
++#include <iostream>
+ 
+ #include "absl/algorithm/container.h"
+ #include "api/video/video_bitrate_allocation.h"
+@@ -95,10 +97,14 @@ webrtc::RTCError CheckScalabilityModeValues(
+       }
+     }
+     if (rtp_parameters.encodings[i].scalability_mode) {
++        std::stringstream ss;
+       if (!send_codec) {
+         bool scalabilityModeFound = false;
++          ss << "codec_preferences" << codec_preferences.size() << " ";
+         for (const cricket::VideoCodec& codec : codec_preferences) {
+           for (const auto& scalability_mode : codec.scalability_modes) {
++          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
++
+             if (ScalabilityModeToString(scalability_mode) ==
+                 *rtp_parameters.encodings[i].scalability_mode) {
+               scalabilityModeFound = true;
+@@ -110,14 +116,18 @@ webrtc::RTCError CheckScalabilityModeValues(
+         }
+ 
+         if (!scalabilityModeFound) {
++          throw std::runtime_error(ss.str());
+           LOG_AND_RETURN_ERROR(
+               RTCErrorType::INVALID_MODIFICATION,
+               "Attempted to set RtpParameters scalabilityMode "
+               "to an unsupported value for the current codecs.");
+         }
+       } else {
++          ss << "\nsend_codec" << send_codec;
++
+         bool scalabilityModeFound = false;
+         for (const auto& scalability_mode : send_codec->scalability_modes) {
++          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
+           if (ScalabilityModeToString(scalability_mode) ==
+               *rtp_parameters.encodings[i].scalability_mode) {
+             scalabilityModeFound = true;
+@@ -125,6 +135,7 @@ webrtc::RTCError CheckScalabilityModeValues(
+           }
+         }
+         if (!scalabilityModeFound) {
++          throw std::runtime_error(ss.str());
+           LOG_AND_RETURN_ERROR(
+               RTCErrorType::INVALID_MODIFICATION,
+               "Attempted to set RtpParameters scalabilityMode "
+diff --git a/pc/rtp_sender.cc b/pc/rtp_sender.cc
+index cdae159..f7827da 100644
+--- a/pc/rtp_sender.cc
++++ b/pc/rtp_sender.cc
+@@ -237,6 +237,7 @@ void RtpSenderBase::SetParametersInternal(const RtpParameters& parameters,
+   RTC_DCHECK_RUN_ON(signaling_thread_);
+   RTC_DCHECK(!stopped_);
+ 
++  // nope2
+   if (UnimplementedRtpParameterHasValue(parameters)) {
+     RTCError error(
+         RTCErrorType::UNSUPPORTED_PARAMETER,
+@@ -247,6 +248,7 @@ void RtpSenderBase::SetParametersInternal(const RtpParameters& parameters,
+     return;
+   }
+   if (!media_channel_ || !ssrc_) {
++    // nope3
+     auto result = cricket::CheckRtpParametersInvalidModificationAndValues(
+         init_parameters_, parameters, codec_preferences_, absl::nullopt);
+     if (result.ok()) {
+@@ -265,6 +267,7 @@ void RtpSenderBase::SetParametersInternal(const RtpParameters& parameters,
+                                              old_parameters.encodings);
+     }
+ 
++    // nope4
+     RTCError result = cricket::CheckRtpParametersInvalidModificationAndValues(
+         old_parameters, rtp_parameters);
+     if (!result.ok()) {
+@@ -272,6 +275,8 @@ void RtpSenderBase::SetParametersInternal(const RtpParameters& parameters,
+       return;
+     }
+ 
++    // nope ?
++
+     result = CheckCodecParameters(rtp_parameters);
+     if (!result.ok()) {
+       webrtc::InvokeSetParametersCallback(callback, result);
+@@ -353,7 +358,8 @@ RTCError RtpSenderBase::CheckCodecParameters(const RtpParameters& parameters) {
+       send_codec_with_svc_info = *codec_match;
+     }
+   }
+-
++  
++  // here
+   return cricket::CheckScalabilityModeValues(parameters, codec_preferences_,
+                                              send_codec_with_svc_info);
+ }
+@@ -364,6 +370,7 @@ RTCError RtpSenderBase::SetParameters(const RtpParameters& parameters) {
+   RTCError result = CheckSetParameters(parameters);
+   if (!result.ok())
+     return result;
++  // nope
+ 
+   // Some tests rely on working in single thread mode without a run loop and a
+   // blocking call is required to keep them working. The encoder configuration
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
 index 4f5ceb5..a743579 100644
 --- a/src/sdk/BUILD.gn
@@ -105,6 +215,19 @@ index 4bd9ee0..1f5957b 100644
    ScopedJavaLocalRef<jobject> j_scale_resolution_down_by =
        Java_Encoding_getScaleResolutionDownBy(jni, j_encoding_parameters);
    encoding.scale_resolution_down_by =
+diff --git a/src/sdk/android/src/jni/pc/rtp_sender.cc b/src/sdk/android/src/jni/pc/rtp_sender.cc
+index ddb53f6..533d0e9 100644
+--- a/src/sdk/android/src/jni/pc/rtp_sender.cc
++++ b/src/sdk/android/src/jni/pc/rtp_sender.cc
+@@ -70,7 +70,7 @@ jlong JNI_RtpSender_GetDtmfSender(JNIEnv* jni, jlong j_rtp_sender_pointer) {
+           ->GetDtmfSender()
+           .release());
+ }
+-
++ // here
+ jboolean JNI_RtpSender_SetParameters(
+     JNIEnv* jni,
+     jlong j_rtp_sender_pointer,
 diff --git a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
 index 5575af9..f8dfae1 100644
 --- a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
