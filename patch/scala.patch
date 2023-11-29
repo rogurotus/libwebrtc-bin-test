@@ -1,7 +1,7 @@
-diff --git a/media/base/media_engine.cc b/media/base/media_engine.cc
+diff --git a/src/media/base/media_engine.cc b/src/media/base/media_engine.cc
 index 7304ab0..25f03e5 100644
---- a/media/base/media_engine.cc
-+++ b/media/base/media_engine.cc
+--- a/src/media/base/media_engine.cc
++++ b/src/media/base/media_engine.cc
 @@ -15,6 +15,8 @@
  #include <cstdint>
  #include <string>
@@ -53,10 +53,10 @@ index 7304ab0..25f03e5 100644
            LOG_AND_RETURN_ERROR(
                RTCErrorType::INVALID_MODIFICATION,
                "Attempted to set RtpParameters scalabilityMode "
-diff --git a/pc/rtp_sender.cc b/pc/rtp_sender.cc
+diff --git a/src/pc/rtp_sender.cc b/src/pc/rtp_sender.cc
 index cdae159..f7827da 100644
---- a/pc/rtp_sender.cc
-+++ b/pc/rtp_sender.cc
+--- a/src/pc/rtp_sender.cc
++++ b/src/pc/rtp_sender.cc
 @@ -237,6 +237,7 @@ void RtpSenderBase::SetParametersInternal(const RtpParameters& parameters,
    RTC_DCHECK_RUN_ON(signaling_thread_);
    RTC_DCHECK(!stopped_);
