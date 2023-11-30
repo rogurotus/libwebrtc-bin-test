@@ -1,55 +1,64 @@
 diff --git a/src/media/base/media_engine.cc b/src/media/base/media_engine.cc
-index 7304ab0..2b99776 100644
+index 7304ab0..70e50ac 100644
 --- a/src/media/base/media_engine.cc
 +++ b/src/media/base/media_engine.cc
-@@ -15,6 +15,8 @@
+@@ -15,6 +15,9 @@
  #include <cstdint>
  #include <string>
  #include <utility>
 +#include <sstream>
 +#include <iostream>
++#include <android/log.h>
  
  #include "absl/algorithm/container.h"
  #include "api/video/video_bitrate_allocation.h"
-@@ -95,10 +97,14 @@ webrtc::RTCError CheckScalabilityModeValues(
+@@ -95,10 +98,17 @@ webrtc::RTCError CheckScalabilityModeValues(
        }
      }
      if (rtp_parameters.encodings[i].scalability_mode) {
 +        std::stringstream ss;
        if (!send_codec) {
          bool scalabilityModeFound = false;
-+          ss << "codec_preferences" << codec_preferences.size() << " ";
++        __android_log_print(ANDROID_LOG_ERROR, "codec_preferences", "%lu", (unsigned long) codec_preferences.size());
          for (const cricket::VideoCodec& codec : codec_preferences) {
            for (const auto& scalability_mode : codec.scalability_modes) {
++            std::string gg = ScalabilityModeToString(scalability_mode) + "-" + *rtp_parameters.encodings[i].scalability_mode;
++        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "%s", gg.c_str());
++
 +          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
 +
              if (ScalabilityModeToString(scalability_mode) ==
                  *rtp_parameters.encodings[i].scalability_mode) {
                scalabilityModeFound = true;
-@@ -110,14 +116,18 @@ webrtc::RTCError CheckScalabilityModeValues(
+@@ -110,14 +120,22 @@ webrtc::RTCError CheckScalabilityModeValues(
          }
  
          if (!scalabilityModeFound) {
-+          std::cout << ss.str() << std::endl;
++        __android_log_print(ANDROID_LOG_ERROR, "AAAAA42", "%s", ss.str().c_str());
++          std::cout << ss.str() << std::end;
            LOG_AND_RETURN_ERROR(
                RTCErrorType::INVALID_MODIFICATION,
                "Attempted to set RtpParameters scalabilityMode "
                "to an unsupported value for the current codecs.");
          }
        } else {
-+          ss << "\nsend_codec" << std::endl;
++          ss << "\nsend_codec" << send_codec;
 +
          bool scalabilityModeFound = false;
          for (const auto& scalability_mode : send_codec->scalability_modes) {
 +          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
++                      std::string gg = ScalabilityModeToString(scalability_mode) + "-" + *rtp_parameters.encodings[i].scalability_mode;
++        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "%s", gg.c_str());
++
            if (ScalabilityModeToString(scalability_mode) ==
                *rtp_parameters.encodings[i].scalability_mode) {
              scalabilityModeFound = true;
-@@ -125,6 +135,7 @@ webrtc::RTCError CheckScalabilityModeValues(
+@@ -125,6 +143,8 @@ webrtc::RTCError CheckScalabilityModeValues(
            }
          }
          if (!scalabilityModeFound) {
-+          std::cout << ss.str() << std::endl;
++        __android_log_print(ANDROID_LOG_ERROR, "AAAAA422", "%s", ss.str().c_str());
++          std::cout << ss.str() << std::end;
            LOG_AND_RETURN_ERROR(
                RTCErrorType::INVALID_MODIFICATION,
                "Attempted to set RtpParameters scalabilityMode "
