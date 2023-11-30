@@ -23,7 +23,7 @@ index 7304ab0..d44d810 100644
          for (const cricket::VideoCodec& codec : codec_preferences) {
            for (const auto& scalability_mode : codec.scalability_modes) {
 +        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "%s", ScalabilityModeToString(scalability_mode).c_str());
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "%s", *rtp_parameters.encodings[i].scalability_mode.c_str());
++        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "%s", *rtp_parameters.encodings[i].scalability_mode->c_str());
 +
 +          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
 +
@@ -48,7 +48,7 @@ index 7304ab0..d44d810 100644
          for (const auto& scalability_mode : send_codec->scalability_modes) {
 +          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
 +        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "%s", ScalabilityModeToString(scalability_mode).c_str());
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "%s", *rtp_parameters.encodings[i].scalability_mode.c_str());
++        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "%s", *rtp_parameters.encodings[i].scalability_mode->c_str());
 +
            if (ScalabilityModeToString(scalability_mode) ==
                *rtp_parameters.encodings[i].scalability_mode) {
