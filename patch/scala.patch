@@ -30,7 +30,7 @@ index 7304ab0..2b99776 100644
          }
  
          if (!scalabilityModeFound) {
-+          std::cout << ss.str() << std::end;
++          std::cout << ss.str() << std::endl;
            LOG_AND_RETURN_ERROR(
                RTCErrorType::INVALID_MODIFICATION,
                "Attempted to set RtpParameters scalabilityMode "
@@ -49,7 +49,7 @@ index 7304ab0..2b99776 100644
            }
          }
          if (!scalabilityModeFound) {
-+          std::cout << ss.str() << std::end;
++          std::cout << ss.str() << std::endl;
            LOG_AND_RETURN_ERROR(
                RTCErrorType::INVALID_MODIFICATION,
                "Attempted to set RtpParameters scalabilityMode "

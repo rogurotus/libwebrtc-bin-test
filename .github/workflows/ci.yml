@@ -69,68 +69,68 @@ jobs:
   # Releasing #
   #############
 
-  publish-android:
-    name: publish (Android)
-    needs: ["build"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-      - uses: actions/setup-java@v3
-        with:
-          java-version: "17"
-          distribution: temurin
+  # publish-android:
+  #   name: publish (Android)
+  #   needs: ["build"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         ref: gh-pages
+  #     - uses: actions/setup-java@v3
+  #       with:
+  #         java-version: "17"
+  #         distribution: temurin
 
-      - name: Parse release version
-        id: release
-        run: echo "version=${GITHUB_REF#refs/tags/}"
-             >> $GITHUB_OUTPUT
+  #     - name: Parse release version
+  #       id: release
+  #       run: echo "version=${GITHUB_REF#refs/tags/}"
+  #            >> $GITHUB_OUTPUT
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: package/
-      - run: tar -xzvf libwebrtc-android.tar.gz
-        working-directory: package/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build
+  #         path: package/
+  #     - run: tar -xzvf libwebrtc-android.tar.gz
+  #       working-directory: package/
 
-      - name: Build Maven files
-        run: mvn install:install-file
-                 -DgroupId=com.github.instrumentisto
-                 -DartifactId=libwebrtc-bin
-                 -Dversion=${{ steps.release.outputs.version }}
-                 -Dfile=./package/aar/libwebrtc.aar
-                 -Dpackaging=aar
-                 -DgeneratePom=true
-                 -DlocalRepositoryPath=./android/
-                 -DcreateChecksum=true
+  #     - name: Build Maven files
+  #       run: mvn install:install-file
+  #                -DgroupId=com.github.instrumentisto
+  #                -DartifactId=libwebrtc-bin
+  #                -Dversion=${{ steps.release.outputs.version }}
+  #                -Dfile=./package/aar/libwebrtc.aar
+  #                -Dpackaging=aar
+  #                -DgeneratePom=true
+  #                -DlocalRepositoryPath=./android/
+  #                -DcreateChecksum=true
 
-      - name: Publish to GitHub Pages
-        run: |
-          set -ex
+  #     - name: Publish to GitHub Pages
+  #       run: |
+  #         set -ex
 
-          git config --local user.email 'actions+${{ github.run_number }}@github.com'
-          git config --local user.name 'GitHub Actions'
+  #         git config --local user.email 'actions+${{ github.run_number }}@github.com'
+  #         git config --local user.name 'GitHub Actions'
 
-          git add -v android/
-          git commit -m 'Release ${{ steps.release.outputs.version }} version of `libwebrtc-android`'
-          git push origin gh-pages
+  #         git add -v android/
+  #         git commit -m 'Release ${{ steps.release.outputs.version }} version of `libwebrtc-android`'
+  #         git push origin gh-pages
 
-  publish-cocoapods:
-    name: publish (CocoaPods)
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    needs: ["release-github"]
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: maxim-lobanov/setup-cocoapods@v1
-        with:
-          version: latest
+  # publish-cocoapods:
+  #   name: publish (CocoaPods)
+  #   if: ${{ startsWith(github.ref, 'refs/tags/') }}
+  #   needs: ["release-github"]
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: maxim-lobanov/setup-cocoapods@v1
+  #       with:
+  #         version: latest
 
-      - run: pod spec lint --allow-warnings --verbose
-      - run: pod trunk push --allow-warnings
-        env:
-          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+  #     - run: pod spec lint --allow-warnings --verbose
+  #     - run: pod trunk push --allow-warnings
+  #       env:
+  #         COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
 
   release-github:
     name: release (GitHub)
