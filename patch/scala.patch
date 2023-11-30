@@ -22,10 +22,10 @@ index 7304ab0..0309349 100644
 +        __android_log_print(ANDROID_LOG_ERROR, "codec_preferences", "%lu", (unsigned long) codec_preferences.size());
          for (const cricket::VideoCodec& codec : codec_preferences) {
            for (const auto& scalability_mode : codec.scalability_modes) {
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "%s", ScalabilityModeToString(scalability_mode).c_str());
-+        auto sv = *rtp_parameters.encodings[i].scalability_mode;
-+        string s = {sv.begin(), sv.end()};
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "%s", s.c_str());
++        auto sv = *rtp_parameters.encodings[i].scalability_mode; auto sv2 = ScalabilityModeToString(scalability_mode);
++        std::string s = {sv.begin(), sv.end()}; std::string s2 = {sv2.begin(), sv2.end()};
++        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "|%s|", s2.c_str());
++        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "|%s|", s.c_str());
 +
 +          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
 +
@@ -49,10 +49,10 @@ index 7304ab0..0309349 100644
          bool scalabilityModeFound = false;
          for (const auto& scalability_mode : send_codec->scalability_modes) {
 +          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "%s", ScalabilityModeToString(scalability_mode).c_str());
-+        auto sv = *rtp_parameters.encodings[i].scalability_mode;
-+        string s = {sv.begin(), sv.end()};
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "%s", s.c_str());
++        auto sv = *rtp_parameters.encodings[i].scalability_mode; auto sv2 = ScalabilityModeToString(scalability_mode);
++        std::string s = {sv.begin(), sv.end()}; std::string s2 = {sv2.begin(), sv2.end()};
++        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "|%s|", s2.c_str());
++        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "|%s|", s.c_str());
 +
            if (ScalabilityModeToString(scalability_mode) ==
                *rtp_parameters.encodings[i].scalability_mode) {
