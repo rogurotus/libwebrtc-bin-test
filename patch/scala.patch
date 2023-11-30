@@ -1,5 +1,5 @@
 diff --git a/src/media/base/media_engine.cc b/src/media/base/media_engine.cc
-index 7304ab0..d44d810 100644
+index 7304ab0..0309349 100644
 --- a/src/media/base/media_engine.cc
 +++ b/src/media/base/media_engine.cc
 @@ -15,6 +15,9 @@
@@ -12,7 +12,7 @@ index 7304ab0..d44d810 100644
  
  #include "absl/algorithm/container.h"
  #include "api/video/video_bitrate_allocation.h"
-@@ -95,10 +98,17 @@ webrtc::RTCError CheckScalabilityModeValues(
+@@ -95,10 +98,19 @@ webrtc::RTCError CheckScalabilityModeValues(
        }
      }
      if (rtp_parameters.encodings[i].scalability_mode) {
@@ -23,14 +23,16 @@ index 7304ab0..d44d810 100644
          for (const cricket::VideoCodec& codec : codec_preferences) {
            for (const auto& scalability_mode : codec.scalability_modes) {
 +        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "%s", ScalabilityModeToString(scalability_mode).c_str());
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "%s", *rtp_parameters.encodings[i].scalability_mode->c_str());
++        auto sv = *rtp_parameters.encodings[i].scalability_mode;
++        string s = {sv.begin(), sv.end()};
++        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "%s", s.c_str());
 +
 +          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
 +
              if (ScalabilityModeToString(scalability_mode) ==
                  *rtp_parameters.encodings[i].scalability_mode) {
                scalabilityModeFound = true;
-@@ -110,14 +120,22 @@ webrtc::RTCError CheckScalabilityModeValues(
+@@ -110,14 +122,24 @@ webrtc::RTCError CheckScalabilityModeValues(
          }
  
          if (!scalabilityModeFound) {
@@ -48,12 +50,14 @@ index 7304ab0..d44d810 100644
          for (const auto& scalability_mode : send_codec->scalability_modes) {
 +          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
 +        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "%s", ScalabilityModeToString(scalability_mode).c_str());
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "%s", *rtp_parameters.encodings[i].scalability_mode->c_str());
++        auto sv = *rtp_parameters.encodings[i].scalability_mode;
++        string s = {sv.begin(), sv.end()};
++        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "%s", s.c_str());
 +
            if (ScalabilityModeToString(scalability_mode) ==
                *rtp_parameters.encodings[i].scalability_mode) {
              scalabilityModeFound = true;
-@@ -125,6 +143,8 @@ webrtc::RTCError CheckScalabilityModeValues(
+@@ -125,6 +147,8 @@ webrtc::RTCError CheckScalabilityModeValues(
            }
          }
          if (!scalabilityModeFound) {
