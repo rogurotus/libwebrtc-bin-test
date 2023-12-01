@@ -50,7 +50,7 @@ index 7304ab0..557191e 100644
                "to an unsupported value for the current codecs.");
          }
        } else {
-+          ss << "\nsend_codec" << send_codec;
++          ss << "\nsend_codec";
 +
          bool scalabilityModeFound = false;
          for (const auto& scalability_mode : send_codec->scalability_modes) {
