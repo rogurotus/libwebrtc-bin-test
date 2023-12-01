@@ -304,12 +304,12 @@ index 815ec9d..381ba9f 100644
 +
 +      __android_log_print(ANDROID_LOG_ERROR, "RtpTransceiver", "%lu",
 +                        (unsigned long)aa.size());
-+    for (int i = 0; i < aa.size(); ++i) {
++    for (size_t i = 0; i < aa.size(); ++i) {
 +      __android_log_print(
 +          ANDROID_LOG_ERROR, "RtpTransceiver scalability_modes", "%lu",
 +          (unsigned long)aa[i].scalability_modes.size());
 +
-+      for (int j = 0; j < aa[i].scalability_modes.size(); ++j) {
++      for (size_t j = 0; j < aa[i].scalability_modes.size(); ++j) {
 +        auto sv =
 +            ScalabilityModeToString(aa[i].scalability_modes[j]);
 +        std::string s = {sv.begin(), sv.end()};
