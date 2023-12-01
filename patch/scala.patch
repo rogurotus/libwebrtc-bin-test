@@ -248,7 +248,7 @@ index cdae159..f7827da 100644
    // Some tests rely on working in single thread mode without a run loop and a
    // blocking call is required to keep them working. The encoder configuration
 diff --git a/src/pc/rtp_sender.h b/src/pc/rtp_sender.h
-index d29c376..4332ba2 100644
+index d29c376..1a7c34c 100644
 --- a/src/pc/rtp_sender.h
 +++ b/src/pc/rtp_sender.h
 @@ -21,6 +21,7 @@
@@ -265,12 +265,12 @@ index d29c376..4332ba2 100644
        std::vector<cricket::Codec> codec_preferences) override {
 +    __android_log_print(ANDROID_LOG_ERROR, "SetCodecPreferences", "%lu",
 +                        (unsigned long)codec_preferences.size());
-+    for (int i = 0; i < codec_preferences.size(); ++i) {
++    for (size_t i = 0; i < codec_preferences.size(); ++i) {
 +      __android_log_print(
 +          ANDROID_LOG_ERROR, "SetCodecPreferences scalability_modes", "%lu",
 +          (unsigned long)codec_preferences[i].scalability_modes.size());
 +
-+      for (int j = 0; j < codec_preferences[i].scalability_modes.size(); ++j) {
++      for (size_t j = 0; j < codec_preferences[i].scalability_modes.size(); ++j) {
 +        auto sv =
 +            ScalabilityModeToString(codec_preferences[i].scalability_modes[j]);
 +        std::string s = {sv.begin(), sv.end()};
