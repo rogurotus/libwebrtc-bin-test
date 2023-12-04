@@ -886,10 +886,10 @@ index ddb53f6..533d0e9 100644
      JNIEnv* jni,
      jlong j_rtp_sender_pointer,
 diff --git a/src/sdk/android/src/jni/video_codec_info.cc b/src/sdk/android/src/jni/video_codec_info.cc
-index a218a1d..8797572 100644
+index a218a1d..048c9e3 100644
 --- a/src/sdk/android/src/jni/video_codec_info.cc
 +++ b/src/sdk/android/src/jni/video_codec_info.cc
-@@ -13,15 +13,30 @@
+@@ -13,15 +13,38 @@
  #include "sdk/android/generated_video_jni/VideoCodecInfo_jni.h"
  #include "sdk/android/native_api/jni/java_types.h"
  #include "sdk/android/src/jni/jni_helpers.h"
@@ -918,19 +918,23 @@ index a218a1d..8797572 100644
 +      JavaToNativeStringMap(jni, Java_VideoCodecInfo_getParams(jni, j_info)),
 +      scalability_modes
 +      );
++}
++
++ScopedJavaLocalRef<jobject> Tempa(
++    JNIEnv* jni,
++    const ScalabilityMode& format) {
++        auto sv = ScalabilityModeToString(format);
++        std::string s = {sv.begin(), sv.end()};
++        return NativeToJavaString(jni, s);
  }
  
  ScopedJavaLocalRef<jobject> SdpVideoFormatToVideoCodecInfo(
-@@ -29,8 +44,14 @@ ScopedJavaLocalRef<jobject> SdpVideoFormatToVideoCodecInfo(
+@@ -29,8 +52,10 @@ ScopedJavaLocalRef<jobject> SdpVideoFormatToVideoCodecInfo(
      const SdpVideoFormat& format) {
    ScopedJavaLocalRef<jobject> j_params =
        NativeToJavaStringMap(jni, format.parameters);
 +  ScopedJavaLocalRef<jobject> j_scala = NativeToJavaList(
-+      jni, format.scalability_modes, [](JNIEnv* jni, ScalabilityMode mode) {
-+        auto sv = ScalabilityModeToString(mode);
-+        std::string s = {sv.begin(), sv.end()}
-+        return NativeToJavaString(jni, s);
-+      });
++      jni, format.scalability_modes, Tempa);
    return Java_VideoCodecInfo_Constructor(
 -      jni, NativeToJavaString(jni, format.name), j_params);
 +      jni, NativeToJavaString(jni, format.name), j_params, j_scala);
@@ -1276,10 +1280,10 @@ index 0000000..0daf40e
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm
 new file mode 100644
-index 0000000..341cde4
+index 0000000..dd6367f
 --- /dev/null
 +++ b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,139 @@
 +/*
 + * Copyright 2023 LiveKit
 + *
@@ -1413,6 +1417,7 @@ index 0000000..341cde4
 +    std::string value = [NSString stdStringForString:parameters[paramKey]];
 +    _parameters[key] = value;
 +  }
++  // check
 +
 +  _nativeCodecCapability.parameters = _parameters;
 +}
