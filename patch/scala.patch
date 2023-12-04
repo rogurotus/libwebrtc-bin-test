@@ -446,7 +446,7 @@ index 4f5ceb5..a743579 100644
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
 diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
-index d43fc27..478035e 100644
+index d43fc27..70e7d21 100644
 --- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 @@ -133,6 +133,8 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
@@ -458,89 +458,92 @@ index d43fc27..478035e 100644
      for (VideoCodecMimeType type :
          new VideoCodecMimeType[] {VideoCodecMimeType.VP8, VideoCodecMimeType.VP9,
              VideoCodecMimeType.H264, VideoCodecMimeType.AV1, VideoCodecMimeType.H265}) {
-@@ -141,13 +143,82 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
+@@ -141,13 +143,85 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
          String name = type.name();
          // TODO(sakal): Always add H264 HP once WebRTC correctly removes codecs that are not
          // supported by the decoder.
 +
          if (type == VideoCodecMimeType.H264 && isH264HighProfileSupported(codec)) {
++          List<String> data = Arrays.asList(
++            "L1T1",
++            "L1T2",
++            "L1T3",
++            "L2T1",
++            "L2T1h",
++            "L2T1_KEY",
++            "L2T2",
++            "L2T2h",
++            "L2T2_KEY",
++            "L2T2_KEY_SHIFT",
++            "L2T3",
++            "L2T3h",
++            "L2T3_KEY",
++            "L3T1",
++            "L3T1h",
++            "L3T1_KEY",
++            "L3T2",
++            "L3T2h",
++            "L3T2_KEY",
++            "L3T3",
++            "L3T3h",
++            "L3T3_KEY",
++            "S2T1",
++            "S2T1h",
++            "S2T2",
++            "S2T2h",
++            "S2T3",
++            "S2T3h",
++            "S3T1",
++            "S3T1h",
++            "S3T2",
++            "S3T2h",
++            "S3T3",
++            "S3T3h");
++
            supportedCodecInfos.add(new VideoCodecInfo(
 -              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true)));
-+              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true), new Arrays.asList(
-+                  "L1T1",
-+                  "L1T2",
-+                  "L1T3",
-+                  "L2T1",
-+                  "L2T1h",
-+                  "L2T1_KEY",
-+                  "L2T2",
-+                  "L2T2h",
-+                  "L2T2_KEY",
-+                  "L2T2_KEY_SHIFT",
-+                  "L2T3",
-+                  "L2T3h",
-+                  "L2T3_KEY",
-+                  "L3T1",
-+                  "L3T1h",
-+                  "L3T1_KEY",
-+                  "L3T2",
-+                  "L3T2h",
-+                  "L3T2_KEY",
-+                  "L3T3",
-+                  "L3T3h",
-+                  "L3T3_KEY",
-+                  "S2T1",
-+                  "S2T1h",
-+                  "S2T2",
-+                  "S2T2h",
-+                  "S2T3",
-+                  "S2T3h",
-+                  "S3T1",
-+                  "S3T1h",
-+                  "S3T2",
-+                  "S3T2h",
-+                  "S3T3",
-+                  "S3T3h")));
++              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true), data));
          }
  
 -        supportedCodecInfos.add(new VideoCodecInfo(
 -            name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false)));
++        List<String> data = Arrays.asList(
++          "L1T1",
++          "L1T2",
++          "L1T3",
++          "L2T1",
++          "L2T1h",
++          "L2T1_KEY",
++          "L2T2",
++          "L2T2h",
++          "L2T2_KEY",
++          "L2T2_KEY_SHIFT",
++          "L2T3",
++          "L2T3h",
++          "L2T3_KEY",
++          "L3T1",
++          "L3T1h",
++          "L3T1_KEY",
++          "L3T2",
++          "L3T2h",
++          "L3T2_KEY",
++          "L3T3",
++          "L3T3h",
++          "L3T3_KEY",
++          "S2T1",
++          "S2T1h",
++          "S2T2",
++          "S2T2h",
++          "S2T3",
++          "S2T3h",
++          "S3T1",
++          "S3T1h",
++          "S3T2",
++          "S3T2h",
++          "S3T3",
++          "S3T3h");
 +          supportedCodecInfos.add(new VideoCodecInfo(
-+              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false), new Arrays.asList(
-+                  "L1T1",
-+                  "L1T2",
-+                  "L1T3",
-+                  "L2T1",
-+                  "L2T1h",
-+                  "L2T1_KEY",
-+                  "L2T2",
-+                  "L2T2h",
-+                  "L2T2_KEY",
-+                  "L2T2_KEY_SHIFT",
-+                  "L2T3",
-+                  "L2T3h",
-+                  "L2T3_KEY",
-+                  "L3T1",
-+                  "L3T1h",
-+                  "L3T1_KEY",
-+                  "L3T2",
-+                  "L3T2h",
-+                  "L3T2_KEY",
-+                  "L3T3",
-+                  "L3T3h",
-+                  "L3T3_KEY",
-+                  "S2T1",
-+                  "S2T1h",
-+                  "S2T2",
-+                  "S2T2h",
-+                  "S2T3",
-+                  "S2T3h",
-+                  "S3T1",
-+                  "S3T1h",
-+                  "S3T2",
-+                  "S3T2h",
-+                  "S3T3",
-+                  "S3T3h")));
++              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false), data));
        }
      }
  
@@ -637,7 +640,7 @@ index 4f97cf7..d577e34 100644
 +  }
  }
 diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
-index 6f44812..7750762 100644
+index 6f44812..e85b275 100644
 --- a/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
 +++ b/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
 @@ -48,7 +48,7 @@ public final class AndroidVideoDecoderInstrumentationTest {
@@ -645,12 +648,12 @@ index 6f44812..7750762 100644
        this.codecType = H264Utils.DEFAULT_H264_BASELINE_PROFILE_CODEC;
      } else {
 -      this.codecType = new VideoCodecInfo(codecName, new HashMap<>());
-+      this.codecType = new VideoCodecInfo(codecName, new HashMap<>(), new Arrays.asList());
++      this.codecType = new VideoCodecInfo(codecName, new HashMap<>(), new ArrayList<String>());
      }
      this.useEglContext = useEglContext;
    }
 diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
-index fe608c7..bc247a1 100644
+index fe608c7..0fa3552 100644
 --- a/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
 +++ b/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
 @@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
@@ -666,7 +669,7 @@ index fe608c7..bc247a1 100644
    @Test
    public void getSupportedCodecs_hwVp8SameParamsAsSwVp8_oneVp8() {
 -    VideoCodecInfo hwVp8Encoder = new VideoCodecInfo("VP8", new HashMap<>());
-+    VideoCodecInfo hwVp8Encoder = new VideoCodecInfo("VP8", new HashMap<>(), new Arrays.asList());
++    VideoCodecInfo hwVp8Encoder = new VideoCodecInfo("VP8", new HashMap<>(), new ArrayList<String>());
      VideoEncoderFactory hwFactory = new CustomHardwareVideoEncoderFactory(hwVp8Encoder);
      DefaultVideoEncoderFactory defFactory = new DefaultVideoEncoderFactory(hwFactory);
      VideoCodecInfo[] supportedCodecs = defFactory.getSupportedCodecs();
@@ -675,12 +678,12 @@ index fe608c7..bc247a1 100644
      VideoCodecInfo hwVp8Encoder = new VideoCodecInfo("VP8", new HashMap<String, String>() {
        { put("param", "value"); }
 -    });
-+    }, new Arrays.asList());
++    }, new ArrayList<String>());
      VideoEncoderFactory hwFactory = new CustomHardwareVideoEncoderFactory(hwVp8Encoder);
      DefaultVideoEncoderFactory defFactory = new DefaultVideoEncoderFactory(hwFactory);
      VideoCodecInfo[] supportedCodecs = defFactory.getSupportedCodecs();
 diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
-index 961ecd5..1c4203e 100644
+index 961ecd5..da0d836 100644
 --- a/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
 +++ b/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
 @@ -82,8 +82,8 @@ public class RtpCapabilitiesTest {
@@ -689,81 +692,84 @@ index 961ecd5..1c4203e 100644
  
 -    VideoCodecInfo vp8Codec = new VideoCodecInfo("VP8", new HashMap<>());
 -    VideoCodecInfo h264Codec = new VideoCodecInfo("H264", new HashMap<>());
-+    VideoCodecInfo vp8Codec = new VideoCodecInfo("VP8", new HashMap<>(), new Arrays.asList());
-+    VideoCodecInfo h264Codec = new VideoCodecInfo("H264", new HashMap<>(), new Arrays.asList());
++    VideoCodecInfo vp8Codec = new VideoCodecInfo("VP8", new HashMap<>(), new ArrayList<String>());
++    VideoCodecInfo h264Codec = new VideoCodecInfo("H264", new HashMap<>(), new ArrayList<String>());
      List<VideoCodecInfo> supportedCodecs = new ArrayList<>();
      supportedCodecs.add(vp8Codec);
      supportedCodecs.add(h264Codec);
 diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
-index 8a5d978..fc37e54 100644
+index 8a5d978..f11da61 100644
 --- a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
 +++ b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
-@@ -14,6 +14,8 @@ import static com.google.common.truth.Truth.assertThat;
+@@ -14,6 +14,9 @@ import static com.google.common.truth.Truth.assertThat;
  
  import androidx.annotation.Nullable;
  import androidx.test.filters.SmallTest;
 +
++import java.util.ArrayList;
 +import java.util.Arrays;
  import java.util.HashMap;
  import org.junit.Before;
  import org.junit.Test;
-@@ -55,7 +57,7 @@ public class SoftwareVideoDecoderFactoryTest {
+@@ -55,7 +58,7 @@ public class SoftwareVideoDecoderFactoryTest {
    @Test
    public void createDecoder_unsupportedCodec_returnsNull() {
      VideoDecoderFactory factory = new SoftwareVideoDecoderFactory();
 -    VideoCodecInfo codec = new VideoCodecInfo("unsupported", new HashMap<String, String>());
-+    VideoCodecInfo codec = new VideoCodecInfo("unsupported", new HashMap<String, String>(), new Arrays.asList());
++    VideoCodecInfo codec = new VideoCodecInfo("unsupported", new HashMap<String, String>(), new ArrayList<String>());
      VideoDecoder decoder = factory.createDecoder(codec);
      assertThat(decoder).isNull();
    }
 diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
-index 696b423..b6f613e 100644
+index 696b423..b996221 100644
 --- a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
 +++ b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
-@@ -14,6 +14,8 @@ import static com.google.common.truth.Truth.assertThat;
+@@ -14,6 +14,9 @@ import static com.google.common.truth.Truth.assertThat;
  
  import androidx.annotation.Nullable;
  import androidx.test.filters.SmallTest;
 +
++import java.util.ArrayList;
 +import java.util.Arrays;
  import java.util.HashMap;
  import org.junit.Before;
  import org.junit.Test;
-@@ -52,7 +54,7 @@ public class SoftwareVideoEncoderFactoryTest {
+@@ -52,7 +55,7 @@ public class SoftwareVideoEncoderFactoryTest {
    @Test
    public void createEncoder_unsupportedCodec_returnsNull() {
      VideoEncoderFactory factory = new SoftwareVideoEncoderFactory();
 -    VideoCodecInfo codec = new VideoCodecInfo("unsupported", new HashMap<String, String>());
-+    VideoCodecInfo codec = new VideoCodecInfo("unsupported", new HashMap<String, String>(), new Arrays.asList());
++    VideoCodecInfo codec = new VideoCodecInfo("unsupported", new HashMap<String, String>(), new ArrayList<String>());
      VideoEncoder encoder = factory.createEncoder(codec);
      assertThat(encoder).isNull();
    }
 diff --git a/src/sdk/android/src/java/org/webrtc/H264Utils.java b/src/sdk/android/src/java/org/webrtc/H264Utils.java
-index abb79c6..277479f 100644
+index abb79c6..e6cba80 100644
 --- a/src/sdk/android/src/java/org/webrtc/H264Utils.java
 +++ b/src/sdk/android/src/java/org/webrtc/H264Utils.java
-@@ -11,6 +11,7 @@
+@@ -11,6 +11,8 @@
  package org.webrtc;
  
  import java.util.Map;
++import java.util.ArrayList;
 +import java.util.Arrays;
  import java.util.HashMap;
  
  /** Container for static helper functions related to dealing with H264 codecs. */
-@@ -38,9 +39,9 @@ class H264Utils {
+@@ -38,9 +40,9 @@ class H264Utils {
    }
  
    public static VideoCodecInfo DEFAULT_H264_BASELINE_PROFILE_CODEC =
 -      new VideoCodecInfo("H264", getDefaultH264Params(/* isHighProfile= */ false));
-+      new VideoCodecInfo("H264", getDefaultH264Params(/* isHighProfile= */ false), new Arrays.asList());
++      new VideoCodecInfo("H264", getDefaultH264Params(/* isHighProfile= */ false), new ArrayList<String>());
    public static VideoCodecInfo DEFAULT_H264_HIGH_PROFILE_CODEC =
 -      new VideoCodecInfo("H264", getDefaultH264Params(/* isHighProfile= */ true));
-+      new VideoCodecInfo("H264", getDefaultH264Params(/* isHighProfile= */ true), new Arrays.asList());
++      new VideoCodecInfo("H264", getDefaultH264Params(/* isHighProfile= */ true), new ArrayList<String>());
  
    public static boolean isSameH264Profile(
        Map<String, String> params1, Map<String, String> params2) {
 diff --git a/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java b/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
-index 9a73bc4..a211359 100644
+index 9a73bc4..1916a23 100644
 --- a/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
 +++ b/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
 @@ -19,6 +19,7 @@ import android.media.MediaCodecList;
@@ -774,12 +780,11 @@ index 9a73bc4..a211359 100644
  import java.util.List;
  
  /** Factory for decoders backed by Android MediaCodec API. */
-@@ -72,11 +73,79 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
+@@ -71,12 +72,83 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
+       if (codec != null) {
          String name = type.name();
          if (type == VideoCodecMimeType.H264 && isH264HighProfileSupported(codec)) {
-           supportedCodecInfos.add(new VideoCodecInfo(
--              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true)));
-+              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true), new Arrays.asList(
++          List<String> data = Arrays.asList(
 +                  "L1T1",
 +                  "L1T2",
 +                  "L1T3",
@@ -813,13 +818,15 @@ index 9a73bc4..a211359 100644
 +                  "S3T2",
 +                  "S3T2h",
 +                  "S3T3",
-+                  "S3T3h")));
++                  "S3T3h");
+           supportedCodecInfos.add(new VideoCodecInfo(
+-              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true)));
++              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true), data));
          }
  
 -        supportedCodecInfos.add(new VideoCodecInfo(
 -            name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false)));
-+          supportedCodecInfos.add(new VideoCodecInfo(
-+              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false), new Arrays.asList(
++                  List<String> data = Arrays.asList(
 +                  "L1T1",
 +                  "L1T2",
 +                  "L1T3",
@@ -853,7 +860,10 @@ index 9a73bc4..a211359 100644
 +                  "S3T2",
 +                  "S3T2h",
 +                  "S3T3",
-+                  "S3T3h")));
++                  "S3T3h");
++
++          supportedCodecInfos.add(new VideoCodecInfo(
++              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false), data));
        }
      }
  
