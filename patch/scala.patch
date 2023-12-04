@@ -61,7 +61,7 @@ index 10212ac..44f61a7 100644
  class VideoEncoderFactoryTemplate : public VideoEncoderFactory {
   public:
    std::vector<SdpVideoFormat> GetSupportedFormats() const override {
-+    __android_log_print(ANDROID_LOG_ERROR, "HOPE", "%s", "NOPE");
++    __android_log_print(ANDROID_LOG_ERROR, "HOPE", "%s", "NOPE")
      return GetSupportedFormatsInternal<Ts...>();
    }
  
@@ -69,14 +69,14 @@ index 10212ac..44f61a7 100644
  
    template <typename V, typename... Vs>
    std::vector<SdpVideoFormat> GetSupportedFormatsInternal() const {
-+    __android_log_print(ANDROID_LOG_ERROR, "HOPE2", "%s", "NOPE");
++    __android_log_print(ANDROID_LOG_ERROR, "HOPE2", "%s", "NOPE")
      auto supported_formats = V::SupportedFormats();
  
      if constexpr (sizeof...(Vs) > 0) {
        // Supported formats may overlap between implementations, so duplicates
        // should be filtered out.
        for (const auto& other_format : GetSupportedFormatsInternal<Vs...>()) {
-+    __android_log_print(ANDROID_LOG_ERROR, "HOPE3", "%s", "NOPE");
++    __android_log_print(ANDROID_LOG_ERROR, "HOPE3", "%s", "NOPE")
          if (!IsFormatInList(other_format, supported_formats)) {
            supported_formats.push_back(other_format);
          }
@@ -588,10 +588,19 @@ index 9ca8311..1fcffe7 100644
      @CalledByNative("Encoding")
      Double getScaleResolutionDownBy() {
 diff --git a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
-index 4f97cf7..d357ff0 100644
+index 4f97cf7..d577e34 100644
 --- a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 +++ b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
-@@ -34,20 +34,23 @@ public class VideoCodecInfo {
+@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
+ import java.util.Arrays;
+ import java.util.Locale;
+ import java.util.Map;
++import java.util.List;
++
+ 
+ /**
+  * Represent a video codec as encoded in SDP.
+@@ -34,20 +36,23 @@ public class VideoCodecInfo {
  
    public final String name;
    public final Map<String, String> params;
@@ -617,13 +626,13 @@ index 4f97cf7..d357ff0 100644
    }
  
    @Override
-@@ -83,4 +86,9 @@ public class VideoCodecInfo {
+@@ -83,4 +88,9 @@ public class VideoCodecInfo {
    Map getParams() {
      return params;
    }
 +
 +  @CalledByNative
-+  List getScalabiltyMods() {
++  List<String> getScalabiltyMods() {
 +    return scalabilityMods;
 +  }
  }
