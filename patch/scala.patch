@@ -46,7 +46,7 @@ index 703ae11..227ec0b 100644
            supported_formats.push_back(other_format);
          }
 diff --git a/src/api/video_codecs/video_encoder_factory_template.h b/src/api/video_codecs/video_encoder_factory_template.h
-index 10212ac..44f61a7 100644
+index 10212ac..806b259 100644
 --- a/src/api/video_codecs/video_encoder_factory_template.h
 +++ b/src/api/video_codecs/video_encoder_factory_template.h
 @@ -14,6 +14,7 @@
@@ -61,7 +61,7 @@ index 10212ac..44f61a7 100644
  class VideoEncoderFactoryTemplate : public VideoEncoderFactory {
   public:
    std::vector<SdpVideoFormat> GetSupportedFormats() const override {
-+    __android_log_print(ANDROID_LOG_ERROR, "HOPE", "%s", "NOPE")
++    __android_log_print(ANDROID_LOG_ERROR, "HOPE", "%s", "NOPE");
      return GetSupportedFormatsInternal<Ts...>();
    }
  
@@ -69,14 +69,14 @@ index 10212ac..44f61a7 100644
  
    template <typename V, typename... Vs>
    std::vector<SdpVideoFormat> GetSupportedFormatsInternal() const {
-+    __android_log_print(ANDROID_LOG_ERROR, "HOPE2", "%s", "NOPE")
++    __android_log_print(ANDROID_LOG_ERROR, "HOPE2", "%s", "NOPE");
      auto supported_formats = V::SupportedFormats();
  
      if constexpr (sizeof...(Vs) > 0) {
        // Supported formats may overlap between implementations, so duplicates
        // should be filtered out.
        for (const auto& other_format : GetSupportedFormatsInternal<Vs...>()) {
-+    __android_log_print(ANDROID_LOG_ERROR, "HOPE3", "%s", "NOPE")
++    __android_log_print(ANDROID_LOG_ERROR, "HOPE3", "%s", "NOPE");
          if (!IsFormatInList(other_format, supported_formats)) {
            supported_formats.push_back(other_format);
          }
