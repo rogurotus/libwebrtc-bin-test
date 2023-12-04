@@ -886,7 +886,7 @@ index ddb53f6..533d0e9 100644
      JNIEnv* jni,
      jlong j_rtp_sender_pointer,
 diff --git a/src/sdk/android/src/jni/video_codec_info.cc b/src/sdk/android/src/jni/video_codec_info.cc
-index a218a1d..624df78 100644
+index a218a1d..8797572 100644
 --- a/src/sdk/android/src/jni/video_codec_info.cc
 +++ b/src/sdk/android/src/jni/video_codec_info.cc
 @@ -13,15 +13,30 @@
@@ -921,13 +921,15 @@ index a218a1d..624df78 100644
  }
  
  ScopedJavaLocalRef<jobject> SdpVideoFormatToVideoCodecInfo(
-@@ -29,8 +44,12 @@ ScopedJavaLocalRef<jobject> SdpVideoFormatToVideoCodecInfo(
+@@ -29,8 +44,14 @@ ScopedJavaLocalRef<jobject> SdpVideoFormatToVideoCodecInfo(
      const SdpVideoFormat& format) {
    ScopedJavaLocalRef<jobject> j_params =
        NativeToJavaStringMap(jni, format.parameters);
 +  ScopedJavaLocalRef<jobject> j_scala = NativeToJavaList(
 +      jni, format.scalability_modes, [](JNIEnv* jni, ScalabilityMode mode) {
-+        return NativeToJavaString(jni, ScalabilityModeToString(mode));
++        auto sv = ScalabilityModeToString(mode);
++        std::string s = {sv.begin(), sv.end()}
++        return NativeToJavaString(jni, s);
 +      });
    return Java_VideoCodecInfo_Constructor(
 -      jni, NativeToJavaString(jni, format.name), j_params);
@@ -1610,25 +1612,45 @@ index 0000000..e36d2b4
 +@end
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
-index 2eb8d36..b32a36a 100644
+index 2eb8d36..0619111 100644
 --- a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
 +++ b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
-@@ -21,6 +21,15 @@
+@@ -21,10 +21,35 @@
      [params setObject:[NSString stringForStdString:it->second]
                 forKey:[NSString stringForStdString:it->first]];
    }
 +
 +  NSMutableArray *scalability_modes = [NSMutableArray array];
 +  for (auto it = format.scalability_modes.begin(); it != format.scalability_modes.end(); ++it) {
-+    [params setObject:[NSString stringForStdString:it->second]
-+               forKey:[NSString stringForStdString:it->first]];
++    NSString *scalability_mode = [NSString stringForStdString:webrtc::ScalabilityModeToString(format.scalability_modes)];
++    [scalability_modes addObject:scalability_mode];
 +  }
 +  
-+  webrtc::ScalabilityModeToString(format.scalability_modes)
 +
    return [self initWithName:[NSString stringForStdString:format.name] parameters:params];
  }
  
+ - (webrtc::SdpVideoFormat)nativeSdpVideoFormat {
++
++  absl::InlinedVector<ScalabilityMode, kScalabilityModeCount> scalability_modes;
++  auto scalability_modes_str = JavaToStdVectorStrings(jni, Java_VideoCodecInfo_getScalabiltyMods(jni, j_info));
++  for (size_t i = 0; i<scalability_modes_str.size(); ++i) {
++    for (size_t j = 0; j < kScalabilityModeCount; ++j) {
++      if (ScalabilityModeToString(kAllScalabilityModes[j]) == scalability_modes_str[i]) {
++        scalability_modes.push_back(kAllScalabilityModes[j]);
++      }
++    }
++
++  }
++  return SdpVideoFormat(
++      JavaToNativeString(jni, Java_VideoCodecInfo_getName(jni, j_info)),
++      JavaToNativeStringMap(jni, Java_VideoCodecInfo_getParams(jni, j_info)),
++      scalability_modes
++      );
++
+   std::map<std::string, std::string> parameters;
+   for (NSString *paramKey in self.parameters.allKeys) {
+     std::string key = [NSString stdStringForString:paramKey];
 diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.h b/src/sdk/objc/base/RTCVideoCodecInfo.h
 index fa28958..9585a65 100644
 --- a/src/sdk/objc/base/RTCVideoCodecInfo.h
