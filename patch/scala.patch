@@ -886,7 +886,7 @@ index ddb53f6..533d0e9 100644
      JNIEnv* jni,
      jlong j_rtp_sender_pointer,
 diff --git a/src/sdk/android/src/jni/video_codec_info.cc b/src/sdk/android/src/jni/video_codec_info.cc
-index a218a1d..df0a844 100644
+index a218a1d..c45cad5 100644
 --- a/src/sdk/android/src/jni/video_codec_info.cc
 +++ b/src/sdk/android/src/jni/video_codec_info.cc
 @@ -13,15 +13,30 @@
@@ -903,7 +903,7 @@ index a218a1d..df0a844 100644
  SdpVideoFormat VideoCodecInfoToSdpVideoFormat(JNIEnv* jni,
                                                const JavaRef<jobject>& j_info) {
 +  absl::InlinedVector<ScalabilityMode, kScalabilityModeCount> scalability_modes;
-+  auto scalability_modes_str = JavaToStdVectorStrings(Java_VideoCodecInfo_getScalabiltyMods(jni, j_info));
++  auto scalability_modes_str = JavaToStdVectorStrings(jni, Java_VideoCodecInfo_getScalabiltyMods(jni, j_info));
 +  for (size_t i = 0; i<scalability_modes_str.size(); ++i) {
 +    for (size_t j = 0; j < kAllScalabilityModes.size(); ++j) {
 +      if (ScalabilityModeToString(kAllScalabilityModes[j]) == scalability_modes_str[i]) {
@@ -927,7 +927,7 @@ index a218a1d..df0a844 100644
        NativeToJavaStringMap(jni, format.parameters);
 +  ScopedJavaLocalRef<jobject> j_scala = NativeToJavaList(
 +      jni, format.scalability_modes, [](JNIEnv* jni, ScalabilityMode mode) {
-+        NativeToJavaString(jni, ScalabilityModeToString(mode))
++        return NativeToJavaString(jni, ScalabilityModeToString(mode));
 +      });
    return Java_VideoCodecInfo_Constructor(
 -      jni, NativeToJavaString(jni, format.name), j_params);
@@ -1610,22 +1610,22 @@ index 0000000..e36d2b4
 +@end
 \ No newline at end of file
 diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.h b/src/sdk/objc/base/RTCVideoCodecInfo.h
-index fa28958..a82a690 100644
+index fa28958..9585a65 100644
 --- a/src/sdk/objc/base/RTCVideoCodecInfo.h
 +++ b/src/sdk/objc/base/RTCVideoCodecInfo.h
 @@ -30,6 +30,7 @@ RTC_OBJC_EXPORT
  
  @property(nonatomic, readonly) NSString *name;
  @property(nonatomic, readonly) NSDictionary<NSString *, NSString *> *parameters;
-+@property(nonatomic, readonly) NSArray<NSString *> *scalabilty_modes;
++@property(nonatomic, readonly) NSArray<NSString *> *scalabiltyModes;
  
  @end
  
 diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.m b/src/sdk/objc/base/RTCVideoCodecInfo.m
-index ce26ae1..1b4e822 100644
+index ce26ae1..e525537 100644
 --- a/src/sdk/objc/base/RTCVideoCodecInfo.m
 +++ b/src/sdk/objc/base/RTCVideoCodecInfo.m
-@@ -8,6 +8,7 @@
+@@ -8,22 +8,27 @@
   *  be found in the AUTHORS file in the root of the source tree.
   */
  
@@ -1633,3 +1633,24 @@ index ce26ae1..1b4e822 100644
  #import "RTCVideoCodecInfo.h"
  
  @implementation RTC_OBJC_TYPE (RTCVideoCodecInfo)
+ 
+ @synthesize name = _name;
+ @synthesize parameters = _parameters;
++@synthesize scalabiltyModes = _scalabiltyModes;
+ 
+ - (instancetype)initWithName:(NSString *)name {
+   return [self initWithName:name parameters:nil];
+ }
+ 
+ - (instancetype)initWithName:(NSString *)name
+-                  parameters:(nullable NSDictionary<NSString *, NSString *> *)parameters {
++                  parameters:(nullable NSDictionary<NSString *, NSString *> *)parameters,
++                  scalabiltyModes: (nullable NSArray<NSString *> *)scalabiltyModes,
++                   {
+   if (self = [super init]) {
+     _name = name;
+     _parameters = (parameters ? parameters : @{});
++    _scalabiltyModes = (scalabiltyModes ? scalabiltyModes : @{});
+   }
+ 
+   return self;
