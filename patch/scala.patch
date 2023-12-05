@@ -1,25 +1,19 @@
 diff --git a/src/media/base/media_engine.cc b/src/media/base/media_engine.cc
-index 7304ab0..6e046cb 100644
+index 7304ab0..de8df39 100644
 --- a/src/media/base/media_engine.cc
 +++ b/src/media/base/media_engine.cc
-@@ -16,6 +16,16 @@
+@@ -16,6 +16,10 @@
  #include <string>
  #include <utility>
  
 +#include <sstream>
 +#include <iostream>
-+#ifdef WEBRTC_ANDROID_PLATFORM_BUILD
 +#include <android/log.h>
-+#elif
-+int __android_log_print(int prio, const char *tag,  const char *fmt, ...) {
-+  return 0;
-+}
-+#endif
 +
  #include "absl/algorithm/container.h"
  #include "api/video/video_bitrate_allocation.h"
  #include "rtc_base/checks.h"
-@@ -95,10 +105,22 @@ webrtc::RTCError CheckScalabilityModeValues(
+@@ -95,10 +99,22 @@ webrtc::RTCError CheckScalabilityModeValues(
        }
      }
      if (rtp_parameters.encodings[i].scalability_mode) {
@@ -45,7 +39,7 @@ index 7304ab0..6e046cb 100644
              if (ScalabilityModeToString(scalability_mode) ==
                  *rtp_parameters.encodings[i].scalability_mode) {
                scalabilityModeFound = true;
-@@ -110,14 +132,24 @@ webrtc::RTCError CheckScalabilityModeValues(
+@@ -110,14 +126,24 @@ webrtc::RTCError CheckScalabilityModeValues(
          }
  
          if (!scalabilityModeFound) {
@@ -70,7 +64,7 @@ index 7304ab0..6e046cb 100644
            if (ScalabilityModeToString(scalability_mode) ==
                *rtp_parameters.encodings[i].scalability_mode) {
              scalabilityModeFound = true;
-@@ -125,6 +157,8 @@ webrtc::RTCError CheckScalabilityModeValues(
+@@ -125,6 +151,8 @@ webrtc::RTCError CheckScalabilityModeValues(
            }
          }
          if (!scalabilityModeFound) {
@@ -797,10 +791,10 @@ index 0000000..a3be101
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h
 new file mode 100644
-index 0000000..961b8a8
+index 0000000..02011bc
 --- /dev/null
 +++ b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,53 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
 + *
@@ -850,10 +844,6 @@ index 0000000..961b8a8
 +// Boolean values are represented by the string "1".
 +// std::map<std::string, std::string> parameters;
 +@property(nonatomic, copy) NSDictionary<NSString *, NSString *> *parameters;
-+
-+// Feedback mechanisms supported for this codec.
-+// std::vector<RtcpFeedback> rtcp_feedback;
-+// Not implemented.
 +
 +@end
 +
@@ -1172,7 +1162,7 @@ index 0000000..88911d9
 +@end
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
-index 2eb8d36..926bc02 100644
+index 2eb8d36..60bb429 100644
 --- a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
 +++ b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
 @@ -12,6 +12,9 @@
@@ -1185,7 +1175,7 @@ index 2eb8d36..926bc02 100644
  @implementation RTC_OBJC_TYPE (RTCVideoCodecInfo)
  (Private)
  
-@@ -21,10 +24,36 @@
+@@ -21,10 +24,27 @@
      [params setObject:[NSString stringForStdString:it->second]
                 forKey:[NSString stringForStdString:it->first]];
    }
@@ -1202,27 +1192,27 @@ index 2eb8d36..926bc02 100644
  
  - (webrtc::SdpVideoFormat)nativeSdpVideoFormat {
 +
-+  // here 
 +  absl::InlinedVector<webrtc::ScalabilityMode, webrtc::kScalabilityModeCount> scalability_modes;
-+  auto scalability_modes_str = JavaToStdVectorStrings(jni, Java_VideoCodecInfo_getScalabiltyMods(jni, j_info));
-+  for (size_t i = 0; i<scalability_modes_str.size(); ++i) {
++  for (NSString *scalabiltyMode in self.scalabiltyModes) {
 +    for (size_t j = 0; j < webrtc::kScalabilityModeCount; ++j) {
-+      if (webrtc::ScalabilityModeToString(webrtc::kAllScalabilityModes[j]) == scalability_modes_str[i]) {
++      if (webrtc::ScalabilityModeToString(webrtc::kAllScalabilityModes[j]) == scalabiltyMode) {
 +        scalability_modes.push_back(webrtc::kAllScalabilityModes[j]);
 +      }
 +    }
-+
 +  }
-+  
-+  return SdpVideoFormat(
-+      JavaToNativeString(jni, Java_VideoCodecInfo_getName(jni, j_info)),
-+      JavaToNativeStringMap(jni, Java_VideoCodecInfo_getParams(jni, j_info)),
-+      scalability_modes
-+  );
 +
    std::map<std::string, std::string> parameters;
    for (NSString *paramKey in self.parameters.allKeys) {
      std::string key = [NSString stdStringForString:paramKey];
+@@ -32,7 +52,7 @@
+     parameters[key] = value;
+   }
+ 
+-  return webrtc::SdpVideoFormat([NSString stdStringForString:self.name], parameters);
++  return webrtc::SdpVideoFormat([NSString stdStringForString:self.name], parameters, scalability_modes);
+ }
+ 
+ @end
 diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.h b/src/sdk/objc/base/RTCVideoCodecInfo.h
 index fa28958..9585a65 100644
 --- a/src/sdk/objc/base/RTCVideoCodecInfo.h
