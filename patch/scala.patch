@@ -1241,7 +1241,7 @@ index fa28958..18b6d61 100644
  @end
  
 diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.m b/src/sdk/objc/base/RTCVideoCodecInfo.m
-index ce26ae1..7823c90 100644
+index ce26ae1..31315cf 100644
 --- a/src/sdk/objc/base/RTCVideoCodecInfo.m
 +++ b/src/sdk/objc/base/RTCVideoCodecInfo.m
 @@ -14,16 +14,20 @@
@@ -1251,7 +1251,8 @@ index ce26ae1..7823c90 100644
 +@synthesize scalabiltyModes = _scalabiltyModes;
  
  - (instancetype)initWithName:(NSString *)name {
-   return [self initWithName:name parameters:nil];
+-  return [self initWithName:name parameters:nil];
++  return [self initWithName:name parameters:nil scalabiltyModes:nil];
  }
  
  - (instancetype)initWithName:(NSString *)name
@@ -1262,10 +1263,26 @@ index ce26ae1..7823c90 100644
    if (self = [super init]) {
      _name = name;
      _parameters = (parameters ? parameters : @{});
-+    _scalabiltyModes = (scalabiltyModes ? scalabiltyModes : @{});
++    _scalabiltyModes = (scalabiltyModes ? scalabiltyModes : (NSArray<NSString *> *)(@{}));
    }
  
    return self;
+@@ -54,12 +58,14 @@
+ 
+ - (instancetype)initWithCoder:(NSCoder *)decoder {
+   return [self initWithName:[decoder decodeObjectForKey:@"name"]
+-                 parameters:[decoder decodeObjectForKey:@"parameters"]];
++                 parameters:[decoder decodeObjectForKey:@"parameters"]
++                 scalabiltyModes:[decoder decodeObjectForKey:@"scalabiltyModes"]];
+ }
+ 
+ - (void)encodeWithCoder:(NSCoder *)encoder {
+   [encoder encodeObject:_name forKey:@"name"];
+   [encoder encodeObject:_parameters forKey:@"parameters"];
++  [encoder encodeObject:_scalabiltyModes forKey:@"scalabiltyModes"];
+ }
+ 
+ @end
 diff --git a/src/sdk/objc/components/video_codec/MediaCodecUtils.h b/src/sdk/objc/components/video_codec/MediaCodecUtils.h
 new file mode 100644
 index 0000000..140a522
