@@ -1168,7 +1168,7 @@ index 0000000..88911d9
 +@end
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
-index 2eb8d36..b858db8 100644
+index 2eb8d36..aab7d91 100644
 --- a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
 +++ b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
 @@ -12,6 +12,9 @@
@@ -1181,7 +1181,7 @@ index 2eb8d36..b858db8 100644
  @implementation RTC_OBJC_TYPE (RTCVideoCodecInfo)
  (Private)
  
-@@ -21,10 +24,28 @@
+@@ -21,10 +24,29 @@
      [params setObject:[NSString stringForStdString:it->second]
                 forKey:[NSString stringForStdString:it->first]];
    }
@@ -1201,6 +1201,7 @@ index 2eb8d36..b858db8 100644
 +  absl::InlinedVector<webrtc::ScalabilityMode, webrtc::kScalabilityModeCount> scalability_modes;
 +  for (NSString *scalabiltyMode in self.scalabiltyModes) {
 +    for (size_t j = 0; j < webrtc::kScalabilityModeCount; ++j) {
++      auto mode = webrtc::ScalabilityModeToString(webrtc::kAllScalabilityModes[j]);
 +      std::string mode_string = {mode.begin(), mode.end()}; std::string mode_string2 = [NSString stdStringForString:scalabiltyMode];
 +      if (mode_string == mode_string2) {
 +        scalability_modes.push_back(webrtc::kAllScalabilityModes[j]);
@@ -1211,7 +1212,7 @@ index 2eb8d36..b858db8 100644
    std::map<std::string, std::string> parameters;
    for (NSString *paramKey in self.parameters.allKeys) {
      std::string key = [NSString stdStringForString:paramKey];
-@@ -32,7 +53,7 @@
+@@ -32,7 +54,7 @@
      parameters[key] = value;
    }
  
