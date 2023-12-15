@@ -79,6 +79,106 @@ index 7304ab0..681eed8 100644
            LOG_AND_RETURN_ERROR(
                RTCErrorType::INVALID_MODIFICATION,
                "Attempted to set RtpParameters scalabilityMode "
+diff --git a/src/media/engine/fake_webrtc_video_engine.cc b/src/media/engine/fake_webrtc_video_engine.cc
+index cf40247..f182b9c 100644
+--- a/src/media/engine/fake_webrtc_video_engine.cc
++++ b/src/media/engine/fake_webrtc_video_engine.cc
+@@ -10,6 +10,8 @@
+ 
+ #include "media/engine/fake_webrtc_video_engine.h"
+ 
++#include <android/log.h>
++
+ #include <algorithm>
+ #include <memory>
+ 
+@@ -30,15 +32,22 @@ static constexpr webrtc::TimeDelta kEventTimeout =
+ bool IsScalabilityModeSupported(
+     const std::vector<webrtc::SdpVideoFormat>& formats,
+     absl::optional<std::string> scalability_mode) {
++  __android_log_print(ANDROID_LOG_ERROR, "IsScalabilityModeSupported");
+   if (!scalability_mode.has_value()) {
++    __android_log_print(ANDROID_LOG_ERROR, "IsScalabilityModeSupported NOPE");
+     return true;
+   }
+   for (const auto& format : formats) {
++    __android_log_print(ANDROID_LOG_ERROR, "IsScalabilityModeSupported", "%s",
++                        format.ToString().c_str());
+     for (const auto& mode : format.scalability_modes) {
+       if (ScalabilityModeToString(mode) == scalability_mode)
+         return true;
+     }
+   }
++  __android_log_print(ANDROID_LOG_ERROR,
++                      "IsScalabilityModeSupported NOT FOUND");
++
+   return false;
+ }
+ 
+@@ -59,8 +68,7 @@ bool FakeWebRtcVideoDecoder::Configure(const Settings& settings) {
+   return true;
+ }
+ 
+-int32_t FakeWebRtcVideoDecoder::Decode(const webrtc::EncodedImage&,
+-                                       int64_t) {
++int32_t FakeWebRtcVideoDecoder::Decode(const webrtc::EncodedImage&, int64_t) {
+   num_frames_received_++;
+   return WEBRTC_VIDEO_CODEC_OK;
+ }
+@@ -220,15 +228,27 @@ webrtc::VideoEncoderFactory::CodecSupport
+ FakeWebRtcVideoEncoderFactory::QueryCodecSupport(
+     const webrtc::SdpVideoFormat& format,
+     absl::optional<std::string> scalability_mode) const {
++  __android_log_print(ANDROID_LOG_ERROR, "QueryCodecSupport", "%lu %s",
++                      (unsigned long)formats_.size(),
++                      format.ToString().c_str());
+   std::vector<webrtc::SdpVideoFormat> supported_formats;
+   for (const auto& f : formats_) {
+-    if (format.IsSameCodec(f))
++    __android_log_print(ANDROID_LOG_ERROR, "  QueryCodecSupport", "%s",
++                        f.ToString().c_str());
++    if (format.IsSameCodec(f)) {
++      __android_log_print(ANDROID_LOG_ERROR, "  ADD QueryCodecSupport", "%s",
++                          f.ToString().c_str());
+       supported_formats.push_back(f);
++    }
+   }
+   if (format.IsCodecInList(formats_)) {
++    __android_log_print(ANDROID_LOG_ERROR, "QueryCodecSupport IsCodecInList",
++                        "%s", format.ToString().c_str());
+     return {.is_supported = IsScalabilityModeSupported(supported_formats,
+                                                        scalability_mode)};
+   }
++  __android_log_print(ANDROID_LOG_ERROR, "QueryCodecSupport NOPE", "%s",
++                      format.ToString().c_str());
+   return {.is_supported = false};
+ }
+ 
+diff --git a/src/modules/video_coding/svc/scalability_mode_util.h b/src/modules/video_coding/svc/scalability_mode_util.h
+index 9c8193e..5a0f90c 100644
+--- a/src/modules/video_coding/svc/scalability_mode_util.h
++++ b/src/modules/video_coding/svc/scalability_mode_util.h
+@@ -23,7 +23,7 @@ enum class ScalabilityModeResolutionRatio {
+   kThreeToTwo,  // The resolution ratio between spatial layers is 1.5:1.
+ };
+ 
+-static constexpr char kDefaultScalabilityModeStr[] = "L1T2";
++static constexpr char kDefaultScalabilityModeStr[] = "L1T2"; // def
+ 
+ absl::optional<ScalabilityMode> ScalabilityModeFromString(
+     absl::string_view scalability_mode_string);
+diff --git a/src/pc/peer_connection.cc b/src/pc/peer_connection.cc
+index cde3d91..799352d 100644
+--- a/src/pc/peer_connection.cc
++++ b/src/pc/peer_connection.cc
+@@ -1028,6 +1028,7 @@ PeerConnection::AddTransceiver(
+     rtc::scoped_refptr<MediaStreamTrackInterface> track,
+     const RtpTransceiverInit& init,
+     bool update_negotiation_needed) {
++      // here
+   RTC_DCHECK_RUN_ON(signaling_thread());
+   if (!ConfiguredForMedia()) {
+     LOG_AND_RETURN_ERROR(RTCErrorType::UNSUPPORTED_OPERATION,
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
 index 4f5ceb5..a743579 100644
 --- a/src/sdk/BUILD.gn
@@ -483,7 +583,7 @@ index 9a73bc4..a14383d 100644
      }
  
 diff --git a/src/sdk/android/src/jni/pc/rtp_parameters.cc b/src/sdk/android/src/jni/pc/rtp_parameters.cc
-index 4bd9ee0..1f5957b 100644
+index 4bd9ee0..56d585c 100644
 --- a/src/sdk/android/src/jni/pc/rtp_parameters.cc
 +++ b/src/sdk/android/src/jni/pc/rtp_parameters.cc
 @@ -52,6 +52,7 @@ ScopedJavaLocalRef<jobject> NativeToJavaRtpEncodingParameter(
@@ -494,15 +594,17 @@ index 4bd9ee0..1f5957b 100644
        NativeToJavaDouble(env, encoding.scale_resolution_down_by),
        encoding.ssrc ? NativeToJavaLong(env, *encoding.ssrc) : nullptr,
        encoding.adaptive_ptime);
-@@ -112,6 +113,11 @@ RtpEncodingParameters JavaToNativeRtpEncodingParameters(
+@@ -112,6 +113,13 @@ RtpEncodingParameters JavaToNativeRtpEncodingParameters(
        Java_Encoding_getNumTemporalLayers(jni, j_encoding_parameters);
    encoding.num_temporal_layers =
        JavaToNativeOptionalInt(jni, j_num_temporal_layers);
++
 +  ScopedJavaLocalRef<jstring> j_scalability_mode =
 +      Java_Encoding_getScalabilityMode(jni, j_encoding_parameters);
 +  if (!IsNull(jni, j_scalability_mode)) {
 +    encoding.scalability_mode = JavaToNativeString(jni, j_scalability_mode);
 +  }
++  
    ScopedJavaLocalRef<jobject> j_scale_resolution_down_by =
        Java_Encoding_getScaleResolutionDownBy(jni, j_encoding_parameters);
    encoding.scale_resolution_down_by =
@@ -1241,7 +1343,7 @@ index fa28958..18b6d61 100644
  @end
  
 diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.m b/src/sdk/objc/base/RTCVideoCodecInfo.m
-index ce26ae1..31315cf 100644
+index ce26ae1..0286747 100644
 --- a/src/sdk/objc/base/RTCVideoCodecInfo.m
 +++ b/src/sdk/objc/base/RTCVideoCodecInfo.m
 @@ -14,16 +14,20 @@
@@ -1263,7 +1365,7 @@ index ce26ae1..31315cf 100644
    if (self = [super init]) {
      _name = name;
      _parameters = (parameters ? parameters : @{});
-+    _scalabiltyModes = (scalabiltyModes ? scalabiltyModes : (NSArray<NSString *> *)(@{}));
++    _scalabiltyModes = (scalabiltyModes ? scalabiltyModes : []);
    }
  
    return self;

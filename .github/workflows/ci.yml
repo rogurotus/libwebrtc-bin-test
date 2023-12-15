@@ -23,8 +23,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - os: android
-          - os: ios
+          - os: android
+          # - os: ios
           # - os: linux
           #   arch: arm64
           # - os: linux
@@ -68,6 +68,7 @@ jobs:
   #############
   # Releasing #
   #############
+
 
   # publish-android:
   #   name: publish (Android)
