@@ -1,3 +1,64 @@
+diff --git a/src/api/video_codecs/builtin_video_encoder_factory.cc b/src/api/video_codecs/builtin_video_encoder_factory.cc
+index 573eb47..c2917ad 100644
+--- a/src/api/video_codecs/builtin_video_encoder_factory.cc
++++ b/src/api/video_codecs/builtin_video_encoder_factory.cc
+@@ -13,6 +13,8 @@
+ #include <memory>
+ #include <string>
+ #include <vector>
++#include <android/log.h>
++
+ 
+ #include "absl/strings/match.h"
+ #include "absl/types/optional.h"
+diff --git a/src/api/video_codecs/video_decoder_factory.h b/src/api/video_codecs/video_decoder_factory.h
+index 7e1d2ee..cbea7e2 100644
+--- a/src/api/video_codecs/video_decoder_factory.h
++++ b/src/api/video_codecs/video_decoder_factory.h
+@@ -14,6 +14,7 @@
+ #include <memory>
+ #include <string>
+ #include <vector>
++#include <android/log.h>
+ 
+ #include "absl/types/optional.h"
+ #include "api/video_codecs/sdp_video_format.h"
+@@ -51,6 +52,10 @@ class RTC_EXPORT VideoDecoderFactory {
+     // Default implementation, query for supported formats and check if the
+     // specified format is supported. Returns false if `reference_scaling` is
+     // true.
++
++      __android_log_print(ANDROID_LOG_ERROR, " 1 QueryCodecSupport", "%lu",
++                      (unsigned long)GetSupportedFormats().size());
++
+     CodecSupport codec_support;
+     codec_support.is_supported =
+         !reference_scaling && format.IsCodecInList(GetSupportedFormats());
+diff --git a/src/api/video_codecs/video_encoder_factory.h b/src/api/video_codecs/video_encoder_factory.h
+index d28a2a4..2a86610 100644
+--- a/src/api/video_codecs/video_encoder_factory.h
++++ b/src/api/video_codecs/video_encoder_factory.h
+@@ -15,6 +15,9 @@
+ #include <string>
+ #include <vector>
+ 
++#include <android/log.h>
++
++
+ #include "absl/types/optional.h"
+ #include "api/units/data_rate.h"
+ #include "api/video/render_resolution.h"
+@@ -88,6 +91,10 @@ class VideoEncoderFactory {
+     // Default implementation, query for supported formats and check if the
+     // specified format is supported. Returns false if scalability_mode is
+     // specified.
++
++      __android_log_print(ANDROID_LOG_ERROR, " 2 QueryCodecSupport", "%lu",
++                      (unsigned long)GetSupportedFormats().size());
++
+     CodecSupport codec_support;
+     if (!scalability_mode) {
+       codec_support.is_supported = format.IsCodecInList(GetSupportedFormats());
 diff --git a/src/media/base/media_engine.cc b/src/media/base/media_engine.cc
 index 7304ab0..681eed8 100644
 --- a/src/media/base/media_engine.cc
@@ -154,6 +215,56 @@ index cf40247..f182b9c 100644
    return {.is_supported = false};
  }
  
+diff --git a/src/media/engine/internal_decoder_factory.cc b/src/media/engine/internal_decoder_factory.cc
+index e761fd6..7439497 100644
+--- a/src/media/engine/internal_decoder_factory.cc
++++ b/src/media/engine/internal_decoder_factory.cc
+@@ -10,6 +10,9 @@
+ 
+ #include "media/engine/internal_decoder_factory.h"
+ 
++#include <android/log.h>
++
++
+ #include "absl/strings/match.h"
+ #include "api/video_codecs/av1_profile.h"
+ #include "api/video_codecs/sdp_video_format.h"
+@@ -62,11 +65,14 @@ std::vector<SdpVideoFormat> InternalDecoderFactory::GetSupportedFormats()
+ VideoDecoderFactory::CodecSupport InternalDecoderFactory::QueryCodecSupport(
+     const SdpVideoFormat& format,
+     bool reference_scaling) const {
++    __android_log_print(ANDROID_LOG_ERROR, "BRRR QueryCodecSupport");
++
+   // Query for supported formats and check if the specified format is supported.
+   // Return unsupported if an invalid combination of format and
+   // reference_scaling is specified.
+   if (reference_scaling) {
+     VideoCodecType codec = PayloadStringToCodecType(format.name);
++    __android_log_print(ANDROID_LOG_ERROR, "BRRR QueryCodecSupport", "%s", format.name.c_str());
+     if (codec != kVideoCodecVP9 && codec != kVideoCodecAV1) {
+       return {/*is_supported=*/false, /*is_power_efficient=*/false};
+     }
+diff --git a/src/media/engine/internal_encoder_factory.cc b/src/media/engine/internal_encoder_factory.cc
+index 7b5fc24..e6a803a 100644
+--- a/src/media/engine/internal_encoder_factory.cc
++++ b/src/media/engine/internal_encoder_factory.cc
+@@ -13,6 +13,7 @@
+ #include <memory>
+ #include <string>
+ #include <vector>
++#include <android/log.h>
+ 
+ #include "absl/strings/match.h"
+ #include "api/video_codecs/video_encoder_factory.h"
+@@ -56,6 +57,8 @@ std::unique_ptr<VideoEncoder> InternalEncoderFactory::CreateVideoEncoder(
+ VideoEncoderFactory::CodecSupport InternalEncoderFactory::QueryCodecSupport(
+     const SdpVideoFormat& format,
+     absl::optional<std::string> scalability_mode) const {
++              __android_log_print(ANDROID_LOG_ERROR, " 22 QueryCodecSupport", "%lu",
++                      (unsigned long)Factory().GetSupportedFormats().size());
+   auto original_format =
+       FuzzyMatchSdpVideoFormat(Factory().GetSupportedFormats(), format);
+   return original_format
 diff --git a/src/modules/video_coding/svc/scalability_mode_util.h b/src/modules/video_coding/svc/scalability_mode_util.h
 index 9c8193e..5a0f90c 100644
 --- a/src/modules/video_coding/svc/scalability_mode_util.h
@@ -168,17 +279,45 @@ index 9c8193e..5a0f90c 100644
  absl::optional<ScalabilityMode> ScalabilityModeFromString(
      absl::string_view scalability_mode_string);
 diff --git a/src/pc/peer_connection.cc b/src/pc/peer_connection.cc
-index cde3d91..799352d 100644
+index cde3d91..d8d2b40 100644
 --- a/src/pc/peer_connection.cc
 +++ b/src/pc/peer_connection.cc
 @@ -1028,6 +1028,7 @@ PeerConnection::AddTransceiver(
      rtc::scoped_refptr<MediaStreamTrackInterface> track,
      const RtpTransceiverInit& init,
      bool update_negotiation_needed) {
-+      // here
++      // here  
    RTC_DCHECK_RUN_ON(signaling_thread());
    if (!ConfiguredForMedia()) {
      LOG_AND_RETURN_ERROR(RTCErrorType::UNSUPPORTED_OPERATION,
+diff --git a/src/rtc_tools/video_encoder/video_encoder.cc b/src/rtc_tools/video_encoder/video_encoder.cc
+index d2b9b58..fb6cc0a 100644
+--- a/src/rtc_tools/video_encoder/video_encoder.cc
++++ b/src/rtc_tools/video_encoder/video_encoder.cc
+@@ -9,6 +9,8 @@
+  */
+ #include <string>
+ 
++#include <android/log.h>
++
+ #include "absl/flags/flag.h"
+ #include "absl/flags/parse.h"
+ #include "absl/flags/usage.h"
+@@ -201,11 +203,14 @@ class TestVideoEncoderFactoryWrapper final {
+ 
+   bool QueryCodecSupport(const std::string& video_codec_string,
+                          const std::string& scalability_mode_string) const {
++
++    __android_log_print(ANDROID_LOG_ERROR, "HERE QueryCodecSupport");
+     RTC_CHECK(!video_codec_string.empty());
+     RTC_CHECK(!scalability_mode_string.empty());
+ 
+     // Simulcast is not implemented at this moment.
+     if (scalability_mode_string[0] == 'S') {
++      __android_log_print(ANDROID_LOG_ERROR, "S DEAD QueryCodecSupport");
+       RTC_LOG(LS_ERROR) << "Not implemented format: "
+                         << scalability_mode_string;
+       return false;
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
 index 4f5ceb5..a743579 100644
 --- a/src/sdk/BUILD.gn
@@ -1637,3 +1776,16 @@ index 9a4fee2..ba8db45 100644
    OCMStub([encoderFactoryMock supportedCodecs]).andReturn(@[ supported ]);
    OCMStub([encoderFactoryMock implementations]).andReturn(@[ supported ]);
    OCMStub([encoderFactoryMock createEncoder:[OCMArg any]]).andReturn(encoderMock);
+diff --git a/src/test/pc/e2e/analyzer/video/quality_analyzing_video_encoder.cc b/src/test/pc/e2e/analyzer/video/quality_analyzing_video_encoder.cc
+index d7ef0b0..87c3224 100644
+--- a/src/test/pc/e2e/analyzer/video/quality_analyzing_video_encoder.cc
++++ b/src/test/pc/e2e/analyzer/video/quality_analyzing_video_encoder.cc
+@@ -13,6 +13,8 @@
+ #include <cmath>
+ #include <memory>
+ #include <utility>
++#include <android/log.h>
++
+ 
+ #include "absl/strings/string_view.h"
+ #include "api/video/video_codec_type.h"
