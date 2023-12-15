@@ -71,7 +71,7 @@ index 7e1d2ee..cbea7e2 100644
      codec_support.is_supported =
          !reference_scaling && format.IsCodecInList(GetSupportedFormats());
 diff --git a/src/api/video_codecs/video_encoder_factory.h b/src/api/video_codecs/video_encoder_factory.h
-index d28a2a4..e8aab72 100644
+index d28a2a4..3519abc 100644
 --- a/src/api/video_codecs/video_encoder_factory.h
 +++ b/src/api/video_codecs/video_encoder_factory.h
 @@ -15,6 +15,9 @@
@@ -95,7 +95,8 @@ index d28a2a4..e8aab72 100644
 +                      format.ToString().c_str());
 +
      CodecSupport codec_support;
-     if (!scalability_mode) {
+-    if (!scalability_mode) {
++    if (scalability_mode) {
 +      __android_log_print(ANDROID_LOG_ERROR, "   BUT 2 QueryCodecSupport", "%s", scalability_mode.value_or("empty").c_str());
 +      
        codec_support.is_supported = format.IsCodecInList(GetSupportedFormats());
