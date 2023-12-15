@@ -11,6 +11,42 @@ index 573eb47..c2917ad 100644
  
  #include "absl/strings/match.h"
  #include "absl/types/optional.h"
+diff --git a/src/api/video_codecs/sdp_video_format.cc b/src/api/video_codecs/sdp_video_format.cc
+index 51ae18c..9ce7ad7 100644
+--- a/src/api/video_codecs/sdp_video_format.cc
++++ b/src/api/video_codecs/sdp_video_format.cc
+@@ -23,6 +23,7 @@
+ #include "rtc_base/checks.h"
+ #include "rtc_base/logging.h"
+ #include "rtc_base/strings/string_builder.h"
++#include <android/log.h>
+ 
+ namespace webrtc {
+ 
+@@ -50,6 +51,23 @@ bool H264IsSamePacketizationMode(const SdpVideoFormat::Parameters& left,
+ // to distinguish different incompatible family members.
+ bool IsSameCodecSpecific(const SdpVideoFormat& format1,
+                          const SdpVideoFormat& format2) {
++
++
++    for (const auto& [key, value] : format1.parameters) {
++
++              __android_log_print(ANDROID_LOG_ERROR, "IsSameCodecSpecific 1", "%s",
++                      key.c_str());
++              __android_log_print(ANDROID_LOG_ERROR, "IsSameCodecSpecific 1", "|%s|",
++                      value.c_str());
++    }
++
++    for (const auto& [key, value] : format2.parameters) {
++
++              __android_log_print(ANDROID_LOG_ERROR, "IsSameCodecSpecific 2", "%s",
++                      key.c_str());
++              __android_log_print(ANDROID_LOG_ERROR, "IsSameCodecSpecific 2", "|%s|",
++                      value.c_str());
++    }
+   // The assumption when calling this function is that the two formats have the
+   // same name.
+   RTC_DCHECK(absl::EqualsIgnoreCase(format1.name, format2.name));
 diff --git a/src/api/video_codecs/video_decoder_factory.h b/src/api/video_codecs/video_decoder_factory.h
 index 7e1d2ee..cbea7e2 100644
 --- a/src/api/video_codecs/video_decoder_factory.h
@@ -35,7 +71,7 @@ index 7e1d2ee..cbea7e2 100644
      codec_support.is_supported =
          !reference_scaling && format.IsCodecInList(GetSupportedFormats());
 diff --git a/src/api/video_codecs/video_encoder_factory.h b/src/api/video_codecs/video_encoder_factory.h
-index d28a2a4..2a86610 100644
+index d28a2a4..e8aab72 100644
 --- a/src/api/video_codecs/video_encoder_factory.h
 +++ b/src/api/video_codecs/video_encoder_factory.h
 @@ -15,6 +15,9 @@
@@ -48,17 +84,26 @@ index d28a2a4..2a86610 100644
  #include "absl/types/optional.h"
  #include "api/units/data_rate.h"
  #include "api/video/render_resolution.h"
-@@ -88,6 +91,10 @@ class VideoEncoderFactory {
+@@ -88,9 +91,19 @@ class VideoEncoderFactory {
      // Default implementation, query for supported formats and check if the
      // specified format is supported. Returns false if scalability_mode is
      // specified.
 +
 +      __android_log_print(ANDROID_LOG_ERROR, " 2 QueryCodecSupport", "%lu",
 +                      (unsigned long)GetSupportedFormats().size());
++      __android_log_print(ANDROID_LOG_ERROR, " 2 2 QueryCodecSupport", "%s",
++                      format.ToString().c_str());
 +
      CodecSupport codec_support;
      if (!scalability_mode) {
++      __android_log_print(ANDROID_LOG_ERROR, "   BUT 2 QueryCodecSupport", "%s", scalability_mode.value_or("empty").c_str());
++      
        codec_support.is_supported = format.IsCodecInList(GetSupportedFormats());
++    } else {
++            __android_log_print(ANDROID_LOG_ERROR, "   2 QueryCodecSupport", "%s", "NINE");
+     }
+     return codec_support;
+   }
 diff --git a/src/media/base/media_engine.cc b/src/media/base/media_engine.cc
 index 7304ab0..681eed8 100644
 --- a/src/media/base/media_engine.cc
