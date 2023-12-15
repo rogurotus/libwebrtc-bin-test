@@ -141,7 +141,7 @@ index 7304ab0..681eed8 100644
                RTCErrorType::INVALID_MODIFICATION,
                "Attempted to set RtpParameters scalabilityMode "
 diff --git a/src/media/engine/fake_webrtc_video_engine.cc b/src/media/engine/fake_webrtc_video_engine.cc
-index cf40247..f182b9c 100644
+index cf40247..12911b7 100644
 --- a/src/media/engine/fake_webrtc_video_engine.cc
 +++ b/src/media/engine/fake_webrtc_video_engine.cc
 @@ -10,6 +10,8 @@
@@ -157,9 +157,9 @@ index cf40247..f182b9c 100644
  bool IsScalabilityModeSupported(
      const std::vector<webrtc::SdpVideoFormat>& formats,
      absl::optional<std::string> scalability_mode) {
-+  __android_log_print(ANDROID_LOG_ERROR, "IsScalabilityModeSupported");
++  __android_log_print(ANDROID_LOG_ERROR, "IsScalabilityModeSupported", "%s", "temp");
    if (!scalability_mode.has_value()) {
-+    __android_log_print(ANDROID_LOG_ERROR, "IsScalabilityModeSupported NOPE");
++    __android_log_print(ANDROID_LOG_ERROR, "IsScalabilityModeSupported NOPE", "%s", "temp");
      return true;
    }
    for (const auto& format : formats) {
@@ -171,7 +171,7 @@ index cf40247..f182b9c 100644
      }
    }
 +  __android_log_print(ANDROID_LOG_ERROR,
-+                      "IsScalabilityModeSupported NOT FOUND");
++                      "IsScalabilityModeSupported NOT FOUND", "%s", "temp");
 +
    return false;
  }
@@ -216,7 +216,7 @@ index cf40247..f182b9c 100644
  }
  
 diff --git a/src/media/engine/internal_decoder_factory.cc b/src/media/engine/internal_decoder_factory.cc
-index e761fd6..7439497 100644
+index e761fd6..fc45c20 100644
 --- a/src/media/engine/internal_decoder_factory.cc
 +++ b/src/media/engine/internal_decoder_factory.cc
 @@ -10,6 +10,9 @@
@@ -233,7 +233,7 @@ index e761fd6..7439497 100644
  VideoDecoderFactory::CodecSupport InternalDecoderFactory::QueryCodecSupport(
      const SdpVideoFormat& format,
      bool reference_scaling) const {
-+    __android_log_print(ANDROID_LOG_ERROR, "BRRR QueryCodecSupport");
++    __android_log_print(ANDROID_LOG_ERROR, "BRRR QueryCodecSupport", "%s", "temp");
 +
    // Query for supported formats and check if the specified format is supported.
    // Return unsupported if an invalid combination of format and
