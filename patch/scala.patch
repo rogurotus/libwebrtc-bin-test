@@ -1,78 +1,3 @@
-diff --git a/src/media/base/media_engine.cc b/src/media/base/media_engine.cc
-index 7304ab0..de8df39 100644
---- a/src/media/base/media_engine.cc
-+++ b/src/media/base/media_engine.cc
-@@ -16,6 +16,10 @@
- #include <string>
- #include <utility>
- 
-+#include <sstream>
-+#include <iostream>
-+#include <android/log.h>
-+
- #include "absl/algorithm/container.h"
- #include "api/video/video_bitrate_allocation.h"
- #include "rtc_base/checks.h"
-@@ -95,10 +99,22 @@ webrtc::RTCError CheckScalabilityModeValues(
-       }
-     }
-     if (rtp_parameters.encodings[i].scalability_mode) {
-+        std::stringstream ss;
-       if (!send_codec) {
--        bool scalabilityModeFound = false;
--        for (const cricket::VideoCodec& codec : codec_preferences) {
--          for (const auto& scalability_mode : codec.scalability_modes) {
-+         bool scalabilityModeFound = false;
-+        __android_log_print(ANDROID_LOG_ERROR, "codec_preferences", "%lu", (unsigned long) codec_preferences.size());
-+         for (const cricket::VideoCodec& codec : codec_preferences) {
-+        __android_log_print(ANDROID_LOG_ERROR, "codec", "|%s|", codec.name.c_str());
-+        __android_log_print(ANDROID_LOG_ERROR, "codec_preferences.scalability_modes", "%lu", (unsigned long) codec.scalability_modes.size());
-+           for (const auto& scalability_mode : codec.scalability_modes) {
-+        auto sv = *rtp_parameters.encodings[i].scalability_mode; auto sv2 = ScalabilityModeToString(scalability_mode);
-+        std::string s = {sv.begin(), sv.end()}; std::string s2 = {sv2.begin(), sv2.end()};
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "|%s|", s2.c_str());
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "|%s|", s.c_str());
-+
-+
-+          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
-+
-             if (ScalabilityModeToString(scalability_mode) ==
-                 *rtp_parameters.encodings[i].scalability_mode) {
-               scalabilityModeFound = true;
-@@ -110,14 +126,24 @@ webrtc::RTCError CheckScalabilityModeValues(
-         }
- 
-         if (!scalabilityModeFound) {
-+        __android_log_print(ANDROID_LOG_ERROR, "AAAAA42", "%s", ss.str().c_str());
-+          std::cout << ss.str() << std::endl;
-           LOG_AND_RETURN_ERROR(
-               RTCErrorType::INVALID_MODIFICATION,
-               "Attempted to set RtpParameters scalabilityMode "
-               "to an unsupported value for the current codecs.");
-         }
-       } else {
-+          ss << "\nsend_codec";
-+
-         bool scalabilityModeFound = false;
-         for (const auto& scalability_mode : send_codec->scalability_modes) {
-+          ss << "\nscalability_mode" << ScalabilityModeToString(scalability_mode) << "-" << *rtp_parameters.encodings[i].scalability_mode;
-+        auto sv = *rtp_parameters.encodings[i].scalability_mode; auto sv2 = ScalabilityModeToString(scalability_mode);
-+        std::string s = {sv.begin(), sv.end()}; std::string s2 = {sv2.begin(), sv2.end()};
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode", "|%s|", s2.c_str());
-+        __android_log_print(ANDROID_LOG_ERROR, "scalability_mode2", "|%s|", s.c_str());
-+
-           if (ScalabilityModeToString(scalability_mode) ==
-               *rtp_parameters.encodings[i].scalability_mode) {
-             scalabilityModeFound = true;
-@@ -125,6 +151,8 @@ webrtc::RTCError CheckScalabilityModeValues(
-           }
-         }
-         if (!scalabilityModeFound) {
-+        __android_log_print(ANDROID_LOG_ERROR, "AAAAA422", "%s", ss.str().c_str());
-+          std::cout << ss.str() << std::endl;
-           LOG_AND_RETURN_ERROR(
-               RTCErrorType::INVALID_MODIFICATION,
-               "Attempted to set RtpParameters scalabilityMode "
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
 index 4f5ceb5..a743579 100644
 --- a/src/sdk/BUILD.gn
@@ -500,6 +425,69 @@ index 4bd9ee0..1f5957b 100644
    ScopedJavaLocalRef<jobject> j_scale_resolution_down_by =
        Java_Encoding_getScaleResolutionDownBy(jni, j_encoding_parameters);
    encoding.scale_resolution_down_by =
+diff --git a/src/sdk/android/src/jni/software_video_decoder_factory.cc b/src/sdk/android/src/jni/software_video_decoder_factory.cc
+index 151bf5f..34817a8 100644
+--- a/src/sdk/android/src/jni/software_video_decoder_factory.cc
++++ b/src/sdk/android/src/jni/software_video_decoder_factory.cc
+@@ -14,13 +14,25 @@
+ #include "sdk/android/native_api/jni/java_types.h"
+ #include "sdk/android/src/jni/jni_helpers.h"
+ #include "sdk/android/src/jni/video_codec_info.h"
++#include "api/video_codecs/video_decoder_factory_template.h"
++#include "api/video_codecs/video_decoder_factory_template_dav1d_adapter.h"
++#include "api/video_codecs/video_decoder_factory_template_libvpx_vp8_adapter.h"
++#include "api/video_codecs/video_decoder_factory_template_libvpx_vp9_adapter.h"
++#include "api/video_codecs/video_decoder_factory_template_open_h264_adapter.h
+ 
+ namespace webrtc {
+ namespace jni {
+ 
+ static jlong JNI_SoftwareVideoDecoderFactory_CreateFactory(JNIEnv* env) {
++  std::unique_ptr<webrtc::VideoDecoderFactory> video_decoder_factory =
++      std::make_unique<webrtc::VideoDecoderFactoryTemplate<
++          webrtc::LibvpxVp8DecoderTemplateAdapter,
++          webrtc::LibvpxVp9DecoderTemplateAdapter,
++          webrtc::OpenH264DecoderTemplateAdapter,
++          webrtc::Dav1dDecoderTemplateAdapter>>();
++
+   return webrtc::NativeToJavaPointer(
+-      CreateBuiltinVideoDecoderFactory().release());
++      video_decoder_factory.release());
+ }
+ 
+ static jlong JNI_SoftwareVideoDecoderFactory_CreateDecoder(
+diff --git a/src/sdk/android/src/jni/software_video_encoder_factory.cc b/src/sdk/android/src/jni/software_video_encoder_factory.cc
+index 4b86960..6c83a77 100644
+--- a/src/sdk/android/src/jni/software_video_encoder_factory.cc
++++ b/src/sdk/android/src/jni/software_video_encoder_factory.cc
+@@ -14,13 +14,26 @@
+ #include "sdk/android/native_api/jni/java_types.h"
+ #include "sdk/android/src/jni/jni_helpers.h"
+ #include "sdk/android/src/jni/video_codec_info.h"
++#include "api/video_codecs/video_encoder_factory_template.h"
++#include "api/video_codecs/video_encoder_factory_template_libaom_av1_adapter.h"
++#include "api/video_codecs/video_encoder_factory_template_libvpx_vp8_adapter.h"
++#include "api/video_codecs/video_encoder_factory_template_libvpx_vp9_adapter.h"
++#include "api/video_codecs/video_encoder_factory_template_open_h264_adapter.h"
+ 
+ namespace webrtc {
+ namespace jni {
+ 
+ static jlong JNI_SoftwareVideoEncoderFactory_CreateFactory(JNIEnv* env) {
++
++    std::unique_ptr<webrtc::VideoEncoderFactory> video_encoder_factory =
++      std::make_unique<webrtc::VideoEncoderFactoryTemplate<
++          webrtc::LibvpxVp8EncoderTemplateAdapter,
++          webrtc::LibvpxVp9EncoderTemplateAdapter,
++          webrtc::OpenH264EncoderTemplateAdapter,
++          webrtc::LibaomAv1EncoderTemplateAdapter>>();
++
+   return webrtc::NativeToJavaPointer(
+-      CreateBuiltinVideoEncoderFactory().release());
++      video_encoder_factory.release());
+ }
+ 
+ static jlong JNI_SoftwareVideoEncoderFactory_CreateEncoder(
 diff --git a/src/sdk/android/src/jni/video_codec_info.cc b/src/sdk/android/src/jni/video_codec_info.cc
 index a218a1d..883bb5a 100644
 --- a/src/sdk/android/src/jni/video_codec_info.cc
@@ -557,21 +545,20 @@ index a218a1d..883bb5a 100644
  
  }  // namespace jni
 diff --git a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
-index 5575af9..5a8191c 100644
+index 5575af9..e23d1d8 100644
 --- a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
 +++ b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
-@@ -23,6 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
+@@ -23,6 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
  @class RTC_OBJC_TYPE(RTCVideoSource);
  @class RTC_OBJC_TYPE(RTCVideoTrack);
  @class RTC_OBJC_TYPE(RTCPeerConnectionFactoryOptions);
 +@class RTC_OBJC_TYPE(RTCRtpCapabilities);
-+
 +typedef NS_ENUM(NSInteger, RTCRtpMediaType);
 +
  @protocol RTC_OBJC_TYPE
  (RTCPeerConnectionDelegate);
  @protocol RTC_OBJC_TYPE
-@@ -51,6 +55,12 @@ RTC_OBJC_EXPORT
+@@ -51,6 +54,12 @@ RTC_OBJC_EXPORT
              decoderFactory:(nullable id<RTC_OBJC_TYPE(RTCVideoDecoderFactory)>)decoderFactory
                 audioDevice:(nullable id<RTC_OBJC_TYPE(RTCAudioDevice)>)audioDevice;
  
@@ -1162,7 +1149,7 @@ index 0000000..88911d9
 +@end
 \ No newline at end of file
 diff --git a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
-index 2eb8d36..60bb429 100644
+index 2eb8d36..b5f0b0f 100644
 --- a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
 +++ b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
 @@ -12,6 +12,9 @@
@@ -1175,15 +1162,15 @@ index 2eb8d36..60bb429 100644
  @implementation RTC_OBJC_TYPE (RTCVideoCodecInfo)
  (Private)
  
-@@ -21,10 +24,27 @@
+@@ -21,10 +24,30 @@
      [params setObject:[NSString stringForStdString:it->second]
                 forKey:[NSString stringForStdString:it->first]];
    }
 -  return [self initWithName:[NSString stringForStdString:format.name] parameters:params];
 +
-+  NSMutableArray *scalability_modes = [NSMutableArray array];
++  NSMutableArray<NSString *> *scalability_modes = [NSMutableArray<NSString *> array];
 +  for (auto it = format.scalability_modes.begin(); it != format.scalability_modes.end(); ++it) {
-+    NSString *scalability_mode = [NSString stringForStdString:webrtc::ScalabilityModeToString(format.scalability_modes)];
++    auto mode = webrtc::ScalabilityModeToString(*it); std::string mode_string = {mode.begin(), mode.end()}; NSString *scalability_mode = [NSString stringForStdString: mode_string ];
 +    [scalability_modes addObject:scalability_mode];
 +  }
 +  
@@ -1195,7 +1182,10 @@ index 2eb8d36..60bb429 100644
 +  absl::InlinedVector<webrtc::ScalabilityMode, webrtc::kScalabilityModeCount> scalability_modes;
 +  for (NSString *scalabiltyMode in self.scalabiltyModes) {
 +    for (size_t j = 0; j < webrtc::kScalabilityModeCount; ++j) {
-+      if (webrtc::ScalabilityModeToString(webrtc::kAllScalabilityModes[j]) == scalabiltyMode) {
++      auto mode = webrtc::ScalabilityModeToString(webrtc::kAllScalabilityModes[j]);
++      std::string mode_string = {mode.begin(), mode.end()}; 
++      std::string self_mode_string = [NSString stdStringForString:scalabiltyMode];
++      if (mode_string == self_mode_string) {
 +        scalability_modes.push_back(webrtc::kAllScalabilityModes[j]);
 +      }
 +    }
@@ -1204,7 +1194,7 @@ index 2eb8d36..60bb429 100644
    std::map<std::string, std::string> parameters;
    for (NSString *paramKey in self.parameters.allKeys) {
      std::string key = [NSString stdStringForString:paramKey];
-@@ -32,7 +52,7 @@
+@@ -32,7 +55,7 @@
      parameters[key] = value;
    }
  
@@ -1214,10 +1204,17 @@ index 2eb8d36..60bb429 100644
  
  @end
 diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.h b/src/sdk/objc/base/RTCVideoCodecInfo.h
-index fa28958..9585a65 100644
+index fa28958..18b6d61 100644
 --- a/src/sdk/objc/base/RTCVideoCodecInfo.h
 +++ b/src/sdk/objc/base/RTCVideoCodecInfo.h
-@@ -30,6 +30,7 @@ RTC_OBJC_EXPORT
+@@ -24,12 +24,14 @@ RTC_OBJC_EXPORT
+ 
+ - (instancetype)initWithName:(NSString *)name
+                   parameters:(nullable NSDictionary<NSString *, NSString *> *)parameters
++                  scalabiltyModes:(nullable NSArray<NSString *> *)scalabiltyModes
+     NS_DESIGNATED_INITIALIZER;
+ 
+ - (BOOL)isEqualToCodecInfo:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info;
  
  @property(nonatomic, readonly) NSString *name;
  @property(nonatomic, readonly) NSDictionary<NSString *, NSString *> *parameters;
@@ -1226,7 +1223,7 @@ index fa28958..9585a65 100644
  @end
  
 diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.m b/src/sdk/objc/base/RTCVideoCodecInfo.m
-index ce26ae1..7823c90 100644
+index ce26ae1..c93f72e 100644
 --- a/src/sdk/objc/base/RTCVideoCodecInfo.m
 +++ b/src/sdk/objc/base/RTCVideoCodecInfo.m
 @@ -14,16 +14,20 @@
@@ -1236,7 +1233,8 @@ index ce26ae1..7823c90 100644
 +@synthesize scalabiltyModes = _scalabiltyModes;
  
  - (instancetype)initWithName:(NSString *)name {
-   return [self initWithName:name parameters:nil];
+-  return [self initWithName:name parameters:nil];
++  return [self initWithName:name parameters:nil scalabiltyModes:nil];
  }
  
  - (instancetype)initWithName:(NSString *)name
@@ -1251,9 +1249,25 @@ index ce26ae1..7823c90 100644
    }
  
    return self;
+@@ -54,12 +58,14 @@
+ 
+ - (instancetype)initWithCoder:(NSCoder *)decoder {
+   return [self initWithName:[decoder decodeObjectForKey:@"name"]
+-                 parameters:[decoder decodeObjectForKey:@"parameters"]];
++                 parameters:[decoder decodeObjectForKey:@"parameters"]
++                 scalabiltyModes:[decoder decodeObjectForKey:@"scalabiltyModes"]];
+ }
+ 
+ - (void)encodeWithCoder:(NSCoder *)encoder {
+   [encoder encodeObject:_name forKey:@"name"];
+   [encoder encodeObject:_parameters forKey:@"parameters"];
++  [encoder encodeObject:_scalabiltyModes forKey:@"scalabiltyModes"];
+ }
+ 
+ @end
 diff --git a/src/sdk/objc/components/video_codec/MediaCodecUtils.h b/src/sdk/objc/components/video_codec/MediaCodecUtils.h
 new file mode 100644
-index 0000000..140a522
+index 0000000..3f21e09
 --- /dev/null
 +++ b/src/sdk/objc/components/video_codec/MediaCodecUtils.h
 @@ -0,0 +1,59 @@
@@ -1268,56 +1282,57 @@ index 0000000..140a522
 + */
 +
 +
-+NSArray<NSString *> *kAllScalabilityModes = @{
-+    @"L1T1",
-+    @"L1T2",
-+    @"L1T3",
-+    @"L2T1",
-+    @"L2T1h",
-+    @"L2T1_KEY",
-+    @"L2T2",
-+    @"L2T2h",
-+    @"L2T2_KEY",
-+    @"L2T2_KEY_SHIFT",
-+    @"L2T3",
-+    @"L2T3h",
-+    @"L2T3_KEY",
-+    @"L3T1",
-+    @"L3T1h",
-+    @"L3T1_KEY",
-+    @"L3T2",
-+    @"L3T2h",
-+    @"L3T2_KEY",
-+    @"L3T3",
-+    @"L3T3h",
-+    @"L3T3_KEY",
-+    @"S2T1",
-+    @"S2T1h",
-+    @"S2T2",
-+    @"S2T2h",
-+    @"S2T3",
-+    @"S2T3h",
-+    @"S3T1",
-+    @"S3T1h",
-+    @"S3T2",
-+    @"S3T2h",
-+    @"S3T3",
-+    @"S3T3h"
-+  };
++#define ALL_SCALABILITY_MODES  [NSArray arrayWithObjects: \
++    @"L1T1", \
++    @"L1T2", \
++    @"L1T3", \
++    @"L2T1", \
++    @"L2T1h", \
++    @"L2T1_KEY", \
++    @"L2T2", \
++    @"L2T2h", \
++    @"L2T2_KEY", \
++    @"L2T2_KEY_SHIFT", \
++    @"L2T3", \
++    @"L2T3h", \
++    @"L2T3_KEY", \
++    @"L3T1", \
++    @"L3T1h", \
++    @"L3T1_KEY", \
++    @"L3T2", \
++    @"L3T2h", \
++    @"L3T2_KEY", \
++    @"L3T3", \
++    @"L3T3h", \
++    @"L3T3_KEY", \
++    @"S2T1", \
++    @"S2T1h", \
++    @"S2T2", \
++    @"S2T2h", \
++    @"S2T3", \
++    @"S2T3h", \
++    @"S3T1", \
++    @"S3T1h", \
++    @"S3T2", \
++    @"S3T2h", \
++    @"S3T3", \
++    @"S3T3h", \
++    nil]
 +
-+  NSArray<NSString *> *kVP8ScalabilityModes = @{
-+      @"L1T1",
-+      @"L1T2",
-+      @"L1T3"
-+  };
++#define VP8_SCALABILITY_MODES  [NSArray arrayWithObjects: \
++    @"L1T1", \
++    @"L1T2", \
++    @"L1T3", \
++    nil]
 +
-+  NSArray<NSString *> *kH264ScalabilityModes = @{
-+      @"L1T1",
-+      @"L1T2",
-+      @"L1T3"
-+  };
++#define H264_SCALABILITY_MODES  [NSArray arrayWithObjects: \
++    @"L1T1", \
++    @"L1T2", \
++    @"L1T3", \
++    nil]
+\ No newline at end of file
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
-index 6e3baa8..23d206a 100644
+index 6e3baa8..57c949f 100644
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
 @@ -16,6 +16,7 @@
@@ -1333,7 +1348,7 @@ index 6e3baa8..23d206a 100644
    RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedHighInfo =
        [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecH264Name
 -                                                  parameters:constrainedHighParams];
-+                                                  parameters:constrainedHighParams scalabiltyModes: kH264ScalabilityModes];
++                                                  parameters:constrainedHighParams scalabiltyModes: H264_SCALABILITY_MODES];
  
    NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
      @"profile-level-id" : kRTCMaxSupportedH264ProfileLevelConstrainedBaseline,
@@ -1342,11 +1357,11 @@ index 6e3baa8..23d206a 100644
    RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
        [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecH264Name
 -                                                  parameters:constrainedBaselineParams];
-+                                                  parameters:constrainedBaselineParams scalabiltyModes: kH264ScalabilityModes];
++                                                  parameters:constrainedBaselineParams scalabiltyModes: H264_SCALABILITY_MODES];
  
    RTC_OBJC_TYPE(RTCVideoCodecInfo) *vp8Info =
 -      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name];
-+      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name scalabiltyModes: kVP8ScalabilityModes];
++      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name parameters: nil scalabiltyModes: VP8_SCALABILITY_MODES];
  
    NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *result = [@[
      constrainedHighInfo,
@@ -1355,17 +1370,17 @@ index 6e3baa8..23d206a 100644
    if ([RTC_OBJC_TYPE(RTCVideoDecoderVP9) isSupported]) {
      [result
 -        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name]];
-+        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name scalabiltyModes: kAllScalabilityModes ]];
++        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name parameters: nil scalabiltyModes: ALL_SCALABILITY_MODES ]];
    }
  
  #if defined(RTC_DAV1D_IN_INTERNAL_DECODER_FACTORY)
 -  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name]];
-+  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name scalabiltyModes: kAllScalabilityModes]];
++  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name parameters: nil scalabiltyModes: ALL_SCALABILITY_MODES]];
  #endif
  
    return result;
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
-index 8de55bd..dcd1f5c 100644
+index 8de55bd..c4e1424 100644
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
 @@ -16,6 +16,7 @@
@@ -1381,7 +1396,7 @@ index 8de55bd..dcd1f5c 100644
    RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedHighInfo =
        [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecH264Name
 -                                                  parameters:constrainedHighParams];
-+                                                  parameters:constrainedHighParams scalabiltyModes: kH264ScalabilityModes];
++                                                  parameters:constrainedHighParams scalabiltyModes: H264_SCALABILITY_MODES];
  
    NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
      @"profile-level-id" : kRTCMaxSupportedH264ProfileLevelConstrainedBaseline,
@@ -1390,11 +1405,11 @@ index 8de55bd..dcd1f5c 100644
    RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
        [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecH264Name
 -                                                  parameters:constrainedBaselineParams];
-+                                                  parameters:constrainedBaselineParams scalabiltyModes: kH264ScalabilityModes];
++                                                  parameters:constrainedBaselineParams scalabiltyModes: H264_SCALABILITY_MODES];
  
    RTC_OBJC_TYPE(RTCVideoCodecInfo) *vp8Info =
 -      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name];
-+      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name scalabiltyModes: kVP8ScalabilityModes];
++      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name parameters: nil scalabiltyModes: VP8_SCALABILITY_MODES];
  
    NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *result = [@[
      constrainedHighInfo,
@@ -1403,17 +1418,17 @@ index 8de55bd..dcd1f5c 100644
    if ([RTC_OBJC_TYPE(RTCVideoEncoderVP9) isSupported]) {
      [result
 -        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name]];
-+        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name scalabiltyModes: kAllScalabilityModes]];
++        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name parameters: nil scalabiltyModes: ALL_SCALABILITY_MODES]];
    }
  
  #if defined(RTC_USE_LIBAOM_AV1_ENCODER)
 -  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name]];
-+  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name scalabiltyModes: kAllScalabilityModes]];
++  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name parameters: nil scalabiltyModes: ALL_SCALABILITY_MODES]];
  #endif
  
    return result;
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
-index bdae19d..3576723 100644
+index bdae19d..f38e962 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
 +++ b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
 @@ -12,6 +12,7 @@
@@ -1430,7 +1445,7 @@ index bdae19d..3576723 100644
        [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
 -                                                  parameters:constrainedHighParams];
 +                                                  parameters:constrainedHighParams
-+                                                  scalabiltyModes: kH264ScalabilityModes];
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
    [codecs addObject:constrainedHighInfo];
  
    NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
@@ -1440,12 +1455,12 @@ index bdae19d..3576723 100644
        [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
 -                                                  parameters:constrainedBaselineParams];
 +                                                  parameters:constrainedBaselineParams
-+                                                  scalabiltyModes: kH264ScalabilityModes];
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
    [codecs addObject:constrainedBaselineInfo];
  
    return [codecs copy];
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
-index 9843849..f772cab 100644
+index 9843849..2bd27e6 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
 +++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
 @@ -12,6 +12,7 @@
@@ -1462,7 +1477,7 @@ index 9843849..f772cab 100644
        [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
 -                                                  parameters:constrainedHighParams];
 +                                                  parameters:constrainedHighParams
-+                                                  scalabiltyModes: kH264ScalabilityModes];
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
    [codecs addObject:constrainedHighInfo];
  
    NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
@@ -1472,7 +1487,7 @@ index 9843849..f772cab 100644
        [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
 -                                                  parameters:constrainedBaselineParams];
 +                                                  parameters:constrainedBaselineParams
-+                                                  scalabiltyModes: kH264ScalabilityModes];
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
    [codecs addObject:constrainedBaselineInfo];
  
    return [codecs copy];
