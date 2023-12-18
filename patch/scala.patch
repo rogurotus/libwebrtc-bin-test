@@ -12,7 +12,7 @@ index d28a2a4..45e3735 100644
      CodecSupport codec_support;
 -    if (!scalability_mode) {
 -      codec_support.is_supported = format.IsCodecInList(GetSupportedFormats());
-+    bool codec_support = format.IsCodecInList(GetSupportedFormats());
++    bool codec_in_list = format.IsCodecInList(GetSupportedFormats());
 +
 +    bool scalability_mode_support = false;
 +    for (size_t i = 0; i < format.scalability_mode.size(); ++i) {
@@ -24,7 +24,7 @@ index d28a2a4..45e3735 100644
 +      }
      }
 +
-+    codec_support.is_supported = codec_support && scalability_mode_support;
++    codec_support.is_supported = codec_in_list && scalability_mode_support;
      return codec_support;
    }
  
