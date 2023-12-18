@@ -15,9 +15,9 @@ index d28a2a4..45e3735 100644
 +    bool codec_in_list = format.IsCodecInList(GetSupportedFormats());
 +
 +    bool scalability_mode_support = false;
-+    for (size_t i = 0; i < format.scalability_mode.size(); ++i) {
++    for (size_t i = 0; i < format.scalability_modes.size(); ++i) {
 +      scalability_mode_support =
-+          ScalabilityModeToString(format.scalability_mode[i]) ==
++          ScalabilityModeToString(format.scalability_modes[i]) ==
 +          scalability_mode.value_or("");
 +      if (scalability_mode_support) {
 +        break;
