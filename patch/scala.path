@@ -1,0 +1,1667 @@
+diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
+index 4f5ceb5..a743579 100644
+--- a/src/sdk/BUILD.gn
++++ b/src/sdk/BUILD.gn
+@@ -991,6 +991,15 @@ if (is_ios || is_mac) {
+         "objc/api/peerconnection/RTCRtcpParameters+Private.h",
+         "objc/api/peerconnection/RTCRtcpParameters.h",
+         "objc/api/peerconnection/RTCRtcpParameters.mm",
++        "objc/api/peerconnection/RTCRtpCapabilities.h",
++        "objc/api/peerconnection/RTCRtpCapabilities.mm",
++        "objc/api/peerconnection/RTCRtpCapabilities+Private.h",
++        "objc/api/peerconnection/RTCRtpCodecCapability.h",
++        "objc/api/peerconnection/RTCRtpCodecCapability.mm",
++        "objc/api/peerconnection/RTCRtpCodecCapability+Private.h",
++        "objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h",
++        "objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm",
++        "objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h",
+         "objc/api/peerconnection/RTCRtpCodecParameters+Private.h",
+         "objc/api/peerconnection/RTCRtpCodecParameters.h",
+         "objc/api/peerconnection/RTCRtpCodecParameters.mm",
+@@ -1309,6 +1318,9 @@ if (is_ios || is_mac) {
+           "objc/api/peerconnection/RTCPeerConnectionFactory.h",
+           "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
+           "objc/api/peerconnection/RTCRtcpParameters.h",
++          "objc/api/peerconnection/RTCRtpCapabilities.h",
++          "objc/api/peerconnection/RTCRtpCodecCapability.h",
++          "objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h",
+           "objc/api/peerconnection/RTCRtpCodecParameters.h",
+           "objc/api/peerconnection/RTCRtpEncodingParameters.h",
+           "objc/api/peerconnection/RTCRtpHeaderExtension.h",
+@@ -1423,6 +1435,9 @@ if (is_ios || is_mac) {
+           "objc/api/peerconnection/RTCPeerConnectionFactory.h",
+           "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
+           "objc/api/peerconnection/RTCRtcpParameters.h",
++          "objc/api/peerconnection/RTCRtpCapabilities.h",
++          "objc/api/peerconnection/RTCRtpCodecCapability.h",
++          "objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h",
+           "objc/api/peerconnection/RTCRtpCodecParameters.h",
+           "objc/api/peerconnection/RTCRtpEncodingParameters.h",
+           "objc/api/peerconnection/RTCRtpHeaderExtension.h",
+diff --git a/src/sdk/android/api/org/webrtc/CodecSupport.java b/src/sdk/android/api/org/webrtc/CodecSupport.java
+new file mode 100644
+index 0000000..52caac1
+--- /dev/null
++++ b/src/sdk/android/api/org/webrtc/CodecSupport.java
+@@ -0,0 +1,32 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++package org.webrtc;
++
++public class CodecSupport {
++  public bool is_supported = false;
++  public bool is_power_efficient = false;
++
++  @CalledByNative
++  public CodecSupport(bool is_supported, bool is_power_efficient) {
++    this.is_supported = is_supported;
++    this.is_power_efficient = is_power_efficient;
++  }
++
++  @CalledByNative
++  bool getIsSupported() {
++    return is_supported;
++  }
++
++  @CalledByNative
++  bool getIsPowerEfficient() {
++    return is_power_efficient;
++  }
++};
+\ No newline at end of file
+diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
+index d43fc27..cdee276 100644
+--- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
++++ b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
+@@ -13,6 +13,7 @@ package org.webrtc;
+ import static org.webrtc.MediaCodecUtils.EXYNOS_PREFIX;
+ import static org.webrtc.MediaCodecUtils.INTEL_PREFIX;
+ import static org.webrtc.MediaCodecUtils.QCOM_PREFIX;
++import static org.webrtc.MediaCodecUtils.getCodecScalabilityMode;
+ 
+ import android.media.MediaCodecInfo;
+ import android.media.MediaCodecList;
+@@ -143,11 +144,11 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
+         // supported by the decoder.
+         if (type == VideoCodecMimeType.H264 && isH264HighProfileSupported(codec)) {
+           supportedCodecInfos.add(new VideoCodecInfo(
+-              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true)));
++              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true), getCodecScalabilityMode(type)));
+         }
+ 
+         supportedCodecInfos.add(new VideoCodecInfo(
+-            name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false)));
++            name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false), getCodecScalabilityMode(type)));
+       }
+     }
+ 
+diff --git a/src/sdk/android/api/org/webrtc/RtpParameters.java b/src/sdk/android/api/org/webrtc/RtpParameters.java
+index 9ca8311..1fcffe7 100644
+--- a/src/sdk/android/api/org/webrtc/RtpParameters.java
++++ b/src/sdk/android/api/org/webrtc/RtpParameters.java
+@@ -73,6 +73,8 @@ public class RtpParameters {
+     @Nullable public Integer maxFramerate;
+     // The number of temporal layers for video.
+     @Nullable public Integer numTemporalLayers;
++    // https://w3c.github.io/webrtc-svc/#rtcrtpencodingparameters
++    @Nullable public String scalabilityMode;
+     // If non-null, scale the width and height down by this factor for video. If null,
+     // implementation default scaling factor will be used.
+     @Nullable public Double scaleResolutionDownBy;
+@@ -93,7 +95,7 @@ public class RtpParameters {
+     @CalledByNative("Encoding")
+     Encoding(String rid, boolean active, double bitratePriority, @Priority int networkPriority,
+         Integer maxBitrateBps, Integer minBitrateBps, Integer maxFramerate,
+-        Integer numTemporalLayers, Double scaleResolutionDownBy, Long ssrc,
++        Integer numTemporalLayers, String scalabilityMode, Double scaleResolutionDownBy, Long ssrc,
+         boolean adaptiveAudioPacketTime) {
+       this.rid = rid;
+       this.active = active;
+@@ -103,6 +105,7 @@ public class RtpParameters {
+       this.minBitrateBps = minBitrateBps;
+       this.maxFramerate = maxFramerate;
+       this.numTemporalLayers = numTemporalLayers;
++      this.scalabilityMode = scalabilityMode;
+       this.scaleResolutionDownBy = scaleResolutionDownBy;
+       this.ssrc = ssrc;
+       this.adaptiveAudioPacketTime = adaptiveAudioPacketTime;
+@@ -154,6 +157,12 @@ public class RtpParameters {
+       return numTemporalLayers;
+     }
+ 
++    @Nullable
++    @CalledByNative("Encoding")
++    String getScalabilityMode() {
++      return scalabilityMode;
++    }
++
+     @Nullable
+     @CalledByNative("Encoding")
+     Double getScaleResolutionDownBy() {
+diff --git a/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
+index 7f4c457..0458d34 100644
+--- a/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
++++ b/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
+@@ -50,9 +50,17 @@ public class SoftwareVideoEncoderFactory implements VideoEncoderFactory {
+     return nativeGetSupportedCodecs(nativeFactory).toArray(new VideoCodecInfo[0]);
+   }
+ 
++  @Override 
++  public CodecSupport queryCodecSupport(VideoCodecInfo format, String scalability_mode) {
++    return nativeQueryCodecSupport(nativeFactory, format, scalability_mode);
++  }
++
+   private static native long nativeCreateFactory();
+ 
+   private static native long nativeCreateEncoder(long factory, VideoCodecInfo videoCodecInfo);
+ 
+   private static native List<VideoCodecInfo> nativeGetSupportedCodecs(long factory);
++
++  private static native CodecSupport nativeQueryCodecSupport(long factory, VideoCodecInfo format, String scalability_mode);
++  
+ }
+diff --git a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
+index 4f97cf7..d577e34 100644
+--- a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
++++ b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
+@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
+ import java.util.Arrays;
+ import java.util.Locale;
+ import java.util.Map;
++import java.util.List;
++
+ 
+ /**
+  * Represent a video codec as encoded in SDP.
+@@ -34,20 +36,23 @@ public class VideoCodecInfo {
+ 
+   public final String name;
+   public final Map<String, String> params;
++  public final List<String> scalabilityMods;
+   @Deprecated public final int payload;
+ 
+   @CalledByNative
+-  public VideoCodecInfo(String name, Map<String, String> params) {
++  public VideoCodecInfo(String name, Map<String, String> params, List<String> scalabilityMods) {
+     this.payload = 0;
+     this.name = name;
+     this.params = params;
++    this.scalabilityMods = scalabilityMods;
+   }
+ 
+   @Deprecated
+-  public VideoCodecInfo(int payload, String name, Map<String, String> params) {
++  public VideoCodecInfo(int payload, String name, Map<String, String> params, List<String> scalabilityMods) {
+     this.payload = payload;
+     this.name = name;
+     this.params = params;
++    this.scalabilityMods = scalabilityMods;
+   }
+ 
+   @Override
+@@ -83,4 +88,9 @@ public class VideoCodecInfo {
+   Map getParams() {
+     return params;
+   }
++
++  @CalledByNative
++  List<String> getScalabiltyMods() {
++    return scalabilityMods;
++  }
+ }
+diff --git a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
+index 2a46662..dadab84 100644
+--- a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
++++ b/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
+@@ -51,6 +51,9 @@ public interface VideoEncoderFactory {
+    */
+   @CalledByNative VideoCodecInfo[] getSupportedCodecs();
+ 
++  // todo
++  @CalledByNative CodecSupport queryCodecSupport(VideoCodecInfo format, String scalability_mode);
++
+   /**
+    * Enumerates the list of supported video codecs that can also be tagged with
+    * implementation information. This method will only be called once and the
+diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
+index 6f44812..e85b275 100644
+--- a/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
++++ b/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
+@@ -48,7 +48,7 @@ public final class AndroidVideoDecoderInstrumentationTest {
+     if (codecName.equals("H264")) {
+       this.codecType = H264Utils.DEFAULT_H264_BASELINE_PROFILE_CODEC;
+     } else {
+-      this.codecType = new VideoCodecInfo(codecName, new HashMap<>());
++      this.codecType = new VideoCodecInfo(codecName, new HashMap<>(), new ArrayList<String>());
+     }
+     this.useEglContext = useEglContext;
+   }
+diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
+index fe608c7..0fa3552 100644
+--- a/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
++++ b/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
+@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
+ import androidx.annotation.Nullable;
+ import androidx.test.filters.SmallTest;
+ import java.util.ArrayList;
++import java.util.Arrays;
+ import java.util.HashMap;
+ import org.junit.Before;
+ import org.junit.Test;
+@@ -47,7 +48,7 @@ public class DefaultVideoEncoderFactoryTest {
+   @SmallTest
+   @Test
+   public void getSupportedCodecs_hwVp8SameParamsAsSwVp8_oneVp8() {
+-    VideoCodecInfo hwVp8Encoder = new VideoCodecInfo("VP8", new HashMap<>());
++    VideoCodecInfo hwVp8Encoder = new VideoCodecInfo("VP8", new HashMap<>(), new ArrayList<String>());
+     VideoEncoderFactory hwFactory = new CustomHardwareVideoEncoderFactory(hwVp8Encoder);
+     DefaultVideoEncoderFactory defFactory = new DefaultVideoEncoderFactory(hwFactory);
+     VideoCodecInfo[] supportedCodecs = defFactory.getSupportedCodecs();
+@@ -62,7 +63,7 @@ public class DefaultVideoEncoderFactoryTest {
+   public void getSupportedCodecs_hwVp8WithDifferentParams_twoVp8() {
+     VideoCodecInfo hwVp8Encoder = new VideoCodecInfo("VP8", new HashMap<String, String>() {
+       { put("param", "value"); }
+-    });
++    }, new ArrayList<String>());
+     VideoEncoderFactory hwFactory = new CustomHardwareVideoEncoderFactory(hwVp8Encoder);
+     DefaultVideoEncoderFactory defFactory = new DefaultVideoEncoderFactory(hwFactory);
+     VideoCodecInfo[] supportedCodecs = defFactory.getSupportedCodecs();
+diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
+index 961ecd5..da0d836 100644
+--- a/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
++++ b/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
+@@ -82,8 +82,8 @@ public class RtpCapabilitiesTest {
+                                          .setNativeLibraryName(TestConstants.NATIVE_LIBRARY)
+                                          .createInitializationOptions());
+ 
+-    VideoCodecInfo vp8Codec = new VideoCodecInfo("VP8", new HashMap<>());
+-    VideoCodecInfo h264Codec = new VideoCodecInfo("H264", new HashMap<>());
++    VideoCodecInfo vp8Codec = new VideoCodecInfo("VP8", new HashMap<>(), new ArrayList<String>());
++    VideoCodecInfo h264Codec = new VideoCodecInfo("H264", new HashMap<>(), new ArrayList<String>());
+     List<VideoCodecInfo> supportedCodecs = new ArrayList<>();
+     supportedCodecs.add(vp8Codec);
+     supportedCodecs.add(h264Codec);
+diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
+index 8a5d978..80c5a96 100644
+--- a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
++++ b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
+@@ -14,6 +14,8 @@ import static com.google.common.truth.Truth.assertThat;
+ 
+ import androidx.annotation.Nullable;
+ import androidx.test.filters.SmallTest;
++import java.util.ArrayList;
++import java.util.Arrays;
+ import java.util.HashMap;
+ import org.junit.Before;
+ import org.junit.Test;
+@@ -55,7 +57,7 @@ public class SoftwareVideoDecoderFactoryTest {
+   @Test
+   public void createDecoder_unsupportedCodec_returnsNull() {
+     VideoDecoderFactory factory = new SoftwareVideoDecoderFactory();
+-    VideoCodecInfo codec = new VideoCodecInfo("unsupported", new HashMap<String, String>());
++    VideoCodecInfo codec = new VideoCodecInfo("unsupported", new HashMap<String, String>(), new ArrayList<String>());
+     VideoDecoder decoder = factory.createDecoder(codec);
+     assertThat(decoder).isNull();
+   }
+diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
+index 696b423..fbacaf4 100644
+--- a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
++++ b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
+@@ -14,6 +14,8 @@ import static com.google.common.truth.Truth.assertThat;
+ 
+ import androidx.annotation.Nullable;
+ import androidx.test.filters.SmallTest;
++import java.util.ArrayList;
++import java.util.Arrays;
+ import java.util.HashMap;
+ import org.junit.Before;
+ import org.junit.Test;
+@@ -52,7 +54,7 @@ public class SoftwareVideoEncoderFactoryTest {
+   @Test
+   public void createEncoder_unsupportedCodec_returnsNull() {
+     VideoEncoderFactory factory = new SoftwareVideoEncoderFactory();
+-    VideoCodecInfo codec = new VideoCodecInfo("unsupported", new HashMap<String, String>());
++    VideoCodecInfo codec = new VideoCodecInfo("unsupported", new HashMap<String, String>(), new ArrayList<String>());
+     VideoEncoder encoder = factory.createEncoder(codec);
+     assertThat(encoder).isNull();
+   }
+diff --git a/src/sdk/android/src/java/org/webrtc/H264Utils.java b/src/sdk/android/src/java/org/webrtc/H264Utils.java
+index abb79c6..e6cba80 100644
+--- a/src/sdk/android/src/java/org/webrtc/H264Utils.java
++++ b/src/sdk/android/src/java/org/webrtc/H264Utils.java
+@@ -11,6 +11,8 @@
+ package org.webrtc;
+ 
+ import java.util.Map;
++import java.util.ArrayList;
++import java.util.Arrays;
+ import java.util.HashMap;
+ 
+ /** Container for static helper functions related to dealing with H264 codecs. */
+@@ -38,9 +40,9 @@ class H264Utils {
+   }
+ 
+   public static VideoCodecInfo DEFAULT_H264_BASELINE_PROFILE_CODEC =
+-      new VideoCodecInfo("H264", getDefaultH264Params(/* isHighProfile= */ false));
++      new VideoCodecInfo("H264", getDefaultH264Params(/* isHighProfile= */ false), new ArrayList<String>());
+   public static VideoCodecInfo DEFAULT_H264_HIGH_PROFILE_CODEC =
+-      new VideoCodecInfo("H264", getDefaultH264Params(/* isHighProfile= */ true));
++      new VideoCodecInfo("H264", getDefaultH264Params(/* isHighProfile= */ true), new ArrayList<String>());
+ 
+   public static boolean isSameH264Profile(
+       Map<String, String> params1, Map<String, String> params2) {
+diff --git a/src/sdk/android/src/java/org/webrtc/MediaCodecUtils.java b/src/sdk/android/src/java/org/webrtc/MediaCodecUtils.java
+index 5417fec..39ed078 100644
+--- a/src/sdk/android/src/java/org/webrtc/MediaCodecUtils.java
++++ b/src/sdk/android/src/java/org/webrtc/MediaCodecUtils.java
+@@ -15,7 +15,9 @@ import android.media.MediaCodecInfo;
+ import android.media.MediaCodecInfo.CodecCapabilities;
+ import android.os.Build;
+ import androidx.annotation.Nullable;
++import java.util.Arrays;
+ import java.util.HashMap;
++import java.util.List;
+ import java.util.Map;
+ 
+ /** Container class for static constants and helpers used with MediaCodec. */
+@@ -54,6 +56,55 @@ class MediaCodecUtils {
+       MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar,
+       MediaCodecInfo.CodecCapabilities.COLOR_QCOM_FormatYUV420SemiPlanar,
+       MediaCodecUtils.COLOR_QCOM_FORMATYUV420PackedSemiPlanar32m};
++  
++  // All possible scalability Modes.
++  static final List<String> kAllScalabilityModes = Arrays.asList(
++      "L1T1",
++      "L1T2",
++      "L1T3",
++      "L2T1",
++      "L2T1h",
++      "L2T1_KEY",
++      "L2T2",
++      "L2T2h",
++      "L2T2_KEY",
++      "L2T2_KEY_SHIFT",
++      "L2T3",
++      "L2T3h",
++      "L2T3_KEY",
++      "L3T1",
++      "L3T1h",
++      "L3T1_KEY",
++      "L3T2",
++      "L3T2h",
++      "L3T2_KEY",
++      "L3T3",
++      "L3T3h",
++      "L3T3_KEY",
++      "S2T1",
++      "S2T1h",
++      "S2T2",
++      "S2T2h",
++      "S2T3",
++      "S2T3h",
++      "S3T1",
++      "S3T1h",
++      "S3T2",
++      "S3T2h",
++      "S3T3",
++      "S3T3h");
++
++  // All possible VP8 scalability Modes.
++  static final List<String> kVP8ScalabilityModes = Arrays.asList(
++      "L1T1",
++      "L1T2",
++      "L1T3");
++
++  // All possible H264 scalability Modes.
++  static final List<String> kH264ScalabilityModes = Arrays.asList(
++      "L1T1",
++      "L1T2",
++      "L1T3");
+ 
+   // Color formats supported by texture mode encoding - in order of preference.
+   static final int[] TEXTURE_COLOR_FORMATS =
+@@ -94,6 +145,21 @@ class MediaCodecUtils {
+     }
+   }
+ 
++  static List<String> getCodecScalabilityMode(VideoCodecMimeType type) {
++    switch (type) {
++      case VP8:
++        return kVP8ScalabilityModes;
++      case VP9:
++        return kAllScalabilityModes;
++      case AV1:
++        return kAllScalabilityModes;
++      case H264:
++        return kH264ScalabilityModes;
++      default:
++        return Arrays.asList();
++    }
++  }
++
+   static boolean isHardwareAccelerated(MediaCodecInfo info) {
+     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+       return isHardwareAcceleratedQOrHigher(info);
+diff --git a/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java b/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
+index 9a73bc4..a14383d 100644
+--- a/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
++++ b/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
+@@ -12,6 +12,7 @@ package org.webrtc;
+ 
+ import static org.webrtc.MediaCodecUtils.EXYNOS_PREFIX;
+ import static org.webrtc.MediaCodecUtils.QCOM_PREFIX;
++import static org.webrtc.MediaCodecUtils.getCodecScalabilityMode;
+ 
+ import android.media.MediaCodecInfo;
+ import android.media.MediaCodecInfo.CodecCapabilities;
+@@ -72,11 +73,11 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
+         String name = type.name();
+         if (type == VideoCodecMimeType.H264 && isH264HighProfileSupported(codec)) {
+           supportedCodecInfos.add(new VideoCodecInfo(
+-              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true)));
++              name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true), getCodecScalabilityMode(type)));
+         }
+ 
+         supportedCodecInfos.add(new VideoCodecInfo(
+-            name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false)));
++            name, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false), getCodecScalabilityMode(type)));
+       }
+     }
+ 
+diff --git a/src/sdk/android/src/jni/pc/rtp_parameters.cc b/src/sdk/android/src/jni/pc/rtp_parameters.cc
+index 4bd9ee0..1f5957b 100644
+--- a/src/sdk/android/src/jni/pc/rtp_parameters.cc
++++ b/src/sdk/android/src/jni/pc/rtp_parameters.cc
+@@ -52,6 +52,7 @@ ScopedJavaLocalRef<jobject> NativeToJavaRtpEncodingParameter(
+       NativeToJavaInteger(env, encoding.min_bitrate_bps),
+       NativeToJavaInteger(env, encoding.max_framerate),
+       NativeToJavaInteger(env, encoding.num_temporal_layers),
++      NativeToJavaString(env, encoding.scalability_mode),
+       NativeToJavaDouble(env, encoding.scale_resolution_down_by),
+       encoding.ssrc ? NativeToJavaLong(env, *encoding.ssrc) : nullptr,
+       encoding.adaptive_ptime);
+@@ -112,6 +113,11 @@ RtpEncodingParameters JavaToNativeRtpEncodingParameters(
+       Java_Encoding_getNumTemporalLayers(jni, j_encoding_parameters);
+   encoding.num_temporal_layers =
+       JavaToNativeOptionalInt(jni, j_num_temporal_layers);
++  ScopedJavaLocalRef<jstring> j_scalability_mode =
++      Java_Encoding_getScalabilityMode(jni, j_encoding_parameters);
++  if (!IsNull(jni, j_scalability_mode)) {
++    encoding.scalability_mode = JavaToNativeString(jni, j_scalability_mode);
++  }
+   ScopedJavaLocalRef<jobject> j_scale_resolution_down_by =
+       Java_Encoding_getScaleResolutionDownBy(jni, j_encoding_parameters);
+   encoding.scale_resolution_down_by =
+diff --git a/src/sdk/android/src/jni/software_video_decoder_factory.cc b/src/sdk/android/src/jni/software_video_decoder_factory.cc
+index 151bf5f..34817a8 100644
+--- a/src/sdk/android/src/jni/software_video_decoder_factory.cc
++++ b/src/sdk/android/src/jni/software_video_decoder_factory.cc
+@@ -14,13 +14,25 @@
+ #include "sdk/android/native_api/jni/java_types.h"
+ #include "sdk/android/src/jni/jni_helpers.h"
+ #include "sdk/android/src/jni/video_codec_info.h"
++#include "api/video_codecs/video_decoder_factory_template.h"
++#include "api/video_codecs/video_decoder_factory_template_dav1d_adapter.h"
++#include "api/video_codecs/video_decoder_factory_template_libvpx_vp8_adapter.h"
++#include "api/video_codecs/video_decoder_factory_template_libvpx_vp9_adapter.h"
++#include "api/video_codecs/video_decoder_factory_template_open_h264_adapter.h
+ 
+ namespace webrtc {
+ namespace jni {
+ 
+ static jlong JNI_SoftwareVideoDecoderFactory_CreateFactory(JNIEnv* env) {
++  std::unique_ptr<webrtc::VideoDecoderFactory> video_decoder_factory =
++      std::make_unique<webrtc::VideoDecoderFactoryTemplate<
++          webrtc::LibvpxVp8DecoderTemplateAdapter,
++          webrtc::LibvpxVp9DecoderTemplateAdapter,
++          webrtc::OpenH264DecoderTemplateAdapter,
++          webrtc::Dav1dDecoderTemplateAdapter>>();
++
+   return webrtc::NativeToJavaPointer(
+-      CreateBuiltinVideoDecoderFactory().release());
++      video_decoder_factory.release());
+ }
+ 
+ static jlong JNI_SoftwareVideoDecoderFactory_CreateDecoder(
+diff --git a/src/sdk/android/src/jni/software_video_encoder_factory.cc b/src/sdk/android/src/jni/software_video_encoder_factory.cc
+index 4b86960..eefe6c9 100644
+--- a/src/sdk/android/src/jni/software_video_encoder_factory.cc
++++ b/src/sdk/android/src/jni/software_video_encoder_factory.cc
+@@ -14,13 +14,26 @@
+ #include "sdk/android/native_api/jni/java_types.h"
+ #include "sdk/android/src/jni/jni_helpers.h"
+ #include "sdk/android/src/jni/video_codec_info.h"
++#include "api/video_codecs/video_encoder_factory_template.h"
++#include "api/video_codecs/video_encoder_factory_template_libaom_av1_adapter.h"
++#include "api/video_codecs/video_encoder_factory_template_libvpx_vp8_adapter.h"
++#include "api/video_codecs/video_encoder_factory_template_libvpx_vp9_adapter.h"
++#include "api/video_codecs/video_encoder_factory_template_open_h264_adapter.h"
+ 
+ namespace webrtc {
+ namespace jni {
+ 
+ static jlong JNI_SoftwareVideoEncoderFactory_CreateFactory(JNIEnv* env) {
++
++    std::unique_ptr<webrtc::VideoEncoderFactory> video_encoder_factory =
++      std::make_unique<webrtc::VideoEncoderFactoryTemplate<
++          webrtc::LibvpxVp8EncoderTemplateAdapter,
++          webrtc::LibvpxVp9EncoderTemplateAdapter,
++          webrtc::OpenH264EncoderTemplateAdapter,
++          webrtc::LibaomAv1EncoderTemplateAdapter>>();
++
+   return webrtc::NativeToJavaPointer(
+-      CreateBuiltinVideoEncoderFactory().release());
++      video_encoder_factory.release());
+ }
+ 
+ static jlong JNI_SoftwareVideoEncoderFactory_CreateEncoder(
+@@ -49,5 +62,28 @@ JNI_SoftwareVideoEncoderFactory_GetSupportedCodecs(JNIEnv* env,
+                                   &webrtc::jni::SdpVideoFormatToVideoCodecInfo);
+ }
+ 
++static webrtc::ScopedJavaLocalRef<jobject>
++JNI_SoftwareVideoEncoderFactory_QueryCodecSupport(
++    JNIEnv* env,
++    jlong j_factory,
++    const webrtc::JavaParamRef<jobject>& j_video_codec_info,
++    const webrtc::JavaParamRef<jstring>& j_scalability_mode) {
++  auto* const native_factory =
++      reinterpret_cast<webrtc::VideoEncoderFactory*>(j_factory);
++
++  const auto video_format =
++      webrtc::jni::VideoCodecInfoToSdpVideoFormat(env, j_video_codec_info);
++
++  absl::optional<std::string> scalability_mode;
++  if (!IsNull(jni, j_scalability_mode)) {
++    scalability_mode = JavaToNativeString(jni, j_scalability_mode);
++  }
++
++  auto support = native_factory->QueryCodecSupport(video_format, scalability_mode);
++
++  return Java_CodecSupport_Constructor(
++      env, support.is_supported, support.is_power_efficient);
++}
++
+ }  // namespace jni
+ }  // namespace webrtc
+diff --git a/src/sdk/android/src/jni/video_codec_info.cc b/src/sdk/android/src/jni/video_codec_info.cc
+index a218a1d..883bb5a 100644
+--- a/src/sdk/android/src/jni/video_codec_info.cc
++++ b/src/sdk/android/src/jni/video_codec_info.cc
+@@ -13,15 +13,38 @@
+ #include "sdk/android/generated_video_jni/VideoCodecInfo_jni.h"
+ #include "sdk/android/native_api/jni/java_types.h"
+ #include "sdk/android/src/jni/jni_helpers.h"
++#include "absl/container/inlined_vector.h"
++#include "absl/types/optional.h"
++#include "api/video_codecs/scalability_mode.h"
+ 
+ namespace webrtc {
+ namespace jni {
+ 
+ SdpVideoFormat VideoCodecInfoToSdpVideoFormat(JNIEnv* jni,
+                                               const JavaRef<jobject>& j_info) {
++  absl::InlinedVector<ScalabilityMode, kScalabilityModeCount> scalability_modes;
++  auto scalability_modes_str = JavaToStdVectorStrings(jni, Java_VideoCodecInfo_getScalabiltyMods(jni, j_info));
++  for (size_t i = 0; i<scalability_modes_str.size(); ++i) {
++    for (size_t j = 0; j < kScalabilityModeCount; ++j) {
++      if (ScalabilityModeToString(kAllScalabilityModes[j]) == scalability_modes_str[i]) {
++        scalability_modes.push_back(kAllScalabilityModes[j]);
++      }
++    }
++
++  }
+   return SdpVideoFormat(
+       JavaToNativeString(jni, Java_VideoCodecInfo_getName(jni, j_info)),
+-      JavaToNativeStringMap(jni, Java_VideoCodecInfo_getParams(jni, j_info)));
++      JavaToNativeStringMap(jni, Java_VideoCodecInfo_getParams(jni, j_info)),
++      scalability_modes
++      );
++}
++
++ScopedJavaLocalRef<jobject> NativeToJavaScalabilityMode(
++    JNIEnv* jni,
++    const ScalabilityMode& format) {
++        auto sv = ScalabilityModeToString(format);
++        std::string s = {sv.begin(), sv.end()};
++        return NativeToJavaString(jni, s);
+ }
+ 
+ ScopedJavaLocalRef<jobject> SdpVideoFormatToVideoCodecInfo(
+@@ -29,8 +52,10 @@ ScopedJavaLocalRef<jobject> SdpVideoFormatToVideoCodecInfo(
+     const SdpVideoFormat& format) {
+   ScopedJavaLocalRef<jobject> j_params =
+       NativeToJavaStringMap(jni, format.parameters);
++  ScopedJavaLocalRef<jobject> j_scala = NativeToJavaList(
++      jni, format.scalability_modes, NativeToJavaScalabilityMode);
+   return Java_VideoCodecInfo_Constructor(
+-      jni, NativeToJavaString(jni, format.name), j_params);
++      jni, NativeToJavaString(jni, format.name), j_params, j_scala);
+ }
+ 
+ }  // namespace jni
+diff --git a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
+index 7df129b..7cfc1ad 100644
+--- a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
++++ b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
+@@ -126,5 +126,25 @@ VideoEncoderFactoryWrapper::GetEncoderSelector() const {
+   return std::make_unique<VideoEncoderSelectorWrapper>(jni, selector);
+ }
+ 
++CodecSupport QueryCodecSupport(
++    const SdpVideoFormat& format,
++    absl::optional<std::string> scalability_mode) const {
++  JNIEnv* jni = AttachCurrentThreadIfNeeded();
++
++  ScopedJavaLocalRef<jobject> j_codec_info =
++      SdpVideoFormatToVideoCodecInfo(jni, format);
++
++  ScopedJavaLocalRef<jstring> j_scalability_mode =
++      NativeToJavaString(jni, scalability_mode);
++
++  const ScopedJavaLocalRef<jobject> j_supported_codecs =
++      Java_VideoEncoderFactory_queryCodecSupport(jni, j_codec_info,
++                                                 j_scalability_mode);
++
++  return CodecSupport{
++      Java_CodecSupport_getIsSupported(jni, j_supported_codecs),
++      Java_CodecSupport_getIsPowerEfficient(jni, j_supported_codecs)};
++}
++
+ }  // namespace jni
+ }  // namespace webrtc
+diff --git a/src/sdk/android/src/jni/video_encoder_factory_wrapper.h b/src/sdk/android/src/jni/video_encoder_factory_wrapper.h
+index bf6d1e3..d0845c7 100644
+--- a/src/sdk/android/src/jni/video_encoder_factory_wrapper.h
++++ b/src/sdk/android/src/jni/video_encoder_factory_wrapper.h
+@@ -40,6 +40,9 @@ class VideoEncoderFactoryWrapper : public VideoEncoderFactory {
+ 
+   std::unique_ptr<EncoderSelectorInterface> GetEncoderSelector() const override;
+ 
++  CodecSupport QueryCodecSupport(const SdpVideoFormat& format,
++                                 absl::optional<std::string> scalability_mode) const override;
++
+  private:
+   const ScopedJavaGlobalRef<jobject> encoder_factory_;
+   std::vector<SdpVideoFormat> supported_formats_;
+diff --git a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
+index 5575af9..e23d1d8 100644
+--- a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
++++ b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
+@@ -23,6 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
+ @class RTC_OBJC_TYPE(RTCVideoSource);
+ @class RTC_OBJC_TYPE(RTCVideoTrack);
+ @class RTC_OBJC_TYPE(RTCPeerConnectionFactoryOptions);
++@class RTC_OBJC_TYPE(RTCRtpCapabilities);
++typedef NS_ENUM(NSInteger, RTCRtpMediaType);
++
+ @protocol RTC_OBJC_TYPE
+ (RTCPeerConnectionDelegate);
+ @protocol RTC_OBJC_TYPE
+@@ -51,6 +54,12 @@ RTC_OBJC_EXPORT
+             decoderFactory:(nullable id<RTC_OBJC_TYPE(RTCVideoDecoderFactory)>)decoderFactory
+                audioDevice:(nullable id<RTC_OBJC_TYPE(RTCAudioDevice)>)audioDevice;
+ 
++/** Returns the capabilities of an RTP sender for a specific mediaType. */
++- (RTC_OBJC_TYPE(RTCRtpCapabilities) *)rtpSenderCapabilitiesFor:(RTCRtpMediaType)mediaType;
++
++/** Returns the capabilities of an RTP receiver for a specific mediaType. */
++- (RTC_OBJC_TYPE(RTCRtpCapabilities) *)rtpReceiverCapabilitiesFor:(RTCRtpMediaType)mediaType;
++
+ /** Initialize an RTCAudioSource with constraints. */
+ - (RTC_OBJC_TYPE(RTCAudioSource) *)audioSourceWithConstraints:
+     (nullable RTC_OBJC_TYPE(RTCMediaConstraints) *)constraints;
+diff --git a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
+index 62b5554..e63104d 100644
+--- a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
++++ b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
+@@ -21,6 +21,9 @@
+ #import "RTCPeerConnection+Private.h"
+ #import "RTCVideoSource+Private.h"
+ #import "RTCVideoTrack+Private.h"
++#import "RTCRtpReceiver+Private.h"
++#import "RTCRtpCapabilities+Private.h"
++#import "RTCRtpCodecCapability+Private.h"
+ #import "base/RTCLogging.h"
+ #import "base/RTCVideoDecoderFactory.h"
+ #import "base/RTCVideoEncoderFactory.h"
+@@ -116,6 +119,20 @@
+ #endif
+ }
+ 
++- (RTC_OBJC_TYPE(RTCRtpCapabilities) *)rtpSenderCapabilitiesFor:(RTCRtpMediaType)mediaType {
++
++  webrtc::RtpCapabilities capabilities = _nativeFactory->GetRtpSenderCapabilities([RTCRtpReceiver nativeMediaTypeForMediaType: mediaType]);
++
++  return [[RTCRtpCapabilities alloc] initWithNativeCapabilities: capabilities];
++}
++
++- (RTC_OBJC_TYPE(RTCRtpCapabilities) *)rtpReceiverCapabilitiesFor:(RTCRtpMediaType)mediaType {
++
++  webrtc::RtpCapabilities capabilities = _nativeFactory->GetRtpReceiverCapabilities([RTCRtpReceiver nativeMediaTypeForMediaType: mediaType]);
++
++  return [[RTCRtpCapabilities alloc] initWithNativeCapabilities: capabilities];
++}
++
+ - (instancetype)initNative {
+   if (self = [super init]) {
+     _networkThread = rtc::Thread::CreateWithSocketServer();
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h
+new file mode 100644
+index 0000000..47f3b1a
+--- /dev/null
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h
+@@ -0,0 +1,27 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++#import "RTCRtpCapabilities.h"
++
++#include "api/rtp_parameters.h"
++
++NS_ASSUME_NONNULL_BEGIN
++
++@interface RTC_OBJC_TYPE (RTCRtpCapabilities)
++()
++
++    @property(nonatomic, readonly) webrtc::RtpCapabilities nativeCapabilities;
++
++- (instancetype)initWithNativeCapabilities:(const webrtc::RtpCapabilities &)nativeCapabilities
++    NS_DESIGNATED_INITIALIZER;
++
++@end
++
++NS_ASSUME_NONNULL_END
+\ No newline at end of file
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.h b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.h
+new file mode 100644
+index 0000000..792d100
+--- /dev/null
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.h
+@@ -0,0 +1,31 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++#import <Foundation/Foundation.h>
++
++#import "RTCMacros.h"
++
++@class RTC_OBJC_TYPE(RTCRtpCodecCapability);
++@class RTC_OBJC_TYPE(RTCRtpHeaderExtensionCapability);
++
++NS_ASSUME_NONNULL_BEGIN
++
++RTC_OBJC_EXPORT
++@interface RTC_OBJC_TYPE (RTCRtpCapabilities) : NSObject
++
++- (instancetype)init NS_UNAVAILABLE;
++
++@property(nonatomic, readonly) NSArray<RTC_OBJC_TYPE(RTCRtpCodecCapability) *> *codecs;
++
++@property(nonatomic, readonly) NSArray<RTC_OBJC_TYPE(RTCRtpHeaderExtensionCapability) *> *header_extensions;
++
++@end
++
++NS_ASSUME_NONNULL_END
+\ No newline at end of file
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm
+new file mode 100644
+index 0000000..19c1a4c
+--- /dev/null
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm
+@@ -0,0 +1,57 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++ 
++#import "RTCRtpCapabilities+Private.h"
++#import "RTCRtpCodecCapability+Private.h"
++#import "RTCRtpHeaderExtensionCapability+Private.h"
++
++#import "RTCMediaStreamTrack.h"
++#import "helpers/NSString+StdString.h"
++
++#include "media/base/media_constants.h"
++#include "rtc_base/checks.h"
++
++@implementation RTC_OBJC_TYPE (RTCRtpCapabilities)
++
++@synthesize nativeCapabilities = _nativeCapabilities;
++
++- (instancetype)initWithNativeCapabilities:(const webrtc::RtpCapabilities &)nativeCapabilities {
++  if (self = [super init]) {
++    _nativeCapabilities = nativeCapabilities;
++  }
++
++  return self;
++}
++
++- (NSArray<RTC_OBJC_TYPE(RTCRtpCodecCapability) *> *)codecs {
++  NSMutableArray *result = [NSMutableArray array];
++
++  for (auto &element : _nativeCapabilities.codecs) {
++    RTCRtpCodecCapability *object =
++        [[RTCRtpCodecCapability alloc] initWithNativeCodecCapability:element];
++    [result addObject:object];
++  }
++
++  return result;
++}
++
++- (NSArray<RTC_OBJC_TYPE(RTCRtpHeaderExtensionCapability) *> *)header_extensions {
++  NSMutableArray *result = [NSMutableArray array];
++
++  for (auto &element : _nativeCapabilities.header_extensions) {
++    RTCRtpHeaderExtensionCapability *object =
++        [[RTCRtpHeaderExtensionCapability alloc] initWithNativeHeaderExtensionCapability:element];
++    [result addObject:object];
++  }
++
++  return result;
++}
++
++@end
+\ No newline at end of file
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h
+new file mode 100644
+index 0000000..a3be101
+--- /dev/null
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h
+@@ -0,0 +1,27 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++#import "RTCRtpCodecCapability.h"
++
++#include "api/rtp_parameters.h"
++
++NS_ASSUME_NONNULL_BEGIN
++
++@interface RTC_OBJC_TYPE (RTCRtpCodecCapability)
++()
++
++    @property(nonatomic, readonly) webrtc::RtpCodecCapability nativeCodecCapability;
++
++- (instancetype)initWithNativeCodecCapability:
++    (const webrtc::RtpCodecCapability &)nativeCodecCapability NS_DESIGNATED_INITIALIZER;
++
++@end
++
++NS_ASSUME_NONNULL_END
+\ No newline at end of file
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h
+new file mode 100644
+index 0000000..02011bc
+--- /dev/null
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h
+@@ -0,0 +1,53 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++#import <Foundation/Foundation.h>
++
++#import "RTCMacros.h"
++
++typedef NS_ENUM(NSInteger, RTCRtpMediaType);
++
++NS_ASSUME_NONNULL_BEGIN
++
++RTC_OBJC_EXPORT
++@interface RTC_OBJC_TYPE (RTCRtpCodecCapability) : NSObject
++
++// Build MIME "type/subtype" string from `name` and `kind`.
++@property(nonatomic, readonly) NSString *mimeType;
++
++// Used to identify the codec. Equivalent to MIME subtype.
++@property(nonatomic, copy) NSString *name;
++
++// The media type of this codec. Equivalent to MIME top-level type.
++@property(nonatomic, assign) RTCRtpMediaType kind;
++
++// Clock rate in Hertz. If unset, the codec is applicable to any clock rate.
++@property(nonatomic, copy, nullable) NSNumber *clockRate;
++
++// Default payload type for this codec. Mainly needed for codecs that use
++// that have statically assigned payload types.
++@property(nonatomic, copy, nullable) NSNumber *preferredPayloadType;
++
++// The number of audio channels supported. Unused for video codecs.
++@property(nonatomic, copy, nullable) NSNumber *numChannels;
++
++// Codec-specific parameters that must be signaled to the remote party.
++//
++// Corresponds to "a=fmtp" parameters in SDP.
++//
++// Contrary to ORTC, these parameters are named using all lowercase strings.
++// This helps make the mapping to SDP simpler, if an application is using SDP.
++// Boolean values are represented by the string "1".
++// std::map<std::string, std::string> parameters;
++@property(nonatomic, copy) NSDictionary<NSString *, NSString *> *parameters;
++
++@end
++
++NS_ASSUME_NONNULL_END
+\ No newline at end of file
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm
+new file mode 100644
+index 0000000..29fd45b
+--- /dev/null
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm
+@@ -0,0 +1,133 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++#import "RTCRtpCodecCapability+Private.h"
++
++#import "RTCRtpReceiver+Private.h"
++
++#import "RTCMediaStreamTrack.h"
++#import "helpers/NSString+StdString.h"
++
++#include "media/base/media_constants.h"
++#include "rtc_base/checks.h"
++
++@implementation RTC_OBJC_TYPE (RTCRtpCodecCapability)
++
++@synthesize nativeCodecCapability = _nativeCodecCapability;
++
++- (instancetype)init {
++  return [self initWithNativeCodecCapability:webrtc::RtpCodecCapability()];
++}
++
++- (instancetype)initWithNativeCodecCapability:
++    (const webrtc::RtpCodecCapability &)nativeCodecCapability {
++  if (self = [super init]) {
++    _nativeCodecCapability = nativeCodecCapability;
++  }
++
++  return self;
++}
++
++- (NSString *)mimeType {
++  return [NSString stringWithUTF8String:_nativeCodecCapability.mime_type().c_str()];
++}
++
++- (NSString *)name {
++  return [NSString stringWithUTF8String:_nativeCodecCapability.name.c_str()];
++}
++
++- (void)setName:(NSString *)name {
++  _nativeCodecCapability.name = std::string([name UTF8String]);
++}
++
++- (RTCRtpMediaType)kind {
++  return [RTCRtpReceiver mediaTypeForNativeMediaType:_nativeCodecCapability.kind];
++}
++
++- (void)setKind:(RTCRtpMediaType)kind {
++  _nativeCodecCapability.kind = [RTCRtpReceiver nativeMediaTypeForMediaType:kind];
++}
++
++- (NSNumber *)clockRate {
++  if (!_nativeCodecCapability.clock_rate) {
++    return nil;
++  }
++
++  return [NSNumber numberWithInt:*_nativeCodecCapability.clock_rate];
++}
++
++- (void)setClockRate:(NSNumber *)clockRate {
++  if (clockRate == nil) {
++    _nativeCodecCapability.clock_rate = absl::optional<int>();
++    return;
++  }
++
++  _nativeCodecCapability.clock_rate = absl::optional<int>(clockRate.intValue);
++}
++
++- (NSNumber *)preferredPayloadType {
++  if (!_nativeCodecCapability.preferred_payload_type) {
++    return nil;
++  }
++
++  return [NSNumber numberWithInt:*_nativeCodecCapability.preferred_payload_type];
++}
++
++- (void)setPreferredPayloadType:(NSNumber *)preferredPayloadType {
++  if (preferredPayloadType == nil) {
++    _nativeCodecCapability.preferred_payload_type = absl::optional<int>();
++    return;
++  }
++
++  _nativeCodecCapability.preferred_payload_type =
++      absl::optional<int>(preferredPayloadType.intValue);
++}
++
++- (NSNumber *)numChannels {
++  if (!_nativeCodecCapability.num_channels) {
++    return nil;
++  }
++
++  return [NSNumber numberWithInt:*_nativeCodecCapability.num_channels];
++}
++
++- (void)setNumChannels:(NSNumber *)numChannels {
++  if (numChannels == nil) {
++    _nativeCodecCapability.num_channels = absl::optional<int>();
++    return;
++  }
++
++  _nativeCodecCapability.num_channels = absl::optional<int>(numChannels.intValue);
++}
++
++- (NSDictionary<NSString *, NSString *> *)parameters {
++  NSMutableDictionary *result = [NSMutableDictionary dictionary];
++  auto _parameters = _nativeCodecCapability.parameters;
++  for (auto it = _parameters.begin(); it != _parameters.end(); ++it) {
++    [result setObject:[NSString stringForStdString:it->second]
++               forKey:[NSString stringForStdString:it->first]];
++  }
++
++  return result;
++}
++
++- (void)setParameters:(NSDictionary<NSString *, NSString *> *)parameters {
++  std::map<std::string, std::string> _parameters;
++  for (NSString *paramKey in parameters.allKeys) {
++    std::string key = [NSString stdStringForString:paramKey];
++    std::string value = [NSString stdStringForString:parameters[paramKey]];
++    _parameters[key] = value;
++  }
++  // check
++
++  _nativeCodecCapability.parameters = _parameters;
++}
++
++@end
+\ No newline at end of file
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h b/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
+index 07f6b7a..d055115 100644
+--- a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
++++ b/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
+@@ -51,6 +51,10 @@ RTC_OBJC_EXPORT
+  */
+ @property(nonatomic, copy, nullable) NSNumber *numTemporalLayers;
+ 
++/** A case-sensitive identifier of the scalability mode to be used for this stream.
++  https://w3c.github.io/webrtc-svc/#rtcrtpencodingparameters */
++@property(nonatomic, copy, nullable) NSString *scalabilityMode;
++
+ /** Scale the width and height down by this factor for video. If nil,
+  * implementation default scaling factor will be used.
+  */
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm b/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
+index d6087da..e2020bb 100644
+--- a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
++++ b/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
+@@ -20,6 +20,7 @@
+ @synthesize minBitrateBps = _minBitrateBps;
+ @synthesize maxFramerate = _maxFramerate;
+ @synthesize numTemporalLayers = _numTemporalLayers;
++@synthesize scalabilityMode = _scalabilityMode;
+ @synthesize scaleResolutionDownBy = _scaleResolutionDownBy;
+ @synthesize ssrc = _ssrc;
+ @synthesize bitratePriority = _bitratePriority;
+@@ -52,6 +53,9 @@
+     if (nativeParameters.num_temporal_layers) {
+       _numTemporalLayers = [NSNumber numberWithInt:*nativeParameters.num_temporal_layers];
+     }
++    if (nativeParameters.scalability_mode) {
++      _scalabilityMode = [NSString stringWithUTF8String:nativeParameters.scalability_mode->c_str()];
++    }
+     if (nativeParameters.scale_resolution_down_by) {
+       _scaleResolutionDownBy =
+           [NSNumber numberWithDouble:*nativeParameters.scale_resolution_down_by];
+@@ -85,6 +89,9 @@
+   if (_numTemporalLayers != nil) {
+     parameters.num_temporal_layers = absl::optional<int>(_numTemporalLayers.intValue);
+   }
++  if (_scalabilityMode != nil) {
++    parameters.scalability_mode = absl::optional<std::string>(std::string([_scalabilityMode UTF8String]));
++  }
+   if (_scaleResolutionDownBy != nil) {
+     parameters.scale_resolution_down_by =
+         absl::optional<double>(_scaleResolutionDownBy.doubleValue);
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
+new file mode 100644
+index 0000000..9503d3c
+--- /dev/null
++++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
+@@ -0,0 +1,26 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++#import "RTCRtpHeaderExtensionCapability.h"
++
++#include "api/rtp_parameters.h"
++
++NS_ASSUME_NONNULL_BEGIN
++
++@interface RTC_OBJC_TYPE (RTCRtpHeaderExtensionCapability)
++()
++
++    @property(nonatomic, readonly) webrtc::RtpHeaderExtensionCapability nativeHeaderExtensionCapability;
++
++- (instancetype)initWithNativeHeaderExtensionCapability:
++    (const webrtc::RtpHeaderExtensionCapability &)nativeHeaderExtensionCapability NS_DESIGNATED_INITIALIZER;
++
++@end
++
++NS_ASSUME_NONNULL_END
+\ No newline at end of file
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
+new file mode 100644
+index 0000000..5c4e165
+--- /dev/null
++++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
+@@ -0,0 +1,30 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++#import <Foundation/Foundation.h>
++
++#import "RTCMacros.h"
++
++NS_ASSUME_NONNULL_BEGIN
++
++RTC_OBJC_EXPORT
++@interface RTC_OBJC_TYPE (RTCRtpHeaderExtensionCapability) : NSObject
++
++// URI of this extension, as defined in RFC8285.
++@property(nonatomic, readonly) NSString *uri;
++
++// Preferred value of ID that goes in the packet.
++@property(nonatomic, assign) NSNumber *preferred_id;
++
++// If true, it's preferred that the value in the header is encrypted.
++@property(nonatomic, assign) BOOL preferred_encrypt;
++
++@end
++
++NS_ASSUME_NONNULL_END
+\ No newline at end of file
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
+new file mode 100644
+index 0000000..88911d9
+--- /dev/null
++++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
+@@ -0,0 +1,48 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++#import "RTCRtpHeaderExtensionCapability+Private.h"
++
++#import "helpers/NSString+StdString.h"
++
++#include "media/base/media_constants.h"
++#include "rtc_base/checks.h"
++
++@implementation RTC_OBJC_TYPE (RTCRtpHeaderExtensionCapability)
++
++@synthesize nativeHeaderExtensionCapability = _nativeHeaderExtensionCapability;
++
++- (instancetype)init {
++  return [self initWithNativeHeaderExtensionCapability:webrtc::RtpHeaderExtensionCapability()];
++}
++
++- (instancetype)initWithNativeHeaderExtensionCapability:
++    (const webrtc::RtpHeaderExtensionCapability &)nativeHeaderExtensionCapability {
++  if (self = [super init]) {
++    _nativeHeaderExtensionCapability = nativeHeaderExtensionCapability;
++  }
++
++  return self;
++}
++
++- (NSString *)uri {
++  return [NSString stringWithUTF8String:_nativeHeaderExtensionCapability.uri.c_str()];
++}
++
++- (NSNumber *)preferredId {
++  return [NSNumber numberWithInt:*_nativeHeaderExtensionCapability.preferred_id];
++
++}
++
++- (BOOL)preferredEncrypt {
++  return _nativeHeaderExtensionCapability.preferred_encrypt;
++}
++
++@end
+\ No newline at end of file
+diff --git a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
+index 2eb8d36..b5f0b0f 100644
+--- a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
++++ b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
+@@ -12,6 +12,9 @@
+ 
+ #import "helpers/NSString+StdString.h"
+ 
++#include "api/video_codecs/scalability_mode.h"
++#include "absl/container/inlined_vector.h"
++
+ @implementation RTC_OBJC_TYPE (RTCVideoCodecInfo)
+ (Private)
+ 
+@@ -21,10 +24,30 @@
+     [params setObject:[NSString stringForStdString:it->second]
+                forKey:[NSString stringForStdString:it->first]];
+   }
+-  return [self initWithName:[NSString stringForStdString:format.name] parameters:params];
++
++  NSMutableArray<NSString *> *scalability_modes = [NSMutableArray<NSString *> array];
++  for (auto it = format.scalability_modes.begin(); it != format.scalability_modes.end(); ++it) {
++    auto mode = webrtc::ScalabilityModeToString(*it); std::string mode_string = {mode.begin(), mode.end()}; NSString *scalability_mode = [NSString stringForStdString: mode_string ];
++    [scalability_modes addObject:scalability_mode];
++  }
++  
++  return [self initWithName:[NSString stringForStdString:format.name] parameters:params scalabiltyModes: scalability_modes];
+ }
+ 
+ - (webrtc::SdpVideoFormat)nativeSdpVideoFormat {
++
++  absl::InlinedVector<webrtc::ScalabilityMode, webrtc::kScalabilityModeCount> scalability_modes;
++  for (NSString *scalabiltyMode in self.scalabiltyModes) {
++    for (size_t j = 0; j < webrtc::kScalabilityModeCount; ++j) {
++      auto mode = webrtc::ScalabilityModeToString(webrtc::kAllScalabilityModes[j]);
++      std::string mode_string = {mode.begin(), mode.end()}; 
++      std::string self_mode_string = [NSString stdStringForString:scalabiltyMode];
++      if (mode_string == self_mode_string) {
++        scalability_modes.push_back(webrtc::kAllScalabilityModes[j]);
++      }
++    }
++  }
++
+   std::map<std::string, std::string> parameters;
+   for (NSString *paramKey in self.parameters.allKeys) {
+     std::string key = [NSString stdStringForString:paramKey];
+@@ -32,7 +55,7 @@
+     parameters[key] = value;
+   }
+ 
+-  return webrtc::SdpVideoFormat([NSString stdStringForString:self.name], parameters);
++  return webrtc::SdpVideoFormat([NSString stdStringForString:self.name], parameters, scalability_modes);
+ }
+ 
+ @end
+diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.h b/src/sdk/objc/base/RTCVideoCodecInfo.h
+index fa28958..18b6d61 100644
+--- a/src/sdk/objc/base/RTCVideoCodecInfo.h
++++ b/src/sdk/objc/base/RTCVideoCodecInfo.h
+@@ -24,12 +24,14 @@ RTC_OBJC_EXPORT
+ 
+ - (instancetype)initWithName:(NSString *)name
+                   parameters:(nullable NSDictionary<NSString *, NSString *> *)parameters
++                  scalabiltyModes:(nullable NSArray<NSString *> *)scalabiltyModes
+     NS_DESIGNATED_INITIALIZER;
+ 
+ - (BOOL)isEqualToCodecInfo:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info;
+ 
+ @property(nonatomic, readonly) NSString *name;
+ @property(nonatomic, readonly) NSDictionary<NSString *, NSString *> *parameters;
++@property(nonatomic, readonly) NSArray<NSString *> *scalabiltyModes;
+ 
+ @end
+ 
+diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.m b/src/sdk/objc/base/RTCVideoCodecInfo.m
+index ce26ae1..c93f72e 100644
+--- a/src/sdk/objc/base/RTCVideoCodecInfo.m
++++ b/src/sdk/objc/base/RTCVideoCodecInfo.m
+@@ -14,16 +14,20 @@
+ 
+ @synthesize name = _name;
+ @synthesize parameters = _parameters;
++@synthesize scalabiltyModes = _scalabiltyModes;
+ 
+ - (instancetype)initWithName:(NSString *)name {
+-  return [self initWithName:name parameters:nil];
++  return [self initWithName:name parameters:nil scalabiltyModes:nil];
+ }
+ 
+ - (instancetype)initWithName:(NSString *)name
+-                  parameters:(nullable NSDictionary<NSString *, NSString *> *)parameters {
++                  parameters:(nullable NSDictionary<NSString *, NSString *> *)parameters
++                  scalabiltyModes:(nullable NSArray<NSString *> *)scalabiltyModes
++                   {
+   if (self = [super init]) {
+     _name = name;
+     _parameters = (parameters ? parameters : @{});
++    _scalabiltyModes = (scalabiltyModes ? scalabiltyModes : @{});
+   }
+ 
+   return self;
+@@ -54,12 +58,14 @@
+ 
+ - (instancetype)initWithCoder:(NSCoder *)decoder {
+   return [self initWithName:[decoder decodeObjectForKey:@"name"]
+-                 parameters:[decoder decodeObjectForKey:@"parameters"]];
++                 parameters:[decoder decodeObjectForKey:@"parameters"]
++                 scalabiltyModes:[decoder decodeObjectForKey:@"scalabiltyModes"]];
+ }
+ 
+ - (void)encodeWithCoder:(NSCoder *)encoder {
+   [encoder encodeObject:_name forKey:@"name"];
+   [encoder encodeObject:_parameters forKey:@"parameters"];
++  [encoder encodeObject:_scalabiltyModes forKey:@"scalabiltyModes"];
+ }
+ 
+ @end
+diff --git a/src/sdk/objc/components/video_codec/MediaCodecUtils.h b/src/sdk/objc/components/video_codec/MediaCodecUtils.h
+new file mode 100644
+index 0000000..3f21e09
+--- /dev/null
++++ b/src/sdk/objc/components/video_codec/MediaCodecUtils.h
+@@ -0,0 +1,59 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++
++#define ALL_SCALABILITY_MODES  [NSArray arrayWithObjects: \
++    @"L1T1", \
++    @"L1T2", \
++    @"L1T3", \
++    @"L2T1", \
++    @"L2T1h", \
++    @"L2T1_KEY", \
++    @"L2T2", \
++    @"L2T2h", \
++    @"L2T2_KEY", \
++    @"L2T2_KEY_SHIFT", \
++    @"L2T3", \
++    @"L2T3h", \
++    @"L2T3_KEY", \
++    @"L3T1", \
++    @"L3T1h", \
++    @"L3T1_KEY", \
++    @"L3T2", \
++    @"L3T2h", \
++    @"L3T2_KEY", \
++    @"L3T3", \
++    @"L3T3h", \
++    @"L3T3_KEY", \
++    @"S2T1", \
++    @"S2T1h", \
++    @"S2T2", \
++    @"S2T2h", \
++    @"S2T3", \
++    @"S2T3h", \
++    @"S3T1", \
++    @"S3T1h", \
++    @"S3T2", \
++    @"S3T2h", \
++    @"S3T3", \
++    @"S3T3h", \
++    nil]
++
++#define VP8_SCALABILITY_MODES  [NSArray arrayWithObjects: \
++    @"L1T1", \
++    @"L1T2", \
++    @"L1T3", \
++    nil]
++
++#define H264_SCALABILITY_MODES  [NSArray arrayWithObjects: \
++    @"L1T1", \
++    @"L1T2", \
++    @"L1T3", \
++    nil]
+\ No newline at end of file
+diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
+index 6e3baa8..57c949f 100644
+--- a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
++++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
+@@ -16,6 +16,7 @@
+ #import "api/video_codec/RTCVideoDecoderVP8.h"
+ #import "api/video_codec/RTCVideoDecoderVP9.h"
+ #import "base/RTCVideoCodecInfo.h"
++#import "MediaCodecUtils.h"
+ 
+ #if defined(RTC_DAV1D_IN_INTERNAL_DECODER_FACTORY)
+ #import "api/video_codec/RTCVideoDecoderAV1.h"  // nogncheck
+@@ -31,7 +32,7 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedHighInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecH264Name
+-                                                  parameters:constrainedHighParams];
++                                                  parameters:constrainedHighParams scalabiltyModes: H264_SCALABILITY_MODES];
+ 
+   NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
+     @"profile-level-id" : kRTCMaxSupportedH264ProfileLevelConstrainedBaseline,
+@@ -40,10 +41,10 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecH264Name
+-                                                  parameters:constrainedBaselineParams];
++                                                  parameters:constrainedBaselineParams scalabiltyModes: H264_SCALABILITY_MODES];
+ 
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *vp8Info =
+-      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name];
++      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name parameters: nil scalabiltyModes: VP8_SCALABILITY_MODES];
+ 
+   NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *result = [@[
+     constrainedHighInfo,
+@@ -53,11 +54,11 @@
+ 
+   if ([RTC_OBJC_TYPE(RTCVideoDecoderVP9) isSupported]) {
+     [result
+-        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name]];
++        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name parameters: nil scalabiltyModes: ALL_SCALABILITY_MODES ]];
+   }
+ 
+ #if defined(RTC_DAV1D_IN_INTERNAL_DECODER_FACTORY)
+-  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name]];
++  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name parameters: nil scalabiltyModes: ALL_SCALABILITY_MODES]];
+ #endif
+ 
+   return result;
+diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
+index 8de55bd..c4e1424 100644
+--- a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
++++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
+@@ -16,6 +16,7 @@
+ #import "api/video_codec/RTCVideoEncoderVP8.h"
+ #import "api/video_codec/RTCVideoEncoderVP9.h"
+ #import "base/RTCVideoCodecInfo.h"
++#import "MediaCodecUtils.h"
+ 
+ #if defined(RTC_USE_LIBAOM_AV1_ENCODER)
+ #import "api/video_codec/RTCVideoEncoderAV1.h"  // nogncheck
+@@ -33,7 +34,7 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedHighInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecH264Name
+-                                                  parameters:constrainedHighParams];
++                                                  parameters:constrainedHighParams scalabiltyModes: H264_SCALABILITY_MODES];
+ 
+   NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
+     @"profile-level-id" : kRTCMaxSupportedH264ProfileLevelConstrainedBaseline,
+@@ -42,10 +43,10 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecH264Name
+-                                                  parameters:constrainedBaselineParams];
++                                                  parameters:constrainedBaselineParams scalabiltyModes: H264_SCALABILITY_MODES];
+ 
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *vp8Info =
+-      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name];
++      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name parameters: nil scalabiltyModes: VP8_SCALABILITY_MODES];
+ 
+   NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *result = [@[
+     constrainedHighInfo,
+@@ -55,11 +56,11 @@
+ 
+   if ([RTC_OBJC_TYPE(RTCVideoEncoderVP9) isSupported]) {
+     [result
+-        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name]];
++        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name parameters: nil scalabiltyModes: ALL_SCALABILITY_MODES]];
+   }
+ 
+ #if defined(RTC_USE_LIBAOM_AV1_ENCODER)
+-  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name]];
++  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name parameters: nil scalabiltyModes: ALL_SCALABILITY_MODES]];
+ #endif
+ 
+   return result;
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
+index bdae19d..f38e962 100644
+--- a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
++++ b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
+@@ -12,6 +12,7 @@
+ 
+ #import "RTCH264ProfileLevelId.h"
+ #import "RTCVideoDecoderH264.h"
++#import "MediaCodecUtils.h"
+ 
+ @implementation RTC_OBJC_TYPE (RTCVideoDecoderFactoryH264)
+ 
+@@ -26,7 +27,8 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedHighInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
+-                                                  parameters:constrainedHighParams];
++                                                  parameters:constrainedHighParams
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
+   [codecs addObject:constrainedHighInfo];
+ 
+   NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
+@@ -36,7 +38,8 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
+-                                                  parameters:constrainedBaselineParams];
++                                                  parameters:constrainedBaselineParams
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
+   [codecs addObject:constrainedBaselineInfo];
+ 
+   return [codecs copy];
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
+index 9843849..2bd27e6 100644
+--- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
++++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
+@@ -12,6 +12,7 @@
+ 
+ #import "RTCH264ProfileLevelId.h"
+ #import "RTCVideoEncoderH264.h"
++#import "MediaCodecUtils.h"
+ 
+ @implementation RTC_OBJC_TYPE (RTCVideoEncoderFactoryH264)
+ 
+@@ -26,7 +27,8 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedHighInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
+-                                                  parameters:constrainedHighParams];
++                                                  parameters:constrainedHighParams
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
+   [codecs addObject:constrainedHighInfo];
+ 
+   NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
+@@ -36,7 +38,8 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
+-                                                  parameters:constrainedBaselineParams];
++                                                  parameters:constrainedBaselineParams
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
+   [codecs addObject:constrainedBaselineInfo];
+ 
+   return [codecs copy];
+diff --git a/src/sdk/objc/unittests/objc_video_decoder_factory_tests.mm b/src/sdk/objc/unittests/objc_video_decoder_factory_tests.mm
+index f44d831..cf0dd5c 100644
+--- a/src/sdk/objc/unittests/objc_video_decoder_factory_tests.mm
++++ b/src/sdk/objc/unittests/objc_video_decoder_factory_tests.mm
+@@ -34,7 +34,7 @@ id<RTC_OBJC_TYPE(RTCVideoDecoderFactory)> CreateDecoderFactoryReturning(int retu
+ 
+   id decoderFactoryMock = OCMProtocolMock(@protocol(RTC_OBJC_TYPE(RTCVideoDecoderFactory)));
+   RTC_OBJC_TYPE(RTCVideoCodecInfo)* supported =
+-      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:@"H264" parameters:nil];
++      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:@"H264" parameters:nil scalabiltyModes:nil];
+   OCMStub([decoderFactoryMock supportedCodecs]).andReturn(@[ supported ]);
+   OCMStub([decoderFactoryMock createDecoder:[OCMArg any]]).andReturn(decoderMock);
+   return decoderFactoryMock;
+diff --git a/src/sdk/objc/unittests/objc_video_encoder_factory_tests.mm b/src/sdk/objc/unittests/objc_video_encoder_factory_tests.mm
+index 9a4fee2..ba8db45 100644
+--- a/src/sdk/objc/unittests/objc_video_encoder_factory_tests.mm
++++ b/src/sdk/objc/unittests/objc_video_encoder_factory_tests.mm
+@@ -36,7 +36,7 @@ id<RTC_OBJC_TYPE(RTCVideoEncoderFactory)> CreateEncoderFactoryReturning(int retu
+ 
+   id encoderFactoryMock = OCMProtocolMock(@protocol(RTC_OBJC_TYPE(RTCVideoEncoderFactory)));
+   RTC_OBJC_TYPE(RTCVideoCodecInfo)* supported =
+-      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:@"H264" parameters:nil];
++      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:@"H264" parameters:nil scalabiltyModes:nil];
+   OCMStub([encoderFactoryMock supportedCodecs]).andReturn(@[ supported ]);
+   OCMStub([encoderFactoryMock implementations]).andReturn(@[ supported ]);
+   OCMStub([encoderFactoryMock createEncoder:[OCMArg any]]).andReturn(encoderMock);
