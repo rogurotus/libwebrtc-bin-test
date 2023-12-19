@@ -1212,7 +1212,7 @@ index ce26ae1..0286747 100644
    if (self = [super init]) {
      _name = name;
      _parameters = (parameters ? parameters : @{});
-+    _scalabiltyModes = (scalabiltyModes ? scalabiltyModes : []);
++    _scalabiltyModes = (scalabiltyModes ? scalabiltyModes : (NSArray<NSString *> *)(@{}));
    }
  
    return self;
