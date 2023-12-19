@@ -40,10 +40,10 @@ index 4f5ceb5..a743579 100644
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
 diff --git a/src/sdk/android/api/org/webrtc/CodecSupport.java b/src/sdk/android/api/org/webrtc/CodecSupport.java
 new file mode 100644
-index 0000000..52caac1
+index 0000000..3e5a0a6
 --- /dev/null
 +++ b/src/sdk/android/api/org/webrtc/CodecSupport.java
-@@ -0,0 +1,32 @@
+@@ -0,0 +1,33 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
 + *
@@ -55,6 +55,7 @@ index 0000000..52caac1
 + */
 +
 +package org.webrtc;
++import org.webrtc.CalledByNative;
 +
 +public class CodecSupport {
 +  public bool is_supported = false;
@@ -649,7 +650,7 @@ index a218a1d..883bb5a 100644
  
  }  // namespace jni
 diff --git a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
-index 7df129b..9a70ad3 100644
+index 7df129b..7ed9651 100644
 --- a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 +++ b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 @@ -126,5 +126,25 @@ VideoEncoderFactoryWrapper::GetEncoderSelector() const {
@@ -668,7 +669,7 @@ index 7df129b..9a70ad3 100644
 +      NativeToJavaString(jni, scalability_mode);
 +
 +  const ScopedJavaLocalRef<jobject> j_supported_codecs =
-+      Java_VideoEncoderFactory_queryCodecSupport(jni, j_codec_info,
++      Java_VideoEncoderFactory_queryCodecSupport(jni, encoder_factory_, j_codec_info,
 +                                                 j_scalability_mode);
 +
 +  return CodecSupport{
