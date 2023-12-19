@@ -1,7 +1,7 @@
-diff --git a/sdk/BUILD.gn b/sdk/BUILD.gn
+diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
 index 4f5ceb5..a743579 100644
---- a/sdk/BUILD.gn
-+++ b/sdk/BUILD.gn
+--- a/src/sdk/BUILD.gn
++++ b/src/sdk/BUILD.gn
 @@ -991,6 +991,15 @@ if (is_ios || is_mac) {
          "objc/api/peerconnection/RTCRtcpParameters+Private.h",
          "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -38,11 +38,11 @@ index 4f5ceb5..a743579 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-diff --git a/sdk/android/api/org/webrtc/CodecSupport.java b/sdk/android/api/org/webrtc/CodecSupport.java
+diff --git a/src/sdk/android/api/org/webrtc/CodecSupport.java b/src/sdk/android/api/org/webrtc/CodecSupport.java
 new file mode 100644
 index 0000000..52caac1
 --- /dev/null
-+++ b/sdk/android/api/org/webrtc/CodecSupport.java
++++ b/src/sdk/android/api/org/webrtc/CodecSupport.java
 @@ -0,0 +1,32 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -77,10 +77,10 @@ index 0000000..52caac1
 +  }
 +};
 \ No newline at end of file
-diff --git a/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
+diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 index d43fc27..cdee276 100644
---- a/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
-+++ b/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
+--- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
++++ b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 @@ -13,6 +13,7 @@ package org.webrtc;
  import static org.webrtc.MediaCodecUtils.EXYNOS_PREFIX;
  import static org.webrtc.MediaCodecUtils.INTEL_PREFIX;
@@ -103,10 +103,10 @@ index d43fc27..cdee276 100644
        }
      }
  
-diff --git a/sdk/android/api/org/webrtc/RtpParameters.java b/sdk/android/api/org/webrtc/RtpParameters.java
+diff --git a/src/sdk/android/api/org/webrtc/RtpParameters.java b/src/sdk/android/api/org/webrtc/RtpParameters.java
 index 9ca8311..1fcffe7 100644
---- a/sdk/android/api/org/webrtc/RtpParameters.java
-+++ b/sdk/android/api/org/webrtc/RtpParameters.java
+--- a/src/sdk/android/api/org/webrtc/RtpParameters.java
++++ b/src/sdk/android/api/org/webrtc/RtpParameters.java
 @@ -73,6 +73,8 @@ public class RtpParameters {
      @Nullable public Integer maxFramerate;
      // The number of temporal layers for video.
@@ -146,10 +146,10 @@ index 9ca8311..1fcffe7 100644
      @Nullable
      @CalledByNative("Encoding")
      Double getScaleResolutionDownBy() {
-diff --git a/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java b/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
+diff --git a/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
 index 7f4c457..0458d34 100644
---- a/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
-+++ b/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
+--- a/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
++++ b/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
 @@ -50,9 +50,17 @@ public class SoftwareVideoEncoderFactory implements VideoEncoderFactory {
      return nativeGetSupportedCodecs(nativeFactory).toArray(new VideoCodecInfo[0]);
    }
@@ -168,10 +168,10 @@ index 7f4c457..0458d34 100644
 +  private static native CodecSupport nativeQueryCodecSupport(long factory, VideoCodecInfo format, String scalability_mode);
 +  
  }
-diff --git a/sdk/android/api/org/webrtc/VideoCodecInfo.java b/sdk/android/api/org/webrtc/VideoCodecInfo.java
+diff --git a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 index 4f97cf7..d577e34 100644
---- a/sdk/android/api/org/webrtc/VideoCodecInfo.java
-+++ b/sdk/android/api/org/webrtc/VideoCodecInfo.java
+--- a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
++++ b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 @@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
  import java.util.Arrays;
  import java.util.Locale;
@@ -217,10 +217,10 @@ index 4f97cf7..d577e34 100644
 +    return scalabilityMods;
 +  }
  }
-diff --git a/sdk/android/api/org/webrtc/VideoEncoderFactory.java b/sdk/android/api/org/webrtc/VideoEncoderFactory.java
+diff --git a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
 index 2a46662..dadab84 100644
---- a/sdk/android/api/org/webrtc/VideoEncoderFactory.java
-+++ b/sdk/android/api/org/webrtc/VideoEncoderFactory.java
+--- a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
++++ b/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
 @@ -51,6 +51,9 @@ public interface VideoEncoderFactory {
     */
    @CalledByNative VideoCodecInfo[] getSupportedCodecs();
@@ -231,10 +231,10 @@ index 2a46662..dadab84 100644
    /**
     * Enumerates the list of supported video codecs that can also be tagged with
     * implementation information. This method will only be called once and the
-diff --git a/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java b/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
+diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
 index 6f44812..e85b275 100644
---- a/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
-+++ b/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
+--- a/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
++++ b/src/sdk/android/instrumentationtests/src/org/webrtc/AndroidVideoDecoderInstrumentationTest.java
 @@ -48,7 +48,7 @@ public final class AndroidVideoDecoderInstrumentationTest {
      if (codecName.equals("H264")) {
        this.codecType = H264Utils.DEFAULT_H264_BASELINE_PROFILE_CODEC;
@@ -244,10 +244,10 @@ index 6f44812..e85b275 100644
      }
      this.useEglContext = useEglContext;
    }
-diff --git a/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java b/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
+diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
 index fe608c7..0fa3552 100644
---- a/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
-+++ b/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
+--- a/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
++++ b/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
 @@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
  import androidx.annotation.Nullable;
  import androidx.test.filters.SmallTest;
@@ -274,10 +274,10 @@ index fe608c7..0fa3552 100644
      VideoEncoderFactory hwFactory = new CustomHardwareVideoEncoderFactory(hwVp8Encoder);
      DefaultVideoEncoderFactory defFactory = new DefaultVideoEncoderFactory(hwFactory);
      VideoCodecInfo[] supportedCodecs = defFactory.getSupportedCodecs();
-diff --git a/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java b/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
+diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
 index 961ecd5..da0d836 100644
---- a/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
-+++ b/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
+--- a/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
++++ b/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
 @@ -82,8 +82,8 @@ public class RtpCapabilitiesTest {
                                           .setNativeLibraryName(TestConstants.NATIVE_LIBRARY)
                                           .createInitializationOptions());
@@ -289,10 +289,10 @@ index 961ecd5..da0d836 100644
      List<VideoCodecInfo> supportedCodecs = new ArrayList<>();
      supportedCodecs.add(vp8Codec);
      supportedCodecs.add(h264Codec);
-diff --git a/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java b/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
+diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
 index 8a5d978..80c5a96 100644
---- a/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
-+++ b/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
+--- a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
++++ b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
 @@ -14,6 +14,8 @@ import static com.google.common.truth.Truth.assertThat;
  
  import androidx.annotation.Nullable;
@@ -311,10 +311,10 @@ index 8a5d978..80c5a96 100644
      VideoDecoder decoder = factory.createDecoder(codec);
      assertThat(decoder).isNull();
    }
-diff --git a/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java b/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
+diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
 index 696b423..fbacaf4 100644
---- a/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
-+++ b/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
+--- a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
++++ b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoEncoderFactoryTest.java
 @@ -14,6 +14,8 @@ import static com.google.common.truth.Truth.assertThat;
  
  import androidx.annotation.Nullable;
@@ -333,10 +333,10 @@ index 696b423..fbacaf4 100644
      VideoEncoder encoder = factory.createEncoder(codec);
      assertThat(encoder).isNull();
    }
-diff --git a/sdk/android/src/java/org/webrtc/H264Utils.java b/sdk/android/src/java/org/webrtc/H264Utils.java
+diff --git a/src/sdk/android/src/java/org/webrtc/H264Utils.java b/src/sdk/android/src/java/org/webrtc/H264Utils.java
 index abb79c6..e6cba80 100644
---- a/sdk/android/src/java/org/webrtc/H264Utils.java
-+++ b/sdk/android/src/java/org/webrtc/H264Utils.java
+--- a/src/sdk/android/src/java/org/webrtc/H264Utils.java
++++ b/src/sdk/android/src/java/org/webrtc/H264Utils.java
 @@ -11,6 +11,8 @@
  package org.webrtc;
  
@@ -358,10 +358,10 @@ index abb79c6..e6cba80 100644
  
    public static boolean isSameH264Profile(
        Map<String, String> params1, Map<String, String> params2) {
-diff --git a/sdk/android/src/java/org/webrtc/MediaCodecUtils.java b/sdk/android/src/java/org/webrtc/MediaCodecUtils.java
+diff --git a/src/sdk/android/src/java/org/webrtc/MediaCodecUtils.java b/src/sdk/android/src/java/org/webrtc/MediaCodecUtils.java
 index 5417fec..39ed078 100644
---- a/sdk/android/src/java/org/webrtc/MediaCodecUtils.java
-+++ b/sdk/android/src/java/org/webrtc/MediaCodecUtils.java
+--- a/src/sdk/android/src/java/org/webrtc/MediaCodecUtils.java
++++ b/src/sdk/android/src/java/org/webrtc/MediaCodecUtils.java
 @@ -15,7 +15,9 @@ import android.media.MediaCodecInfo;
  import android.media.MediaCodecInfo.CodecCapabilities;
  import android.os.Build;
@@ -450,10 +450,10 @@ index 5417fec..39ed078 100644
    static boolean isHardwareAccelerated(MediaCodecInfo info) {
      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
        return isHardwareAcceleratedQOrHigher(info);
-diff --git a/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java b/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
+diff --git a/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java b/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
 index 9a73bc4..a14383d 100644
---- a/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
-+++ b/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
+--- a/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
++++ b/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
 @@ -12,6 +12,7 @@ package org.webrtc;
  
  import static org.webrtc.MediaCodecUtils.EXYNOS_PREFIX;
@@ -476,10 +476,10 @@ index 9a73bc4..a14383d 100644
        }
      }
  
-diff --git a/sdk/android/src/jni/pc/rtp_parameters.cc b/sdk/android/src/jni/pc/rtp_parameters.cc
+diff --git a/src/sdk/android/src/jni/pc/rtp_parameters.cc b/src/sdk/android/src/jni/pc/rtp_parameters.cc
 index 4bd9ee0..1f5957b 100644
---- a/sdk/android/src/jni/pc/rtp_parameters.cc
-+++ b/sdk/android/src/jni/pc/rtp_parameters.cc
+--- a/src/sdk/android/src/jni/pc/rtp_parameters.cc
++++ b/src/sdk/android/src/jni/pc/rtp_parameters.cc
 @@ -52,6 +52,7 @@ ScopedJavaLocalRef<jobject> NativeToJavaRtpEncodingParameter(
        NativeToJavaInteger(env, encoding.min_bitrate_bps),
        NativeToJavaInteger(env, encoding.max_framerate),
@@ -500,10 +500,10 @@ index 4bd9ee0..1f5957b 100644
    ScopedJavaLocalRef<jobject> j_scale_resolution_down_by =
        Java_Encoding_getScaleResolutionDownBy(jni, j_encoding_parameters);
    encoding.scale_resolution_down_by =
-diff --git a/sdk/android/src/jni/software_video_decoder_factory.cc b/sdk/android/src/jni/software_video_decoder_factory.cc
+diff --git a/src/sdk/android/src/jni/software_video_decoder_factory.cc b/src/sdk/android/src/jni/software_video_decoder_factory.cc
 index 151bf5f..34817a8 100644
---- a/sdk/android/src/jni/software_video_decoder_factory.cc
-+++ b/sdk/android/src/jni/software_video_decoder_factory.cc
+--- a/src/sdk/android/src/jni/software_video_decoder_factory.cc
++++ b/src/sdk/android/src/jni/software_video_decoder_factory.cc
 @@ -14,13 +14,25 @@
  #include "sdk/android/native_api/jni/java_types.h"
  #include "sdk/android/src/jni/jni_helpers.h"
@@ -531,10 +531,10 @@ index 151bf5f..34817a8 100644
  }
  
  static jlong JNI_SoftwareVideoDecoderFactory_CreateDecoder(
-diff --git a/sdk/android/src/jni/software_video_encoder_factory.cc b/sdk/android/src/jni/software_video_encoder_factory.cc
+diff --git a/src/sdk/android/src/jni/software_video_encoder_factory.cc b/src/sdk/android/src/jni/software_video_encoder_factory.cc
 index 4b86960..eefe6c9 100644
---- a/sdk/android/src/jni/software_video_encoder_factory.cc
-+++ b/sdk/android/src/jni/software_video_encoder_factory.cc
+--- a/src/sdk/android/src/jni/software_video_encoder_factory.cc
++++ b/src/sdk/android/src/jni/software_video_encoder_factory.cc
 @@ -14,13 +14,26 @@
  #include "sdk/android/native_api/jni/java_types.h"
  #include "sdk/android/src/jni/jni_helpers.h"
@@ -592,10 +592,10 @@ index 4b86960..eefe6c9 100644
 +
  }  // namespace jni
  }  // namespace webrtc
-diff --git a/sdk/android/src/jni/video_codec_info.cc b/sdk/android/src/jni/video_codec_info.cc
+diff --git a/src/sdk/android/src/jni/video_codec_info.cc b/src/sdk/android/src/jni/video_codec_info.cc
 index a218a1d..883bb5a 100644
---- a/sdk/android/src/jni/video_codec_info.cc
-+++ b/sdk/android/src/jni/video_codec_info.cc
+--- a/src/sdk/android/src/jni/video_codec_info.cc
++++ b/src/sdk/android/src/jni/video_codec_info.cc
 @@ -13,15 +13,38 @@
  #include "sdk/android/generated_video_jni/VideoCodecInfo_jni.h"
  #include "sdk/android/native_api/jni/java_types.h"
@@ -648,10 +648,10 @@ index a218a1d..883bb5a 100644
  }
  
  }  // namespace jni
-diff --git a/sdk/android/src/jni/video_encoder_factory_wrapper.cc b/sdk/android/src/jni/video_encoder_factory_wrapper.cc
+diff --git a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 index 7df129b..9a70ad3 100644
---- a/sdk/android/src/jni/video_encoder_factory_wrapper.cc
-+++ b/sdk/android/src/jni/video_encoder_factory_wrapper.cc
+--- a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
++++ b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 @@ -126,5 +126,25 @@ VideoEncoderFactoryWrapper::GetEncoderSelector() const {
    return std::make_unique<VideoEncoderSelectorWrapper>(jni, selector);
  }
@@ -678,10 +678,10 @@ index 7df129b..9a70ad3 100644
 +
  }  // namespace jni
  }  // namespace webrtc
-diff --git a/sdk/android/src/jni/video_encoder_factory_wrapper.h b/sdk/android/src/jni/video_encoder_factory_wrapper.h
+diff --git a/src/sdk/android/src/jni/video_encoder_factory_wrapper.h b/src/sdk/android/src/jni/video_encoder_factory_wrapper.h
 index bf6d1e3..d0845c7 100644
---- a/sdk/android/src/jni/video_encoder_factory_wrapper.h
-+++ b/sdk/android/src/jni/video_encoder_factory_wrapper.h
+--- a/src/sdk/android/src/jni/video_encoder_factory_wrapper.h
++++ b/src/sdk/android/src/jni/video_encoder_factory_wrapper.h
 @@ -40,6 +40,9 @@ class VideoEncoderFactoryWrapper : public VideoEncoderFactory {
  
    std::unique_ptr<EncoderSelectorInterface> GetEncoderSelector() const override;
@@ -692,10 +692,10 @@ index bf6d1e3..d0845c7 100644
   private:
    const ScopedJavaGlobalRef<jobject> encoder_factory_;
    std::vector<SdpVideoFormat> supported_formats_;
-diff --git a/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h b/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
+diff --git a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
 index 5575af9..e23d1d8 100644
---- a/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
-+++ b/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
+--- a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
++++ b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.h
 @@ -23,6 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
  @class RTC_OBJC_TYPE(RTCVideoSource);
  @class RTC_OBJC_TYPE(RTCVideoTrack);
@@ -719,10 +719,10 @@ index 5575af9..e23d1d8 100644
  /** Initialize an RTCAudioSource with constraints. */
  - (RTC_OBJC_TYPE(RTCAudioSource) *)audioSourceWithConstraints:
      (nullable RTC_OBJC_TYPE(RTCMediaConstraints) *)constraints;
-diff --git a/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm b/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
+diff --git a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
 index 62b5554..e63104d 100644
---- a/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
-+++ b/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
+--- a/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
++++ b/src/sdk/objc/api/peerconnection/RTCPeerConnectionFactory.mm
 @@ -21,6 +21,9 @@
  #import "RTCPeerConnection+Private.h"
  #import "RTCVideoSource+Private.h"
@@ -754,11 +754,11 @@ index 62b5554..e63104d 100644
  - (instancetype)initNative {
    if (self = [super init]) {
      _networkThread = rtc::Thread::CreateWithSocketServer();
-diff --git a/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h b/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h
 new file mode 100644
 index 0000000..47f3b1a
 --- /dev/null
-+++ b/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities+Private.h
 @@ -0,0 +1,27 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -788,11 +788,11 @@ index 0000000..47f3b1a
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/sdk/objc/api/peerconnection/RTCRtpCapabilities.h b/sdk/objc/api/peerconnection/RTCRtpCapabilities.h
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.h b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.h
 new file mode 100644
 index 0000000..792d100
 --- /dev/null
-+++ b/sdk/objc/api/peerconnection/RTCRtpCapabilities.h
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.h
 @@ -0,0 +1,31 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -826,11 +826,11 @@ index 0000000..792d100
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm b/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm
 new file mode 100644
 index 0000000..19c1a4c
 --- /dev/null
-+++ b/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCapabilities.mm
 @@ -0,0 +1,57 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -890,11 +890,11 @@ index 0000000..19c1a4c
 +
 +@end
 \ No newline at end of file
-diff --git a/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h b/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h
 new file mode 100644
 index 0000000..a3be101
 --- /dev/null
-+++ b/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability+Private.h
 @@ -0,0 +1,27 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -924,11 +924,11 @@ index 0000000..a3be101
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h b/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h
 new file mode 100644
 index 0000000..02011bc
 --- /dev/null
-+++ b/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.h
 @@ -0,0 +1,53 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -984,11 +984,11 @@ index 0000000..02011bc
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm b/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm
 new file mode 100644
 index 0000000..29fd45b
 --- /dev/null
-+++ b/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm
++++ b/src/sdk/objc/api/peerconnection/RTCRtpCodecCapability.mm
 @@ -0,0 +1,133 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -1124,10 +1124,10 @@ index 0000000..29fd45b
 +
 +@end
 \ No newline at end of file
-diff --git a/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h b/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h b/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
 index 07f6b7a..d055115 100644
---- a/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
-+++ b/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
+--- a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
++++ b/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.h
 @@ -51,6 +51,10 @@ RTC_OBJC_EXPORT
   */
  @property(nonatomic, copy, nullable) NSNumber *numTemporalLayers;
@@ -1139,10 +1139,10 @@ index 07f6b7a..d055115 100644
  /** Scale the width and height down by this factor for video. If nil,
   * implementation default scaling factor will be used.
   */
-diff --git a/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm b/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm b/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
 index d6087da..e2020bb 100644
---- a/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
-+++ b/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
+--- a/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
++++ b/src/sdk/objc/api/peerconnection/RTCRtpEncodingParameters.mm
 @@ -20,6 +20,7 @@
  @synthesize minBitrateBps = _minBitrateBps;
  @synthesize maxFramerate = _maxFramerate;
@@ -1171,11 +1171,11 @@ index d6087da..e2020bb 100644
    if (_scaleResolutionDownBy != nil) {
      parameters.scale_resolution_down_by =
          absl::optional<double>(_scaleResolutionDownBy.doubleValue);
-diff --git a/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
 new file mode 100644
 index 0000000..9503d3c
 --- /dev/null
-+++ b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
++++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability+Private.h
 @@ -0,0 +1,26 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -1204,11 +1204,11 @@ index 0000000..9503d3c
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
 new file mode 100644
 index 0000000..5c4e165
 --- /dev/null
-+++ b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
++++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.h
 @@ -0,0 +1,30 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -1241,11 +1241,11 @@ index 0000000..5c4e165
 +
 +NS_ASSUME_NONNULL_END
 \ No newline at end of file
-diff --git a/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
+diff --git a/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
 new file mode 100644
 index 0000000..88911d9
 --- /dev/null
-+++ b/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
++++ b/src/sdk/objc/api/peerconnection/RTCRtpHeaderExtensionCapability.mm
 @@ -0,0 +1,48 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -1296,10 +1296,10 @@ index 0000000..88911d9
 +
 +@end
 \ No newline at end of file
-diff --git a/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm b/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
+diff --git a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
 index 2eb8d36..b5f0b0f 100644
---- a/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
-+++ b/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
+--- a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
++++ b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
 @@ -12,6 +12,9 @@
  
  #import "helpers/NSString+StdString.h"
@@ -1351,10 +1351,10 @@ index 2eb8d36..b5f0b0f 100644
  }
  
  @end
-diff --git a/sdk/objc/base/RTCVideoCodecInfo.h b/sdk/objc/base/RTCVideoCodecInfo.h
+diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.h b/src/sdk/objc/base/RTCVideoCodecInfo.h
 index fa28958..18b6d61 100644
---- a/sdk/objc/base/RTCVideoCodecInfo.h
-+++ b/sdk/objc/base/RTCVideoCodecInfo.h
+--- a/src/sdk/objc/base/RTCVideoCodecInfo.h
++++ b/src/sdk/objc/base/RTCVideoCodecInfo.h
 @@ -24,12 +24,14 @@ RTC_OBJC_EXPORT
  
  - (instancetype)initWithName:(NSString *)name
@@ -1370,10 +1370,10 @@ index fa28958..18b6d61 100644
  
  @end
  
-diff --git a/sdk/objc/base/RTCVideoCodecInfo.m b/sdk/objc/base/RTCVideoCodecInfo.m
+diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.m b/src/sdk/objc/base/RTCVideoCodecInfo.m
 index ce26ae1..31315cf 100644
---- a/sdk/objc/base/RTCVideoCodecInfo.m
-+++ b/sdk/objc/base/RTCVideoCodecInfo.m
+--- a/src/sdk/objc/base/RTCVideoCodecInfo.m
++++ b/src/sdk/objc/base/RTCVideoCodecInfo.m
 @@ -14,16 +14,20 @@
  
  @synthesize name = _name;
@@ -1413,11 +1413,11 @@ index ce26ae1..31315cf 100644
  }
  
  @end
-diff --git a/sdk/objc/components/video_codec/MediaCodecUtils.h b/sdk/objc/components/video_codec/MediaCodecUtils.h
+diff --git a/src/sdk/objc/components/video_codec/MediaCodecUtils.h b/src/sdk/objc/components/video_codec/MediaCodecUtils.h
 new file mode 100644
 index 0000000..3f21e09
 --- /dev/null
-+++ b/sdk/objc/components/video_codec/MediaCodecUtils.h
++++ b/src/sdk/objc/components/video_codec/MediaCodecUtils.h
 @@ -0,0 +1,59 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
@@ -1479,10 +1479,10 @@ index 0000000..3f21e09
 +    @"L1T3", \
 +    nil]
 \ No newline at end of file
-diff --git a/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m b/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
+diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
 index 6e3baa8..57c949f 100644
---- a/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
-+++ b/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
+--- a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
++++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
 @@ -16,6 +16,7 @@
  #import "api/video_codec/RTCVideoDecoderVP8.h"
  #import "api/video_codec/RTCVideoDecoderVP9.h"
@@ -1527,10 +1527,10 @@ index 6e3baa8..57c949f 100644
  #endif
  
    return result;
-diff --git a/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m b/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
+diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
 index 8de55bd..c4e1424 100644
---- a/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
-+++ b/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
+--- a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
++++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
 @@ -16,6 +16,7 @@
  #import "api/video_codec/RTCVideoEncoderVP8.h"
  #import "api/video_codec/RTCVideoEncoderVP9.h"
@@ -1575,10 +1575,10 @@ index 8de55bd..c4e1424 100644
  #endif
  
    return result;
-diff --git a/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m b/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
 index bdae19d..f38e962 100644
---- a/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
-+++ b/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
+--- a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
++++ b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
 @@ -12,6 +12,7 @@
  
  #import "RTCH264ProfileLevelId.h"
@@ -1607,10 +1607,10 @@ index bdae19d..f38e962 100644
    [codecs addObject:constrainedBaselineInfo];
  
    return [codecs copy];
-diff --git a/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m b/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
 index 9843849..2bd27e6 100644
---- a/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
-+++ b/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
+--- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
++++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
 @@ -12,6 +12,7 @@
  
  #import "RTCH264ProfileLevelId.h"
@@ -1639,10 +1639,10 @@ index 9843849..2bd27e6 100644
    [codecs addObject:constrainedBaselineInfo];
  
    return [codecs copy];
-diff --git a/sdk/objc/unittests/objc_video_decoder_factory_tests.mm b/sdk/objc/unittests/objc_video_decoder_factory_tests.mm
+diff --git a/src/sdk/objc/unittests/objc_video_decoder_factory_tests.mm b/src/sdk/objc/unittests/objc_video_decoder_factory_tests.mm
 index f44d831..cf0dd5c 100644
---- a/sdk/objc/unittests/objc_video_decoder_factory_tests.mm
-+++ b/sdk/objc/unittests/objc_video_decoder_factory_tests.mm
+--- a/src/sdk/objc/unittests/objc_video_decoder_factory_tests.mm
++++ b/src/sdk/objc/unittests/objc_video_decoder_factory_tests.mm
 @@ -34,7 +34,7 @@ id<RTC_OBJC_TYPE(RTCVideoDecoderFactory)> CreateDecoderFactoryReturning(int retu
  
    id decoderFactoryMock = OCMProtocolMock(@protocol(RTC_OBJC_TYPE(RTCVideoDecoderFactory)));
@@ -1652,10 +1652,10 @@ index f44d831..cf0dd5c 100644
    OCMStub([decoderFactoryMock supportedCodecs]).andReturn(@[ supported ]);
    OCMStub([decoderFactoryMock createDecoder:[OCMArg any]]).andReturn(decoderMock);
    return decoderFactoryMock;
-diff --git a/sdk/objc/unittests/objc_video_encoder_factory_tests.mm b/sdk/objc/unittests/objc_video_encoder_factory_tests.mm
+diff --git a/src/sdk/objc/unittests/objc_video_encoder_factory_tests.mm b/src/sdk/objc/unittests/objc_video_encoder_factory_tests.mm
 index 9a4fee2..ba8db45 100644
---- a/sdk/objc/unittests/objc_video_encoder_factory_tests.mm
-+++ b/sdk/objc/unittests/objc_video_encoder_factory_tests.mm
+--- a/src/sdk/objc/unittests/objc_video_encoder_factory_tests.mm
++++ b/src/sdk/objc/unittests/objc_video_encoder_factory_tests.mm
 @@ -36,7 +36,7 @@ id<RTC_OBJC_TYPE(RTCVideoEncoderFactory)> CreateEncoderFactoryReturning(int retu
  
    id encoderFactoryMock = OCMProtocolMock(@protocol(RTC_OBJC_TYPE(RTCVideoEncoderFactory)));
