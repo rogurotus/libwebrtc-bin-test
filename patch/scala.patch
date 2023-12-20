@@ -637,7 +637,7 @@ index a218a1d..883bb5a 100644
  
  }  // namespace jni
 diff --git a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
-index 7df129b..ea13a32 100644
+index 7df129b..acb083f 100644
 --- a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 +++ b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 @@ -14,6 +14,7 @@
@@ -648,7 +648,7 @@ index 7df129b..ea13a32 100644
  #include "sdk/android/native_api/jni/class_loader.h"
  #include "sdk/android/native_api/jni/java_types.h"
  #include "sdk/android/src/jni/video_codec_info.h"
-@@ -126,5 +127,25 @@ VideoEncoderFactoryWrapper::GetEncoderSelector() const {
+@@ -126,5 +127,26 @@ VideoEncoderFactoryWrapper::GetEncoderSelector() const {
    return std::make_unique<VideoEncoderSelectorWrapper>(jni, selector);
  }
  
@@ -667,9 +667,10 @@ index 7df129b..ea13a32 100644
 +      Java_VideoEncoderFactory_queryCodecSupport(jni, encoder_factory_, j_codec_info,
 +                                                 j_scalability_mode);
 +
-+  return VideoEncoderFactory::CodecSupport{
-+      Java_CodecSupport_getIsSupported(jni, j_supported_codecs),
-+      Java_CodecSupport_getIsPowerEfficient(jni, j_supported_codecs)};
++  bool is_supported = Java_CodecSupport_getIsSupported(jni, j_supported_codecs);
++  bool is_power_efficient =
++      Java_CodecSupport_getIsPowerEfficient(jni, j_supported_codecs);
++  return VideoEncoderFactory::CodecSupport{is_supported, is_power_efficient};
 +}
 +
  }  // namespace jni
