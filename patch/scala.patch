@@ -38,46 +38,6 @@ index 4f5ceb5..a743579 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-diff --git a/src/sdk/android/api/org/webrtc/CodecSupport.java b/src/sdk/android/api/org/webrtc/CodecSupport.java
-new file mode 100644
-index 0000000..f911bb8
---- /dev/null
-+++ b/src/sdk/android/api/org/webrtc/CodecSupport.java
-@@ -0,0 +1,33 @@
-+/*
-+ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
-+ *
-+ *  Use of this source code is governed by a BSD-style license
-+ *  that can be found in the LICENSE file in the root of the source
-+ *  tree. An additional intellectual property rights grant can be found
-+ *  in the file PATENTS.  All contributing project authors may
-+ *  be found in the AUTHORS file in the root of the source tree.
-+ */
-+
-+package org.webrtc;
-+import org.webrtc.CalledByNative;
-+
-+public class CodecSupport {
-+  public bool is_supported = false;
-+  public bool is_power_efficient = false;
-+
-+  @CalledByNative("CodecSupport")
-+  public CodecSupport(bool is_supported, bool is_power_efficient) {
-+    this.is_supported = is_supported;
-+    this.is_power_efficient = is_power_efficient;
-+  }
-+
-+  @CalledByNative("CodecSupport")
-+  bool getIsSupported() {
-+    return is_supported;
-+  }
-+
-+  @CalledByNative("CodecSupport")
-+  bool getIsPowerEfficient() {
-+    return is_power_efficient;
-+  }
-+};
-\ No newline at end of file
 diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 index d43fc27..cdee276 100644
 --- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
@@ -170,7 +130,7 @@ index 7f4c457..0458d34 100644
 +  
  }
 diff --git a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
-index 4f97cf7..d577e34 100644
+index 4f97cf7..23ec060 100644
 --- a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 +++ b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 @@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
@@ -208,7 +168,7 @@ index 4f97cf7..d577e34 100644
    }
  
    @Override
-@@ -83,4 +88,9 @@ public class VideoCodecInfo {
+@@ -83,4 +88,31 @@ public class VideoCodecInfo {
    Map getParams() {
      return params;
    }
@@ -218,6 +178,29 @@ index 4f97cf7..d577e34 100644
 +    return scalabilityMods;
 +  }
  }
++
++
++public class CodecSupport {
++  public bool is_supported = false;
++  public bool is_power_efficient = false;
++
++  @CalledByNative("CodecSupport")
++  public CodecSupport(bool is_supported, bool is_power_efficient) {
++    this.is_supported = is_supported;
++    this.is_power_efficient = is_power_efficient;
++  }
++
++  @CalledByNative("CodecSupport")
++  bool getIsSupported() {
++    return is_supported;
++  }
++
++  @CalledByNative("CodecSupport")
++  bool getIsPowerEfficient() {
++    return is_power_efficient;
++  }
++};
+\ No newline at end of file
 diff --git a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
 index 2a46662..dadab84 100644
 --- a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
