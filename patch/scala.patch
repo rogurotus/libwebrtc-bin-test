@@ -496,7 +496,7 @@ index 151bf5f..34817a8 100644
 +#include "api/video_codecs/video_decoder_factory_template_dav1d_adapter.h"
 +#include "api/video_codecs/video_decoder_factory_template_libvpx_vp8_adapter.h"
 +#include "api/video_codecs/video_decoder_factory_template_libvpx_vp9_adapter.h"
-+#include "api/video_codecs/video_decoder_factory_template_open_h264_adapter.h
++#include "api/video_codecs/video_decoder_factory_template_open_h264_adapter.h"
  
  namespace webrtc {
  namespace jni {
