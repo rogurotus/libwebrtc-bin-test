@@ -40,7 +40,7 @@ index 4f5ceb5..a743579 100644
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
 diff --git a/src/sdk/android/api/org/webrtc/CodecSupport.java b/src/sdk/android/api/org/webrtc/CodecSupport.java
 new file mode 100644
-index 0000000..3e5a0a6
+index 0000000..f911bb8
 --- /dev/null
 +++ b/src/sdk/android/api/org/webrtc/CodecSupport.java
 @@ -0,0 +1,33 @@
@@ -61,18 +61,18 @@ index 0000000..3e5a0a6
 +  public bool is_supported = false;
 +  public bool is_power_efficient = false;
 +
-+  @CalledByNative
++  @CalledByNative("CodecSupport")
 +  public CodecSupport(bool is_supported, bool is_power_efficient) {
 +    this.is_supported = is_supported;
 +    this.is_power_efficient = is_power_efficient;
 +  }
 +
-+  @CalledByNative
++  @CalledByNative("CodecSupport")
 +  bool getIsSupported() {
 +    return is_supported;
 +  }
 +
-+  @CalledByNative
++  @CalledByNative("CodecSupport")
 +  bool getIsPowerEfficient() {
 +    return is_power_efficient;
 +  }
@@ -650,14 +650,14 @@ index a218a1d..883bb5a 100644
  
  }  // namespace jni
 diff --git a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
-index 7df129b..7ed9651 100644
+index 7df129b..3a1b905 100644
 --- a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 +++ b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 @@ -126,5 +126,25 @@ VideoEncoderFactoryWrapper::GetEncoderSelector() const {
    return std::make_unique<VideoEncoderSelectorWrapper>(jni, selector);
  }
  
-+CodecSupport VideoEncoderFactoryWrapper::QueryCodecSupport(
++VideoEncoderFactory::CodecSupport VideoEncoderFactoryWrapper::QueryCodecSupport(
 +    const SdpVideoFormat& format,
 +    absl::optional<std::string> scalability_mode) const {
 +  JNIEnv* jni = AttachCurrentThreadIfNeeded();
@@ -672,7 +672,7 @@ index 7df129b..7ed9651 100644
 +      Java_VideoEncoderFactory_queryCodecSupport(jni, encoder_factory_, j_codec_info,
 +                                                 j_scalability_mode);
 +
-+  return CodecSupport{
++  return VideoEncoderFactory::CodecSupport{
 +      Java_CodecSupport_getIsSupported(jni, j_supported_codecs),
 +      Java_CodecSupport_getIsPowerEfficient(jni, j_supported_codecs)};
 +}
