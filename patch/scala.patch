@@ -565,11 +565,11 @@ index 4b86960..01906ad 100644
 +
 +    if (env == nullptr) {
 +      auto a = Java_VideoCodecInfo_Constructor(env, NativeToJavaString(env, ""), *(ScopedJavaLocalRef<jobject>*)(1), *(ScopedJavaLocalRef<jobject>*)(1));
-+      auto b = Java_VideoCodecInfo_getName(env, *(JavaRef<jobject>*)(1));
-+      auto c = Java_VideoCodecInfo_getParams(env, *(JavaRef<jobject>*)(1));
++      auto b = Java_VideoCodecInfo_getName(env, *(JavaRef<jobject>*)(1)); auto b2 = Java_CodecSupport_getIsSupported(jni,*(ScopedJavaLocalRef<jobject>*)(1));
++      auto c = Java_VideoCodecInfo_getParams(env, *(JavaRef<jobject>*)(1)); auto b3 = Java_CodecSupport_getIsPowerEfficient(jni,*(ScopedJavaLocalRef<jobject>*)(1));
 +      auto d = Java_VideoCodecInfo_getScalabiltyMods(env, *(JavaRef<jobject>*)(1));
 +      auto e = Java_CodecSupport_Constructor(env, false, false);
-+      std::cout << &a << &b << &c << &d << &e << std::endl;
++      std::cout << &a << &b << &c << &d << &e << &b2 << &b3<< std::endl;
 +  }
 +
 +  auto* const native_factory =
