@@ -130,7 +130,7 @@ index 7f4c457..0458d34 100644
 +  
  }
 diff --git a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
-index 4f97cf7..23ec060 100644
+index 4f97cf7..a08e06d 100644
 --- a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 +++ b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 @@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
@@ -191,12 +191,12 @@ index 4f97cf7..23ec060 100644
 +  }
 +
 +  @CalledByNative("CodecSupport")
-+  bool getIsSupported() {
++  boolean getIsSupported() {
 +    return is_supported;
 +  }
 +
 +  @CalledByNative("CodecSupport")
-+  bool getIsPowerEfficient() {
++  boolean getIsPowerEfficient() {
 +    return is_power_efficient;
 +  }
 +};
