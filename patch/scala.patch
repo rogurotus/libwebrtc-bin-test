@@ -516,10 +516,14 @@ index 151bf5f..34817a8 100644
  
  static jlong JNI_SoftwareVideoDecoderFactory_CreateDecoder(
 diff --git a/src/sdk/android/src/jni/software_video_encoder_factory.cc b/src/sdk/android/src/jni/software_video_encoder_factory.cc
-index 4b86960..eefe6c9 100644
+index 4b86960..80ed1ec 100644
 --- a/src/sdk/android/src/jni/software_video_encoder_factory.cc
 +++ b/src/sdk/android/src/jni/software_video_encoder_factory.cc
-@@ -14,13 +14,26 @@
+@@ -11,16 +11,30 @@
+ #include "api/video_codecs/builtin_video_encoder_factory.h"
+ #include "api/video_codecs/video_encoder.h"
+ #include "sdk/android/generated_swcodecs_jni/SoftwareVideoEncoderFactory_jni.h"
++#include "sdk/android/generated_video_jni/VideoCodecInfo_jni.h"
  #include "sdk/android/native_api/jni/java_types.h"
  #include "sdk/android/src/jni/jni_helpers.h"
  #include "sdk/android/src/jni/video_codec_info.h"
@@ -547,7 +551,7 @@ index 4b86960..eefe6c9 100644
  }
  
  static jlong JNI_SoftwareVideoEncoderFactory_CreateEncoder(
-@@ -49,5 +62,28 @@ JNI_SoftwareVideoEncoderFactory_GetSupportedCodecs(JNIEnv* env,
+@@ -49,5 +63,28 @@ JNI_SoftwareVideoEncoderFactory_GetSupportedCodecs(JNIEnv* env,
                                    &webrtc::jni::SdpVideoFormatToVideoCodecInfo);
  }
  
@@ -633,10 +637,18 @@ index a218a1d..883bb5a 100644
  
  }  // namespace jni
 diff --git a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
-index 7df129b..3a1b905 100644
+index 7df129b..ea13a32 100644
 --- a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 +++ b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
-@@ -126,5 +126,25 @@ VideoEncoderFactoryWrapper::GetEncoderSelector() const {
+@@ -14,6 +14,7 @@
+ #include "api/video_codecs/video_encoder.h"
+ #include "rtc_base/logging.h"
+ #include "sdk/android/generated_video_jni/VideoEncoderFactory_jni.h"
++#include "sdk/android/generated_video_jni/VideoCodecInfo_jni.h"
+ #include "sdk/android/native_api/jni/class_loader.h"
+ #include "sdk/android/native_api/jni/java_types.h"
+ #include "sdk/android/src/jni/video_codec_info.h"
+@@ -126,5 +127,25 @@ VideoEncoderFactoryWrapper::GetEncoderSelector() const {
    return std::make_unique<VideoEncoderSelectorWrapper>(jni, selector);
  }
  
