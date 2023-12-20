@@ -130,7 +130,7 @@ index 7f4c457..0458d34 100644
 +  
  }
 diff --git a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
-index 4f97cf7..a08e06d 100644
+index 4f97cf7..d713690 100644
 --- a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 +++ b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 @@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
@@ -181,11 +181,11 @@ index 4f97cf7..a08e06d 100644
 +
 +
 +public class CodecSupport {
-+  public bool is_supported = false;
-+  public bool is_power_efficient = false;
++  public boolean is_supported = false;
++  public boolean is_power_efficient = false;
 +
 +  @CalledByNative("CodecSupport")
-+  public CodecSupport(bool is_supported, bool is_power_efficient) {
++  public CodecSupport(boolean is_supported, boolean is_power_efficient) {
 +    this.is_supported = is_supported;
 +    this.is_power_efficient = is_power_efficient;
 +  }
@@ -516,7 +516,7 @@ index 151bf5f..34817a8 100644
  
  static jlong JNI_SoftwareVideoDecoderFactory_CreateDecoder(
 diff --git a/src/sdk/android/src/jni/software_video_encoder_factory.cc b/src/sdk/android/src/jni/software_video_encoder_factory.cc
-index 4b86960..a6e7b89 100644
+index 4b86960..c7eb004 100644
 --- a/src/sdk/android/src/jni/software_video_encoder_factory.cc
 +++ b/src/sdk/android/src/jni/software_video_encoder_factory.cc
 @@ -11,16 +11,30 @@
@@ -563,10 +563,10 @@ index 4b86960..a6e7b89 100644
 +    const webrtc::JavaParamRef<jstring>& j_scalability_mode) {
 +
 +    if (jni == nullptr) {
-+      auto a = Java_VideoCodecInfo_Constructor(jni, NativeToJavaString(jni, ""), *(ScopedJavaLocalRef<jobject>*)(0), *(ScopedJavaLocalRef<jobject>*)(0));
-+      auto b = Java_VideoCodecInfo_getName(jni, *(JavaRef<jobject>*)(0));
-+      auto c = Java_VideoCodecInfo_getParams(jni, *(JavaRef<jobject>*)(0));
-+      auto d = Java_VideoCodecInfo_getScalabiltyMods(jni, *(JavaRef<jobject>*)(0));
++      auto a = Java_VideoCodecInfo_Constructor(jni, NativeToJavaString(jni, ""), *(ScopedJavaLocalRef<jobject>*)(1), *(ScopedJavaLocalRef<jobject>*)(1));
++      auto b = Java_VideoCodecInfo_getName(jni, *(JavaRef<jobject>*)(1));
++      auto c = Java_VideoCodecInfo_getParams(jni, *(JavaRef<jobject>*)(1));
++      auto d = Java_VideoCodecInfo_getScalabiltyMods(jni, *(JavaRef<jobject>*)(1));
 +      auto e = Java_CodecSupport_Constructor(jni, false, false);
 +      std::cout << &a << &b << &c << &d << &e << std::endl;
 +  }
@@ -656,7 +656,7 @@ index a218a1d..dacada7 100644
  
  }  // namespace jni
 diff --git a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
-index 7df129b..ad3a744 100644
+index 7df129b..03d7ec5 100644
 --- a/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 +++ b/src/sdk/android/src/jni/video_encoder_factory_wrapper.cc
 @@ -14,6 +14,7 @@
@@ -691,10 +691,10 @@ index 7df129b..ad3a744 100644
 +      Java_CodecSupport_getIsPowerEfficient(jni, j_supported_codecs);
 +
 +    if (jni == nullptr) {
-+      auto a = Java_VideoCodecInfo_Constructor(jni, NativeToJavaString(jni, ""), *(ScopedJavaLocalRef<jobject>*)(0), *(ScopedJavaLocalRef<jobject>*)(0));
-+      auto b = Java_VideoCodecInfo_getName(jni, *(JavaRef<jobject>*)(0));
-+      auto c = Java_VideoCodecInfo_getParams(jni, *(JavaRef<jobject>*)(0));
-+      auto d = Java_VideoCodecInfo_getScalabiltyMods(jni, *(JavaRef<jobject>*)(0));
++      auto a = Java_VideoCodecInfo_Constructor(jni, NativeToJavaString(jni, ""), *(ScopedJavaLocalRef<jobject>*)(1), *(ScopedJavaLocalRef<jobject>*)(1));
++      auto b = Java_VideoCodecInfo_getName(jni, *(JavaRef<jobject>*)(1));
++      auto c = Java_VideoCodecInfo_getParams(jni, *(JavaRef<jobject>*)(1));
++      auto d = Java_VideoCodecInfo_getScalabiltyMods(jni, *(JavaRef<jobject>*)(1));
 +      auto e = Java_CodecSupport_Constructor(jni, false, false);
 +      std::cout << &a << &b << &c << &d << &e << std::endl;
 +  }
