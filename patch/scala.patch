@@ -640,8 +640,8 @@ index a218a1d..dacada7 100644
      const SdpVideoFormat& format) {
 +
 +  if (jni == nullptr) {
-+      auto a = Java_CodecSupport_getIsSupported(jni,*(ScopedJavaLocalRef<jobject>*)(0));
-+      auto b = Java_CodecSupport_getIsPowerEfficient(jni,*(ScopedJavaLocalRef<jobject>*)(0));
++      auto a = Java_CodecSupport_getIsSupported(jni,*(ScopedJavaLocalRef<jobject>*)(1));
++      auto b = Java_CodecSupport_getIsPowerEfficient(jni,*(ScopedJavaLocalRef<jobject>*)(1));
 +      auto c = Java_CodecSupport_Constructor(jni, false, false);
 +      std::cout << &a << &b << &c << std::endl;
 +  }
