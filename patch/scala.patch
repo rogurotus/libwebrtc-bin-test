@@ -579,8 +579,8 @@ index 4b86960..01906ad 100644
 +      webrtc::jni::VideoCodecInfoToSdpVideoFormat(env, j_video_codec_info);
 +
 +  absl::optional<std::string> scalability_mode;
-+  if (!IsNull(jni, j_scalability_mode)) {
-+    scalability_mode = JavaToNativeString(jni, j_scalability_mode);
++  if (!IsNull(env, j_scalability_mode)) {
++    scalability_mode = JavaToNativeString(env, j_scalability_mode);
 +  }
 +
 +  auto support = native_factory->QueryCodecSupport(video_format, scalability_mode);
