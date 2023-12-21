@@ -39,10 +39,19 @@ index 4f5ceb5..a743579 100644
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
 diff --git a/src/sdk/android/BUILD.gn b/src/sdk/android/BUILD.gn
-index 9aae8b9..1fbc548 100644
+index 9aae8b9..496f791 100644
 --- a/src/sdk/android/BUILD.gn
 +++ b/src/sdk/android/BUILD.gn
-@@ -1305,6 +1305,8 @@ if (current_os == "linux" || is_android) {
+@@ -191,6 +191,8 @@ if (is_android) {
+       "api/org/webrtc/CapturerObserver.java",
+       "api/org/webrtc/EncodedImage.java",
+       "api/org/webrtc/VideoCodecInfo.java",
++      "api/org/webrtc/CodecSupport.java",
++      "api/org/webrtc/CodecSupportUtils.java",
+       "api/org/webrtc/VideoCodecStatus.java",
+       "api/org/webrtc/VideoDecoder.java",
+       "api/org/webrtc/VideoDecoderFactory.java",
+@@ -1305,6 +1307,8 @@ if (current_os == "linux" || is_android) {
        "api/org/webrtc/JavaI420Buffer.java",
        "api/org/webrtc/TimestampAligner.java",
        "api/org/webrtc/VideoCodecInfo.java",
@@ -82,10 +91,10 @@ index 0000000..dfc936f
 \ No newline at end of file
 diff --git a/src/sdk/android/api/org/webrtc/CodecSupportUtils.java b/src/sdk/android/api/org/webrtc/CodecSupportUtils.java
 new file mode 100644
-index 0000000..58ce410
+index 0000000..5aa4e6d
 --- /dev/null
 +++ b/src/sdk/android/api/org/webrtc/CodecSupportUtils.java
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,22 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
 + *
@@ -96,7 +105,6 @@ index 0000000..58ce410
 + *  be found in the AUTHORS file in the root of the source tree.
 + */
 +package org.webrtc;
-+import org.webrtc.CodecSupport;
 +
 +public class CodecSupportUtils {
 +  @CalledByNative
@@ -251,18 +259,10 @@ index 4f97cf7..d577e34 100644
 +  }
  }
 diff --git a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
-index 2a46662..b9bffaa 100644
+index 2a46662..dadab84 100644
 --- a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
-@@ -10,6 +10,7 @@
- 
- package org.webrtc;
- 
-+import org.webrtc.CodecSupport;
- import androidx.annotation.Nullable;
- 
- /** Factory for creating VideoEncoders. */
-@@ -51,6 +52,9 @@ public interface VideoEncoderFactory {
+@@ -51,6 +51,9 @@ public interface VideoEncoderFactory {
     */
    @CalledByNative VideoCodecInfo[] getSupportedCodecs();
  
