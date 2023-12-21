@@ -38,6 +38,77 @@ index 4f5ceb5..a743579 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
+diff --git a/src/sdk/android/BUILD.gn b/src/sdk/android/BUILD.gn
+index 9aae8b9..1fbc548 100644
+--- a/src/sdk/android/BUILD.gn
++++ b/src/sdk/android/BUILD.gn
+@@ -1305,6 +1305,8 @@ if (current_os == "linux" || is_android) {
+       "api/org/webrtc/JavaI420Buffer.java",
+       "api/org/webrtc/TimestampAligner.java",
+       "api/org/webrtc/VideoCodecInfo.java",
++      "api/org/webrtc/CodecSupport.java",
++      "api/org/webrtc/CodecSupportUtils.java",
+       "api/org/webrtc/VideoCodecStatus.java",
+       "api/org/webrtc/VideoDecoder.java",
+       "api/org/webrtc/VideoDecoderFactory.java",
+diff --git a/src/sdk/android/api/org/webrtc/CodecSupport.java b/src/sdk/android/api/org/webrtc/CodecSupport.java
+new file mode 100644
+index 0000000..f0b605b
+--- /dev/null
++++ b/src/sdk/android/api/org/webrtc/CodecSupport.java
+@@ -0,0 +1,22 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++package org.webrtc;
++
++public class CodecSupport {
++  public boolean is_supported = false;
++  public boolean is_power_efficient = false;
++
++  @CalledByNative("CodecSupport")
++  public CodecSupport(boolean is_supported, boolean is_power_efficient) {
++    this.is_supported = is_supported;
++    this.is_power_efficient = is_power_efficient;
++  }
++
++};
+\ No newline at end of file
+diff --git a/src/sdk/android/api/org/webrtc/CodecSupportUtils.java b/src/sdk/android/api/org/webrtc/CodecSupportUtils.java
+new file mode 100644
+index 0000000..560f87a
+--- /dev/null
++++ b/src/sdk/android/api/org/webrtc/CodecSupportUtils.java
+@@ -0,0 +1,22 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++package org.webrtc;
++
++public class CodecSupportGetters {
++  @CalledByNative
++  boolean getIsSupported(CodecSupport codec) {
++    return codec.is_supported;
++  }
++
++  @CalledByNative
++  boolean getIsPowerEfficient(CodecSupport codec) {
++    return codec.is_power_efficient;
++  }
++}
+\ No newline at end of file
 diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 index d43fc27..cdee276 100644
 --- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
@@ -130,7 +201,7 @@ index 7f4c457..0458d34 100644
 +  
  }
 diff --git a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
-index 4f97cf7..d713690 100644
+index 4f97cf7..d577e34 100644
 --- a/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 +++ b/src/sdk/android/api/org/webrtc/VideoCodecInfo.java
 @@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
@@ -168,7 +239,7 @@ index 4f97cf7..d713690 100644
    }
  
    @Override
-@@ -83,4 +88,31 @@ public class VideoCodecInfo {
+@@ -83,4 +88,9 @@ public class VideoCodecInfo {
    Map getParams() {
      return params;
    }
@@ -178,29 +249,6 @@ index 4f97cf7..d713690 100644
 +    return scalabilityMods;
 +  }
  }
-+
-+
-+public class CodecSupport {
-+  public boolean is_supported = false;
-+  public boolean is_power_efficient = false;
-+
-+  @CalledByNative("CodecSupport")
-+  public CodecSupport(boolean is_supported, boolean is_power_efficient) {
-+    this.is_supported = is_supported;
-+    this.is_power_efficient = is_power_efficient;
-+  }
-+
-+  @CalledByNative("CodecSupport")
-+  boolean getIsSupported() {
-+    return is_supported;
-+  }
-+
-+  @CalledByNative("CodecSupport")
-+  boolean getIsPowerEfficient() {
-+    return is_power_efficient;
-+  }
-+};
-\ No newline at end of file
 diff --git a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
 index 2a46662..dadab84 100644
 --- a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
@@ -485,7 +533,7 @@ index 4bd9ee0..1f5957b 100644
        Java_Encoding_getScaleResolutionDownBy(jni, j_encoding_parameters);
    encoding.scale_resolution_down_by =
 diff --git a/src/sdk/android/src/jni/software_video_decoder_factory.cc b/src/sdk/android/src/jni/software_video_decoder_factory.cc
-index 151bf5f..34817a8 100644
+index 151bf5f..3c73fd6 100644
 --- a/src/sdk/android/src/jni/software_video_decoder_factory.cc
 +++ b/src/sdk/android/src/jni/software_video_decoder_factory.cc
 @@ -14,13 +14,25 @@
@@ -516,14 +564,16 @@ index 151bf5f..34817a8 100644
  
  static jlong JNI_SoftwareVideoDecoderFactory_CreateDecoder(
 diff --git a/src/sdk/android/src/jni/software_video_encoder_factory.cc b/src/sdk/android/src/jni/software_video_encoder_factory.cc
-index 4b86960..01906ad 100644
+index 4b86960..7343756 100644
 --- a/src/sdk/android/src/jni/software_video_encoder_factory.cc
 +++ b/src/sdk/android/src/jni/software_video_encoder_factory.cc
-@@ -11,16 +11,31 @@
+@@ -11,16 +11,33 @@
  #include "api/video_codecs/builtin_video_encoder_factory.h"
  #include "api/video_codecs/video_encoder.h"
  #include "sdk/android/generated_swcodecs_jni/SoftwareVideoEncoderFactory_jni.h"
 +#include "sdk/android/generated_video_jni/VideoCodecInfo_jni.h"
++#include "sdk/android/generated_video_jni/CodecSupport_jni.h"
++#include "sdk/android/generated_video_jni/CodecSupportUtils_jni.h"
  #include "sdk/android/native_api/jni/java_types.h"
  #include "sdk/android/src/jni/jni_helpers.h"
  #include "sdk/android/src/jni/video_codec_info.h"
@@ -552,7 +602,7 @@ index 4b86960..01906ad 100644
  }
  
  static jlong JNI_SoftwareVideoEncoderFactory_CreateEncoder(
-@@ -49,5 +64,38 @@ JNI_SoftwareVideoEncoderFactory_GetSupportedCodecs(JNIEnv* env,
+@@ -49,5 +66,38 @@ JNI_SoftwareVideoEncoderFactory_GetSupportedCodecs(JNIEnv* env,
                                    &webrtc::jni::SdpVideoFormatToVideoCodecInfo);
  }
  
@@ -592,7 +642,7 @@ index 4b86960..01906ad 100644
  }  // namespace jni
  }  // namespace webrtc
 diff --git a/src/sdk/android/src/jni/video_codec_info.cc b/src/sdk/android/src/jni/video_codec_info.cc
-index a218a1d..dacada7 100644
+index a218a1d..1e27577 100644
 --- a/src/sdk/android/src/jni/video_codec_info.cc
 +++ b/src/sdk/android/src/jni/video_codec_info.cc
 @@ -13,24 +13,58 @@
