@@ -118,6 +118,20 @@ index 0000000..5aa4e6d
 +  }
 +}
 \ No newline at end of file
+diff --git a/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
+index 76896b6..09d6cce 100644
+--- a/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
++++ b/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
+@@ -53,4 +53,9 @@ public class DefaultVideoEncoderFactory implements VideoEncoderFactory {
+ 
+     return supportedCodecInfos.toArray(new VideoCodecInfo[supportedCodecInfos.size()]);
+   }
++
++  @Override 
++  public CodecSupport queryCodecSupport(VideoCodecInfo format, String scalability_mode) {
++    return softwareVideoEncoderFactory.queryCodecSupport(format, scalability_mode);
++  }
+ }
 diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 index d43fc27..5a7caa7 100644
 --- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
@@ -297,7 +311,7 @@ index 6f44812..e85b275 100644
      this.useEglContext = useEglContext;
    }
 diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
-index fe608c7..0fa3552 100644
+index fe608c7..718ba63 100644
 --- a/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
 +++ b/src/sdk/android/instrumentationtests/src/org/webrtc/DefaultVideoEncoderFactoryTest.java
 @@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
@@ -326,8 +340,18 @@ index fe608c7..0fa3552 100644
      VideoEncoderFactory hwFactory = new CustomHardwareVideoEncoderFactory(hwVp8Encoder);
      DefaultVideoEncoderFactory defFactory = new DefaultVideoEncoderFactory(hwFactory);
      VideoCodecInfo[] supportedCodecs = defFactory.getSupportedCodecs();
+@@ -74,4 +75,9 @@ public class DefaultVideoEncoderFactoryTest {
+     assertEquals(1, supportedCodecs[3].params.size());
+     assertEquals("value", supportedCodecs[3].params.get("param"));
+   }
++
++  @Override 
++  public CodecSupport queryCodecSupport(VideoCodecInfo format, String scalability_mode) {
++    return new CodecSupport(false, false);
++  }
+ }
 diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
-index 961ecd5..da0d836 100644
+index 961ecd5..888723e 100644
 --- a/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
 +++ b/src/sdk/android/instrumentationtests/src/org/webrtc/RtpCapabilitiesTest.java
 @@ -82,8 +82,8 @@ public class RtpCapabilitiesTest {
@@ -341,6 +365,16 @@ index 961ecd5..da0d836 100644
      List<VideoCodecInfo> supportedCodecs = new ArrayList<>();
      supportedCodecs.add(vp8Codec);
      supportedCodecs.add(h264Codec);
+@@ -214,4 +214,9 @@ public class RtpCapabilitiesTest {
+ 
+     return rtpMaps;
+   }
++
++  @Override 
++  public CodecSupport queryCodecSupport(VideoCodecInfo format, String scalability_mode) {
++    return new CodecSupport(false, false);
++  }
+ }
 diff --git a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java b/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
 index 8a5d978..80c5a96 100644
 --- a/src/sdk/android/instrumentationtests/src/org/webrtc/SoftwareVideoDecoderFactoryTest.java
