@@ -82,7 +82,7 @@ index 0000000..f0b605b
 \ No newline at end of file
 diff --git a/src/sdk/android/api/org/webrtc/CodecSupportUtils.java b/src/sdk/android/api/org/webrtc/CodecSupportUtils.java
 new file mode 100644
-index 0000000..9d4851b
+index 0000000..5aa4e6d
 --- /dev/null
 +++ b/src/sdk/android/api/org/webrtc/CodecSupportUtils.java
 @@ -0,0 +1,22 @@
@@ -99,12 +99,12 @@ index 0000000..9d4851b
 +
 +public class CodecSupportUtils {
 +  @CalledByNative
-+  boolean getIsSupported(CodecSupport codec) {
++  public static boolean getIsSupported(CodecSupport codec) {
 +    return codec.is_supported;
 +  }
 +
 +  @CalledByNative
-+  boolean getIsPowerEfficient(CodecSupport codec) {
++  public static boolean getIsPowerEfficient(CodecSupport codec) {
 +    return codec.is_power_efficient;
 +  }
 +}
