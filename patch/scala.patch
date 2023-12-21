@@ -53,7 +53,7 @@ index 9aae8b9..1fbc548 100644
        "api/org/webrtc/VideoDecoderFactory.java",
 diff --git a/src/sdk/android/api/org/webrtc/CodecSupport.java b/src/sdk/android/api/org/webrtc/CodecSupport.java
 new file mode 100644
-index 0000000..f0b605b
+index 0000000..dfc936f
 --- /dev/null
 +++ b/src/sdk/android/api/org/webrtc/CodecSupport.java
 @@ -0,0 +1,22 @@
@@ -72,20 +72,20 @@ index 0000000..f0b605b
 +  public boolean is_supported = false;
 +  public boolean is_power_efficient = false;
 +
-+  @CalledByNative("CodecSupport")
++  @CalledByNative
 +  public CodecSupport(boolean is_supported, boolean is_power_efficient) {
 +    this.is_supported = is_supported;
 +    this.is_power_efficient = is_power_efficient;
 +  }
 +
-+};
++}
 \ No newline at end of file
 diff --git a/src/sdk/android/api/org/webrtc/CodecSupportUtils.java b/src/sdk/android/api/org/webrtc/CodecSupportUtils.java
 new file mode 100644
-index 0000000..5aa4e6d
+index 0000000..58ce410
 --- /dev/null
 +++ b/src/sdk/android/api/org/webrtc/CodecSupportUtils.java
-@@ -0,0 +1,22 @@
+@@ -0,0 +1,23 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
 + *
@@ -96,6 +96,7 @@ index 0000000..5aa4e6d
 + *  be found in the AUTHORS file in the root of the source tree.
 + */
 +package org.webrtc;
++import org.webrtc.CodecSupport;
 +
 +public class CodecSupportUtils {
 +  @CalledByNative
@@ -250,10 +251,18 @@ index 4f97cf7..d577e34 100644
 +  }
  }
 diff --git a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
-index 2a46662..dadab84 100644
+index 2a46662..b9bffaa 100644
 --- a/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/VideoEncoderFactory.java
-@@ -51,6 +51,9 @@ public interface VideoEncoderFactory {
+@@ -10,6 +10,7 @@
+ 
+ package org.webrtc;
+ 
++import org.webrtc.CodecSupport;
+ import androidx.annotation.Nullable;
+ 
+ /** Factory for creating VideoEncoders. */
+@@ -51,6 +52,9 @@ public interface VideoEncoderFactory {
     */
    @CalledByNative VideoCodecInfo[] getSupportedCodecs();
  
