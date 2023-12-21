@@ -62,7 +62,7 @@ index 9aae8b9..496f791 100644
        "api/org/webrtc/VideoDecoderFactory.java",
 diff --git a/src/sdk/android/api/org/webrtc/CodecSupport.java b/src/sdk/android/api/org/webrtc/CodecSupport.java
 new file mode 100644
-index 0000000..dfc936f
+index 0000000..18c0616
 --- /dev/null
 +++ b/src/sdk/android/api/org/webrtc/CodecSupport.java
 @@ -0,0 +1,22 @@
@@ -78,8 +78,8 @@ index 0000000..dfc936f
 +package org.webrtc;
 +
 +public class CodecSupport {
-+  public boolean is_supported = false;
-+  public boolean is_power_efficient = false;
++  public boolean is_supported;
++  public boolean is_power_efficient;
 +
 +  @CalledByNative
 +  public CodecSupport(boolean is_supported, boolean is_power_efficient) {
