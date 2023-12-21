@@ -119,7 +119,7 @@ index 0000000..5aa4e6d
 +}
 \ No newline at end of file
 diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
-index d43fc27..cdee276 100644
+index d43fc27..fe3ccb6 100644
 --- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 @@ -13,6 +13,7 @@ package org.webrtc;
@@ -130,7 +130,7 @@ index d43fc27..cdee276 100644
  
  import android.media.MediaCodecInfo;
  import android.media.MediaCodecList;
-@@ -143,11 +144,11 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
+@@ -143,17 +144,22 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
          // supported by the decoder.
          if (type == VideoCodecMimeType.H264 && isH264HighProfileSupported(codec)) {
            supportedCodecInfos.add(new VideoCodecInfo(
@@ -144,6 +144,17 @@ index d43fc27..cdee276 100644
        }
      }
  
+     return supportedCodecInfos.toArray(new VideoCodecInfo[supportedCodecInfos.size()]);
+   }
+ 
++  @Override 
++  public CodecSupport queryCodecSupport(VideoCodecInfo format, String scalability_mode) {
++    return CodecSupport(false, false);
++  }
++
+   private @Nullable MediaCodecInfo findCodecForType(VideoCodecMimeType type) {
+     for (int i = 0; i < MediaCodecList.getCodecCount(); ++i) {
+       MediaCodecInfo info = null;
 diff --git a/src/sdk/android/api/org/webrtc/RtpParameters.java b/src/sdk/android/api/org/webrtc/RtpParameters.java
 index 9ca8311..1fcffe7 100644
 --- a/src/sdk/android/api/org/webrtc/RtpParameters.java
