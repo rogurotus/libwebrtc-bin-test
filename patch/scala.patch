@@ -1601,7 +1601,7 @@ index a73cd77..e7fe7b2 100644
  - (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)
      supportedCodecs;  // TODO(andersc): "supportedFormats" instead?
  
-+- (nullable id<RTC_OBJC_TYPE(RTCCodecSupport*)>)queryCodecSupport
++- (RTC_OBJC_TYPE(RTCCodecSupport*))queryCodecSupport
 +: (RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
 +: (NSString *)scalabilityMode;
 +
@@ -1881,7 +1881,7 @@ index 8de55bd..0715374 100644
 -- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
 -  NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *codecs =
 -      [[[self class] supportedCodecs] mutableCopy];
-+- (nullable id<RTC_OBJC_TYPE(RTCCodecSupport*)>)queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
++- (RTC_OBJC_TYPE(RTCCodecSupport*))queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
 +: (NSString *)scalabilityMode {
 +   webrtc::SdpVideoFormat format = [info nativeSdpVideoFormat];
 +  absl::optional<std::string> scalability_mode;
