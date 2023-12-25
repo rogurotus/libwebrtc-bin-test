@@ -1674,32 +1674,6 @@ index 0000000..3f21e09
 +    @"L1T3", \
 +    nil]
 \ No newline at end of file
-diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.h b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.h
-index de5a9c4..a62c064 100644
---- a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.h
-+++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.h
-@@ -12,6 +12,7 @@
- 
- #import "RTCMacros.h"
- #import "RTCVideoDecoderFactory.h"
-+#import "api/video_codecs/video_encoder_factory.h"
- 
- NS_ASSUME_NONNULL_BEGIN
- 
-@@ -21,6 +22,13 @@ NS_ASSUME_NONNULL_BEGIN
-  */
- RTC_OBJC_EXPORT
- @interface RTC_OBJC_TYPE (RTCDefaultVideoDecoderFactory) : NSObject <RTC_OBJC_TYPE(RTCVideoDecoderFactory)>
-+
-+/**
-+ * Initialize an RTCVideoDecoderFactory from template implementation.
-+ */
-+- (instancetype)initWithTemplate;
-+
-+@property(nonatomic, readonly) std::unique_ptr<webrtc::VideoEncoderFactory> factory;
- @end
- 
- NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
 index 6e3baa8..57c949f 100644
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
@@ -1749,10 +1723,18 @@ index 6e3baa8..57c949f 100644
  
    return result;
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
-index 92ab40c..dbab5d5 100644
+index 92ab40c..3840fb4 100644
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
-@@ -22,10 +22,15 @@ NS_ASSUME_NONNULL_BEGIN
+@@ -12,6 +12,7 @@
+ 
+ #import "RTCMacros.h"
+ #import "RTCVideoEncoderFactory.h"
++#import "api/video_codecs/video_encoder_factory.h"
+ 
+ NS_ASSUME_NONNULL_BEGIN
+ 
+@@ -22,10 +23,15 @@ NS_ASSUME_NONNULL_BEGIN
  RTC_OBJC_EXPORT
  @interface RTC_OBJC_TYPE (RTCDefaultVideoEncoderFactory) : NSObject <RTC_OBJC_TYPE(RTCVideoEncoderFactory)>
  
