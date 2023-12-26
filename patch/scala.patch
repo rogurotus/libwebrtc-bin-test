@@ -1886,10 +1886,10 @@ index 8de55bd..0000000
 -@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..c9f8ed2
+index 0000000..1aaa826
 --- /dev/null
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
-@@ -0,0 +1,88 @@
+@@ -0,0 +1,128 @@
 +/*
 + *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
 + *
@@ -1909,8 +1909,9 @@ index 0000000..c9f8ed2
 +#import "api/video_codec/RTCVideoEncoderVP9.h"
 +#import "base/RTCVideoCodecInfo.h"
 +#import "MediaCodecUtils.h"
-+#import "RTCVideoCodecInfo+Private.h"
 +#import "helpers/NSString+StdString.h"
++#include "api/video_codecs/scalability_mode.h"
++#include "absl/container/inlined_vector.h"
 +#include "api/video_codecs/video_encoder_factory_template.h"
 +#include "api/video_codecs/video_encoder_factory_template_libaom_av1_adapter.h"
 +#include "api/video_codecs/video_encoder_factory_template_libvpx_vp8_adapter.h"
@@ -1956,13 +1957,52 @@ index 0000000..c9f8ed2
 +}
 +
 +- (std::unique_ptr<webrtc::VideoEncoder>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
-+  webrtc::SdpVideoFormat format = [info nativeSdpVideoFormat];
++  absl::InlinedVector<webrtc::ScalabilityMode, webrtc::kScalabilityModeCount> scalability_modes;
++  for (NSString *scalabiltyMode in self.scalabiltyModes) {
++    for (size_t j = 0; j < webrtc::kScalabilityModeCount; ++j) {
++      auto mode = webrtc::ScalabilityModeToString(webrtc::kAllScalabilityModes[j]);
++      std::string mode_string = {mode.begin(), mode.end()}; 
++      std::string self_mode_string = [NSString stdStringForString:scalabiltyMode];
++      if (mode_string == self_mode_string) {
++        scalability_modes.push_back(webrtc::kAllScalabilityModes[j]);
++      }
++    }
++  }
++
++  std::map<std::string, std::string> parameters;
++  for (NSString *paramKey in self.parameters.allKeys) {
++    std::string key = [NSString stdStringForString:paramKey];
++    std::string value = [NSString stdStringForString:self.parameters[paramKey]];
++    parameters[key] = value;
++  }
++
++  auto format = webrtc::SdpVideoFormat([NSString stdStringForString:self.name], parameters, scalability_modes);
++
 +  return _factory->CreateVideoEncoder(format);
 +}
 +
 +- (RTC_OBJC_TYPE(RTCCodecSupport*))queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
 +: (NSString *)scalabilityMode {
-+   webrtc::SdpVideoFormat format = [info nativeSdpVideoFormat];
++  absl::InlinedVector<webrtc::ScalabilityMode, webrtc::kScalabilityModeCount> scalability_modes;
++  for (NSString *scalabiltyMode in self.scalabiltyModes) {
++    for (size_t j = 0; j < webrtc::kScalabilityModeCount; ++j) {
++      auto mode = webrtc::ScalabilityModeToString(webrtc::kAllScalabilityModes[j]);
++      std::string mode_string = {mode.begin(), mode.end()}; 
++      std::string self_mode_string = [NSString stdStringForString:scalabiltyMode];
++      if (mode_string == self_mode_string) {
++        scalability_modes.push_back(webrtc::kAllScalabilityModes[j]);
++      }
++    }
++  }
++
++  std::map<std::string, std::string> parameters;
++  for (NSString *paramKey in self.parameters.allKeys) {
++    std::string key = [NSString stdStringForString:paramKey];
++    std::string value = [NSString stdStringForString:self.parameters[paramKey]];
++    parameters[key] = value;
++  }
++
++  auto format = webrtc::SdpVideoFormat([NSString stdStringForString:self.name], parameters, scalability_modes);
 +  absl::optional<std::string> scalability_mode;
 +
 +  if (!scalabilityMode) {
