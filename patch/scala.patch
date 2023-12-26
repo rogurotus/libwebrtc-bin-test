@@ -1446,6 +1446,19 @@ index 0000000..88911d9
 +
 +@end
 \ No newline at end of file
+diff --git a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.h b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.h
+index 5eff996..be772ed 100644
+--- a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.h
++++ b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.h
+@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
+ @interface RTC_OBJC_TYPE (RTCVideoCodecInfo)
+ (Private)
+ 
+-    - (instancetype)initWithNativeSdpVideoFormat : (webrtc::SdpVideoFormat)format;
++- (instancetype)initWithNativeSdpVideoFormat : (webrtc::SdpVideoFormat)format;
+ - (webrtc::SdpVideoFormat)nativeSdpVideoFormat;
+ 
+ @end
 diff --git a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm b/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
 index 2eb8d36..b5f0b0f 100644
 --- a/src/sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
@@ -1503,10 +1516,10 @@ index 2eb8d36..b5f0b0f 100644
  @end
 diff --git a/src/sdk/objc/base/RTCCodecSupport.h b/src/sdk/objc/base/RTCCodecSupport.h
 new file mode 100644
-index 0000000..3dc5171
+index 0000000..c99a31b
 --- /dev/null
 +++ b/src/sdk/objc/base/RTCCodecSupport.h
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,27 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1526,6 +1539,8 @@ index 0000000..3dc5171
 +/** Holds information to identify a codec. Corresponds to webrtc::SdpVideoFormat. */
 +RTC_OBJC_EXPORT
 +@interface RTC_OBJC_TYPE (RTCCodecSupport)<NSObject>
++
++- (instancetype)init;
 +
 +@property(nonatomic, assign) BOOL isSupported;
 +@property(nonatomic, assign) BOOL isPowerEfficient;
@@ -1871,10 +1886,10 @@ index 8de55bd..0000000
 -@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..e3bb133
+index 0000000..c9f8ed2
 --- /dev/null
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
-@@ -0,0 +1,85 @@
+@@ -0,0 +1,88 @@
 +/*
 + *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
 + *
@@ -1894,6 +1909,8 @@ index 0000000..e3bb133
 +#import "api/video_codec/RTCVideoEncoderVP9.h"
 +#import "base/RTCVideoCodecInfo.h"
 +#import "MediaCodecUtils.h"
++#import "RTCVideoCodecInfo+Private.h"
++#import "helpers/NSString+StdString.h"
 +#include "api/video_codecs/video_encoder_factory_template.h"
 +#include "api/video_codecs/video_encoder_factory_template_libaom_av1_adapter.h"
 +#include "api/video_codecs/video_encoder_factory_template_libvpx_vp8_adapter.h"
@@ -1906,7 +1923,7 @@ index 0000000..e3bb133
 +
 +@implementation RTC_OBJC_TYPE (RTCDefaultVideoEncoderFactory)
 +
-+@synthesize factory = _factory;
++@synthesize factory = std::move(_factory);
 +
 +- (instancetype)init {
 +  return [self initWithTemplate];
@@ -1933,12 +1950,12 @@ index 0000000..e3bb133
 +    RTC_OBJC_TYPE(RTCVideoCodecInfo) *info =
 +      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithNativeSdpVideoFormat:formats[i]];
 +
-+    [result addObject:[RTC_OBJC_TYPE(RTCVideoCodecInfo) info]];
++    [result addObject:[info]];
 +  }
 +  return result;
 +}
 +
-+- (id<std::unique_ptr<webrtc::VideoEncoder>>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
++- (std::unique_ptr<webrtc::VideoEncoder>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
 +  webrtc::SdpVideoFormat format = [info nativeSdpVideoFormat];
 +  return _factory->CreateVideoEncoder(format);
 +}
@@ -1949,7 +1966,8 @@ index 0000000..e3bb133
 +  absl::optional<std::string> scalability_mode;
 +
 +  if (!scalabilityMode) {
-+    scalability_mode = [NSString stdStringForString:scalabilityMode];
++    std::string scalability = [NSString stdStringForString:scalabilityMode];
++    scalability_mode = scalability;
 +  }
 +
 +  RTC_OBJC_TYPE(RTCCodecSupport) *codecSupport = [[RTC_OBJC_TYPE(RTCCodecSupport) alloc] init];
