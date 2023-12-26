@@ -11,7 +11,7 @@ index 90bcfcc..ce1254b 100644
        [[RTC_OBJC_TYPE(RTCDefaultVideoEncoderFactory) alloc] init]);
    media_deps.video_decoder_factory = webrtc::ObjCToNativeVideoDecoderFactory(
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..58b1c3e 100644
+index 4f5ceb5..409b046 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -718,7 +718,7 @@ if (is_ios || is_mac) {
@@ -59,6 +59,15 @@ index 4f5ceb5..58b1c3e 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
+@@ -1691,7 +1706,7 @@ if (is_ios || is_mac) {
+         "objc/components/video_codec/RTCVideoDecoderH264.h",
+         "objc/components/video_codec/RTCVideoDecoderH264.mm",
+         "objc/components/video_codec/RTCVideoEncoderFactoryH264.h",
+-        "objc/components/video_codec/RTCVideoEncoderFactoryH264.m",
++        "objc/components/video_codec/RTCVideoEncoderFactoryH264.mm",
+         "objc/components/video_codec/RTCVideoEncoderH264.h",
+         "objc/components/video_codec/RTCVideoEncoderH264.mm",
+       ]
 diff --git a/src/sdk/android/BUILD.gn b/src/sdk/android/BUILD.gn
 index 9aae8b9..496f791 100644
 --- a/src/sdk/android/BUILD.gn
@@ -1610,18 +1619,25 @@ index ce26ae1..31315cf 100644
  
  @end
 diff --git a/src/sdk/objc/base/RTCVideoEncoderFactory.h b/src/sdk/objc/base/RTCVideoEncoderFactory.h
-index a73cd77..39c09f1 100644
+index a73cd77..ecb5d60 100644
 --- a/src/sdk/objc/base/RTCVideoEncoderFactory.h
 +++ b/src/sdk/objc/base/RTCVideoEncoderFactory.h
-@@ -13,6 +13,7 @@
+@@ -13,6 +13,8 @@
  #import "RTCMacros.h"
  #import "RTCVideoCodecInfo.h"
  #import "RTCVideoEncoder.h"
 +#import "RTCCodecSupport.h"
++#import "api/video_codecs/video_encoder_factory_template.h"
  
  NS_ASSUME_NONNULL_BEGIN
  
-@@ -43,6 +44,10 @@ RTC_OBJC_EXPORT
+@@ -38,11 +40,15 @@ RTC_OBJC_EXPORT
+ @protocol RTC_OBJC_TYPE
+ (RTCVideoEncoderFactory)<NSObject>
+ 
+-    - (nullable id<RTC_OBJC_TYPE(RTCVideoEncoder)>)createEncoder
++    - (std::unique_ptr<webrtc::VideoEncoder>)createEncoder
+     : (RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info;
  - (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)
      supportedCodecs;  // TODO(andersc): "supportedFormats" instead?
  
@@ -1886,10 +1902,10 @@ index 8de55bd..0000000
 -@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..1aaa826
+index 0000000..751058e
 --- /dev/null
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
-@@ -0,0 +1,128 @@
+@@ -0,0 +1,126 @@
 +/*
 + *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
 + *
@@ -1924,15 +1940,13 @@ index 0000000..1aaa826
 +
 +@implementation RTC_OBJC_TYPE (RTCDefaultVideoEncoderFactory)
 +
-+@synthesize factory = std::move(_factory);
-+
 +- (instancetype)init {
 +  return [self initWithTemplate];
 +}
 +
 +- (instancetype)initWithTemplate {
 +  if (self = [super init]) {
-+    _factory =
++    self.factory =
 +      std::make_unique<webrtc::VideoEncoderFactoryTemplate<
 +          webrtc::LibvpxVp8EncoderTemplateAdapter,
 +          webrtc::LibvpxVp9EncoderTemplateAdapter,
@@ -1942,7 +1956,7 @@ index 0000000..1aaa826
 +  return self;
 +}
 +
-++ (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
++- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
 +  
 +  auto formats = _factory->GetSupportedFormats();
 +  NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *result = [@[] mutableCopy];
@@ -1951,14 +1965,14 @@ index 0000000..1aaa826
 +    RTC_OBJC_TYPE(RTCVideoCodecInfo) *info =
 +      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithNativeSdpVideoFormat:formats[i]];
 +
-+    [result addObject:[info]];
++    [result addObject:info];
 +  }
 +  return result;
 +}
 +
 +- (std::unique_ptr<webrtc::VideoEncoder>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
 +  absl::InlinedVector<webrtc::ScalabilityMode, webrtc::kScalabilityModeCount> scalability_modes;
-+  for (NSString *scalabiltyMode in self.scalabiltyModes) {
++  for (NSString *scalabiltyMode in info.scalabiltyModes) {
 +    for (size_t j = 0; j < webrtc::kScalabilityModeCount; ++j) {
 +      auto mode = webrtc::ScalabilityModeToString(webrtc::kAllScalabilityModes[j]);
 +      std::string mode_string = {mode.begin(), mode.end()}; 
@@ -1970,13 +1984,13 @@ index 0000000..1aaa826
 +  }
 +
 +  std::map<std::string, std::string> parameters;
-+  for (NSString *paramKey in self.parameters.allKeys) {
++  for (NSString *paramKey in info.parameters.allKeys) {
 +    std::string key = [NSString stdStringForString:paramKey];
-+    std::string value = [NSString stdStringForString:self.parameters[paramKey]];
++    std::string value = [NSString stdStringForString:info.parameters[paramKey]];
 +    parameters[key] = value;
 +  }
 +
-+  auto format = webrtc::SdpVideoFormat([NSString stdStringForString:self.name], parameters, scalability_modes);
++  auto format = webrtc::SdpVideoFormat([NSString stdStringForString:info.name], parameters, scalability_modes);
 +
 +  return _factory->CreateVideoEncoder(format);
 +}
@@ -1984,7 +1998,7 @@ index 0000000..1aaa826
 +- (RTC_OBJC_TYPE(RTCCodecSupport*))queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
 +: (NSString *)scalabilityMode {
 +  absl::InlinedVector<webrtc::ScalabilityMode, webrtc::kScalabilityModeCount> scalability_modes;
-+  for (NSString *scalabiltyMode in self.scalabiltyModes) {
++  for (NSString *scalabiltyMode in info.scalabiltyModes) {
 +    for (size_t j = 0; j < webrtc::kScalabilityModeCount; ++j) {
 +      auto mode = webrtc::ScalabilityModeToString(webrtc::kAllScalabilityModes[j]);
 +      std::string mode_string = {mode.begin(), mode.end()}; 
@@ -1996,13 +2010,13 @@ index 0000000..1aaa826
 +  }
 +
 +  std::map<std::string, std::string> parameters;
-+  for (NSString *paramKey in self.parameters.allKeys) {
++  for (NSString *paramKey in info.parameters.allKeys) {
 +    std::string key = [NSString stdStringForString:paramKey];
-+    std::string value = [NSString stdStringForString:self.parameters[paramKey]];
++    std::string value = [NSString stdStringForString:info.parameters[paramKey]];
 +    parameters[key] = value;
 +  }
 +
-+  auto format = webrtc::SdpVideoFormat([NSString stdStringForString:self.name], parameters, scalability_modes);
++  auto format = webrtc::SdpVideoFormat([NSString stdStringForString:info.name], parameters, scalability_modes);
 +  absl::optional<std::string> scalability_mode;
 +
 +  if (!scalabilityMode) {
@@ -2050,10 +2064,13 @@ index bdae19d..f38e962 100644
    [codecs addObject:constrainedBaselineInfo];
  
    return [codecs copy];
-diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
-index 9843849..2bd27e6 100644
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
+similarity index 80%
+rename from sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
+rename to sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
+index 9843849..fbe9c85 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
-+++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
++++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
 @@ -12,6 +12,7 @@
  
  #import "RTCH264ProfileLevelId.h"
@@ -2072,7 +2089,7 @@ index 9843849..2bd27e6 100644
    [codecs addObject:constrainedHighInfo];
  
    NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
-@@ -36,7 +38,8 @@
+@@ -36,14 +38,15 @@
    };
    RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
        [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
@@ -2082,6 +2099,15 @@ index 9843849..2bd27e6 100644
    [codecs addObject:constrainedBaselineInfo];
  
    return [codecs copy];
+ }
+ 
+-- (id<RTC_OBJC_TYPE(RTCVideoEncoder)>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
+-  return [[RTC_OBJC_TYPE(RTCVideoEncoderH264) alloc] initWithCodecInfo:info];
++- (std::unique_ptr<webrtc::VideoEncoder>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
++  return std::unique_ptr<webrtc::VideoEncoder>(nullptr);
+ }
+ 
+ @end
 diff --git a/src/sdk/objc/native/src/objc_video_encoder_factory.h b/src/sdk/objc/native/src/objc_video_encoder_factory.h
 index 85a1e53..3a3b95f 100644
 --- a/src/sdk/objc/native/src/objc_video_encoder_factory.h
