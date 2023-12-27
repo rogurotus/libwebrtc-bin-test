@@ -11,7 +11,7 @@ index 90bcfcc..ce1254b 100644
        [[RTC_OBJC_TYPE(RTCDefaultVideoEncoderFactory) alloc] init]);
    media_deps.video_decoder_factory = webrtc::ObjCToNativeVideoDecoderFactory(
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..409b046 100644
+index 4f5ceb5..58b1c3e 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -718,7 +718,7 @@ if (is_ios || is_mac) {
@@ -59,15 +59,6 @@ index 4f5ceb5..409b046 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1691,7 +1706,7 @@ if (is_ios || is_mac) {
-         "objc/components/video_codec/RTCVideoDecoderH264.h",
-         "objc/components/video_codec/RTCVideoDecoderH264.mm",
-         "objc/components/video_codec/RTCVideoEncoderFactoryH264.h",
--        "objc/components/video_codec/RTCVideoEncoderFactoryH264.m",
-+        "objc/components/video_codec/RTCVideoEncoderFactoryH264.mm",
-         "objc/components/video_codec/RTCVideoEncoderH264.h",
-         "objc/components/video_codec/RTCVideoEncoderH264.mm",
-       ]
 diff --git a/src/sdk/android/BUILD.gn b/src/sdk/android/BUILD.gn
 index 9aae8b9..496f791 100644
 --- a/src/sdk/android/BUILD.gn
@@ -2064,13 +2055,10 @@ index bdae19d..f38e962 100644
    [codecs addObject:constrainedBaselineInfo];
  
    return [codecs copy];
-diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
-similarity index 80%
-rename from sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
-rename to sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
 index 9843849..fbe9c85 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
-+++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
++++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
 @@ -12,6 +12,7 @@
  
  #import "RTCH264ProfileLevelId.h"
