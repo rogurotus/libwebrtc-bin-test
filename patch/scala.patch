@@ -1516,7 +1516,7 @@ index 2eb8d36..b5f0b0f 100644
  @end
 diff --git a/src/sdk/objc/base/RTCCodecSupport.h b/src/sdk/objc/base/RTCCodecSupport.h
 new file mode 100644
-index 0000000..c99a31b
+index 0000000..6a85f0b
 --- /dev/null
 +++ b/src/sdk/objc/base/RTCCodecSupport.h
 @@ -0,0 +1,27 @@
@@ -1538,7 +1538,7 @@ index 0000000..c99a31b
 +
 +/** Holds information to identify a codec. Corresponds to webrtc::SdpVideoFormat. */
 +RTC_OBJC_EXPORT
-+@interface RTC_OBJC_TYPE (RTCCodecSupport)<NSObject>
++@interface RTC_OBJC_TYPE (RTCCodecSupport) : NSObject <NSCoding>
 +
 +- (instancetype)init;
 +
@@ -1754,7 +1754,7 @@ index 6e3baa8..57c949f 100644
  
    return result;
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
-index 92ab40c..3840fb4 100644
+index 92ab40c..4ffb21c 100644
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
 @@ -12,6 +12,7 @@
@@ -1778,7 +1778,7 @@ index 92ab40c..3840fb4 100644
 + */
 +- (instancetype)initWithTemplate;
 +
-+@property(nonatomic, readonly) std::unique_ptr<webrtc::VideoEncoderFactory> factory;
++@property(nonatomic, assign) std::unique_ptr<webrtc::VideoEncoderFactory> factory;
 +
  @end
  
