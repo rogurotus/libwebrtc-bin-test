@@ -1893,10 +1893,10 @@ index 8de55bd..0000000
 -@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..d827c51
+index 0000000..944ebfd
 --- /dev/null
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,137 @@
 +/*
 + *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
 + *
@@ -1932,7 +1932,6 @@ index 0000000..d827c51
 +
 +@implementation RTC_OBJC_TYPE (RTCDefaultVideoEncoderFactory)
 +
-+@synthesize factory = _factory;
 +
 +- (instancetype)init {
 +  return [self initWithTemplate];
@@ -1940,28 +1939,28 @@ index 0000000..d827c51
 +
 +- (instancetype)initWithTemplate {
 +  if (self = [super init]) {
-+    _factory =
-+      std::move(std::make_unique<webrtc::VideoEncoderFactoryTemplate<
++    self.factory =
++      std::make_unique<webrtc::VideoEncoderFactoryTemplate<
 +          webrtc::LibvpxVp8EncoderTemplateAdapter,
 +          webrtc::LibvpxVp9EncoderTemplateAdapter,
 +          webrtc::OpenH264EncoderTemplateAdapter,
-+          webrtc::LibaomAv1EncoderTemplateAdapter>>());
++          webrtc::LibaomAv1EncoderTemplateAdapter>>();
 +  }
 +  return self;
 +}
 +
 +- (void)setFactory:(std::unique_ptr<webrtc::VideoEncoderFactory>)factory {
-+    _factory = std::move(factory);
++    self.factory = std::move(factory);
 +}
 +
 +- (webrtc::VideoEncoderFactory&)getFactory {
-+  return *_factory;
++  return *self.factory;
 +}
 +
 +
 +- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
 +  
-+  auto formats = _factory->GetSupportedFormats();
++  auto formats = self.factory->GetSupportedFormats();
 +  NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *result = [@[] mutableCopy];
 +
 +  for (size_t i; i<formats.size(); ++i) {
@@ -1995,7 +1994,7 @@ index 0000000..d827c51
 +
 +  auto format = webrtc::SdpVideoFormat([NSString stdStringForString:info.name], parameters, scalability_modes);
 +
-+  return _factory->CreateVideoEncoder(format);
++  return self.factory->CreateVideoEncoder(format);
 +}
 +
 +- (RTC_OBJC_TYPE(RTCCodecSupport*))queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
@@ -2028,7 +2027,7 @@ index 0000000..d827c51
 +  }
 +
 +  RTC_OBJC_TYPE(RTCCodecSupport) *codecSupport = [[RTC_OBJC_TYPE(RTCCodecSupport) alloc] init];
-+  auto support = _factory->QueryCodecSupport(format, scalability_mode);
++  auto support = self.factory->QueryCodecSupport(format, scalability_mode);
 +  codecSupport.isSupported = support.is_supported;
 +  codecSupport.isPowerEfficient = support.is_power_efficient;
 +  return codecSupport;
