@@ -11,7 +11,7 @@ index 90bcfcc..ce1254b 100644
        [[RTC_OBJC_TYPE(RTCDefaultVideoEncoderFactory) alloc] init]);
    media_deps.video_decoder_factory = webrtc::ObjCToNativeVideoDecoderFactory(
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..409b046 100644
+index 4f5ceb5..cac3ebc 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -718,7 +718,7 @@ if (is_ios || is_mac) {
@@ -2068,11 +2068,23 @@ index bdae19d..f38e962 100644
    [codecs addObject:constrainedBaselineInfo];
  
    return [codecs copy];
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
+index 45fc4be..1a7de23 100644
+--- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
++++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
+@@ -12,6 +12,7 @@
+ 
+ #import "RTCMacros.h"
+ #import "RTCVideoEncoderFactory.h"
++#import "api/video_codecs/video_encoder_factory.h"
+ 
+ RTC_OBJC_EXPORT
+ @interface RTC_OBJC_TYPE (RTCVideoEncoderFactoryH264) : NSObject <RTC_OBJC_TYPE(RTCVideoEncoderFactory)>
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
 similarity index 80%
 rename from sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
 rename to sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
-index 9843849..fbe9c85 100644
+index 9843849..55651e6 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
 +++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
 @@ -12,6 +12,7 @@
@@ -2108,7 +2120,7 @@ index 9843849..fbe9c85 100644
 -- (id<RTC_OBJC_TYPE(RTCVideoEncoder)>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
 -  return [[RTC_OBJC_TYPE(RTCVideoEncoderH264) alloc] initWithCodecInfo:info];
 +- (std::unique_ptr<webrtc::VideoEncoder>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
-+  return std::unique_ptr<webrtc::VideoEncoder>(nullptr);
++  return std::unique_ptr<webrtc::VideoEncoder>(nullptr); // todo
  }
  
  @end
