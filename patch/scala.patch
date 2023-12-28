@@ -2115,7 +2115,7 @@ index 85a1e53..3a3b95f 100644
   private:
    id<RTC_OBJC_TYPE(RTCVideoEncoderFactory)> encoder_factory_;
 diff --git a/src/sdk/objc/native/src/objc_video_encoder_factory.mm b/src/sdk/objc/native/src/objc_video_encoder_factory.mm
-index d4ea79c..619a115 100644
+index d4ea79c..8dcda1c 100644
 --- a/src/sdk/objc/native/src/objc_video_encoder_factory.mm
 +++ b/src/sdk/objc/native/src/objc_video_encoder_factory.mm
 @@ -187,12 +187,7 @@ std::unique_ptr<VideoEncoder> ObjCVideoEncoderFactory::CreateVideoEncoder(
@@ -2146,7 +2146,7 @@ index d4ea79c..619a115 100644
 +    scalabilityMode = [NSString stringWithUTF8String:scalability_mode.value().c_str()];
 +  }
 +
-+  id<RTC_OBJC_TYPE(RTCCodecSupport)> support =[encoder_factory_ queryCodecSupport:info:scalabilityMode];
++  id<RTC_OBJC_TYPE(RTCCodecSupport*)> support =[encoder_factory_ queryCodecSupport:info:scalabilityMode];
 +  
 +  return VideoEncoderFactory::CodecSupport {support.isSupported, support.isPowerEfficient};
 +}
