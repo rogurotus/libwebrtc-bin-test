@@ -2082,10 +2082,10 @@ index 45fc4be..1a7de23 100644
  @interface RTC_OBJC_TYPE (RTCVideoEncoderFactoryH264) : NSObject <RTC_OBJC_TYPE(RTCVideoEncoderFactory)>
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
 new file mode 100644
-index 0000000..55651e6
+index 0000000..0ffe1e2
 --- /dev/null
 +++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,57 @@
 +/*
 + *  Copyright 2017 The WebRTC project authors. All Rights Reserved.
 + *
@@ -2135,6 +2135,11 @@ index 0000000..55651e6
 +
 +- (std::unique_ptr<webrtc::VideoEncoder>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
 +  return std::unique_ptr<webrtc::VideoEncoder>(nullptr); // todo
++}
++
++- (RTC_OBJC_TYPE(RTCCodecSupport*))queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
++: (NSString *)scalabilityMode {
++  return nil;
 +}
 +
 +@end
