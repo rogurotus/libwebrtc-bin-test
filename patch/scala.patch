@@ -1666,7 +1666,7 @@ index ce26ae1..31315cf 100644
  
  @end
 diff --git a/src/sdk/objc/base/RTCVideoEncoderFactory.h b/src/sdk/objc/base/RTCVideoEncoderFactory.h
-index a73cd77..ecb5d60 100644
+index a73cd77..68089f4 100644
 --- a/src/sdk/objc/base/RTCVideoEncoderFactory.h
 +++ b/src/sdk/objc/base/RTCVideoEncoderFactory.h
 @@ -13,6 +13,8 @@
@@ -1674,7 +1674,7 @@ index a73cd77..ecb5d60 100644
  #import "RTCVideoCodecInfo.h"
  #import "RTCVideoEncoder.h"
 +#import "RTCCodecSupport.h"
-+#import "api/video_codecs/video_encoder_factory_template.h"
++#include "api/video_codecs/video_encoder_factory_template.h"
  
  NS_ASSUME_NONNULL_BEGIN
  
@@ -1810,14 +1810,14 @@ index 6e3baa8..57c949f 100644
  
    return result;
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
-index 92ab40c..b8479a0 100644
+index 92ab40c..e150e30 100644
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
 @@ -12,6 +12,7 @@
  
  #import "RTCMacros.h"
  #import "RTCVideoEncoderFactory.h"
-+#import "api/video_codecs/video_encoder_factory.h"
++#include "api/video_codecs/video_encoder_factory.h"
  
  NS_ASSUME_NONNULL_BEGIN
  
@@ -2116,14 +2116,14 @@ index bdae19d..f38e962 100644
  
    return [codecs copy];
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
-index 45fc4be..1a7de23 100644
+index 45fc4be..dbd9801 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
 +++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
 @@ -12,6 +12,7 @@
  
  #import "RTCMacros.h"
  #import "RTCVideoEncoderFactory.h"
-+#import "api/video_codecs/video_encoder_factory.h"
++#include "api/video_codecs/video_encoder_factory.h"
  
  RTC_OBJC_EXPORT
  @interface RTC_OBJC_TYPE (RTCVideoEncoderFactoryH264) : NSObject <RTC_OBJC_TYPE(RTCVideoEncoderFactory)>
