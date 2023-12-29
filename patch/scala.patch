@@ -11,10 +11,19 @@ index 90bcfcc..ce1254b 100644
        [[RTC_OBJC_TYPE(RTCDefaultVideoEncoderFactory) alloc] init]);
    media_deps.video_decoder_factory = webrtc::ObjCToNativeVideoDecoderFactory(
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..409b046 100644
+index 4f5ceb5..e4ef010 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
-@@ -718,7 +718,7 @@ if (is_ios || is_mac) {
+@@ -96,6 +96,8 @@ if (is_ios || is_mac) {
+       "objc/base/RTCCodecSpecificInfo.h",
+       "objc/base/RTCEncodedImage.h",
+       "objc/base/RTCEncodedImage.m",
++      "objc/base/RTCCodecSupport.h",
++      "objc/base/RTCCodecSupport.m",
+       "objc/base/RTCI420Buffer.h",
+       "objc/base/RTCLogging.h",
+       "objc/base/RTCLogging.mm",
+@@ -718,7 +720,7 @@ if (is_ios || is_mac) {
          "objc/components/video_codec/RTCDefaultVideoDecoderFactory.h",
          "objc/components/video_codec/RTCDefaultVideoDecoderFactory.m",
          "objc/components/video_codec/RTCDefaultVideoEncoderFactory.h",
@@ -23,7 +32,7 @@ index 4f5ceb5..409b046 100644
        ]
  
        deps = [
-@@ -991,6 +991,15 @@ if (is_ios || is_mac) {
+@@ -991,6 +993,15 @@ if (is_ios || is_mac) {
          "objc/api/peerconnection/RTCRtcpParameters+Private.h",
          "objc/api/peerconnection/RTCRtcpParameters.h",
          "objc/api/peerconnection/RTCRtcpParameters.mm",
@@ -39,7 +48,7 @@ index 4f5ceb5..409b046 100644
          "objc/api/peerconnection/RTCRtpCodecParameters+Private.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.mm",
-@@ -1309,6 +1318,9 @@ if (is_ios || is_mac) {
+@@ -1309,6 +1320,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -49,7 +58,7 @@ index 4f5ceb5..409b046 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1423,6 +1435,9 @@ if (is_ios || is_mac) {
+@@ -1423,6 +1437,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -59,7 +68,7 @@ index 4f5ceb5..409b046 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1691,7 +1706,7 @@ if (is_ios || is_mac) {
+@@ -1691,7 +1708,7 @@ if (is_ios || is_mac) {
          "objc/components/video_codec/RTCVideoDecoderH264.h",
          "objc/components/video_codec/RTCVideoDecoderH264.mm",
          "objc/components/video_codec/RTCVideoEncoderFactoryH264.h",
@@ -1556,6 +1565,30 @@ index 0000000..6a85f0b
 +@end
 +
 +NS_ASSUME_NONNULL_END
+diff --git a/src/sdk/objc/base/RTCCodecSupport.m b/src/sdk/objc/base/RTCCodecSupport.m
+new file mode 100644
+index 0000000..2d98044
+--- /dev/null
++++ b/src/sdk/objc/base/RTCCodecSupport.m
+@@ -0,0 +1,18 @@
++/*
++ *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++#import "RTCCodecSupport.h"
++
++@implementation RTC_OBJC_TYPE (RTCCodecSupport)
++
++@synthesize isSupported = _isSupported;
++@synthesize isPowerEfficient = _isPowerEfficient;
++
++@end
 diff --git a/src/sdk/objc/base/RTCVideoCodecInfo.h b/src/sdk/objc/base/RTCVideoCodecInfo.h
 index fa28958..18b6d61 100644
 --- a/src/sdk/objc/base/RTCVideoCodecInfo.h
