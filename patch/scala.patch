@@ -11,7 +11,7 @@ index 90bcfcc..ce1254b 100644
        [[RTC_OBJC_TYPE(RTCDefaultVideoEncoderFactory) alloc] init]);
    media_deps.video_decoder_factory = webrtc::ObjCToNativeVideoDecoderFactory(
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..e4ef010 100644
+index 4f5ceb5..29847c1 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -48,7 +48,15 @@ index 4f5ceb5..e4ef010 100644
          "objc/api/peerconnection/RTCRtpCodecParameters+Private.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.mm",
-@@ -1309,6 +1320,9 @@ if (is_ios || is_mac) {
+@@ -1261,6 +1272,7 @@ if (is_ios || is_mac) {
+           "objc/base/RTCVideoDecoder.h",
+           "objc/base/RTCVideoDecoderFactory.h",
+           "objc/base/RTCVideoEncoder.h",
++          "objc/base/RTCCodecSupport.h",
+           "objc/base/RTCVideoEncoderFactory.h",
+           "objc/base/RTCVideoEncoderQpThresholds.h",
+           "objc/base/RTCVideoEncoderSettings.h",
+@@ -1309,6 +1321,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -58,7 +66,7 @@ index 4f5ceb5..e4ef010 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1423,6 +1437,9 @@ if (is_ios || is_mac) {
+@@ -1423,6 +1438,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -68,7 +76,15 @@ index 4f5ceb5..e4ef010 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1691,7 +1708,7 @@ if (is_ios || is_mac) {
+@@ -1457,6 +1475,7 @@ if (is_ios || is_mac) {
+           "objc/base/RTCVideoDecoder.h",
+           "objc/base/RTCVideoDecoderFactory.h",
+           "objc/base/RTCVideoEncoder.h",
++          "objc/base/RTCCodecSupport.h",
+           "objc/base/RTCVideoEncoderFactory.h",
+           "objc/base/RTCVideoEncoderQpThresholds.h",
+           "objc/base/RTCVideoEncoderSettings.h",
+@@ -1691,7 +1710,7 @@ if (is_ios || is_mac) {
          "objc/components/video_codec/RTCVideoDecoderH264.h",
          "objc/components/video_codec/RTCVideoDecoderH264.mm",
          "objc/components/video_codec/RTCVideoEncoderFactoryH264.h",
