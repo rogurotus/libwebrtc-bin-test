@@ -1534,10 +1534,10 @@ index 2eb8d36..b5f0b0f 100644
  @end
 diff --git a/src/sdk/objc/base/RTCCodecSupport.h b/src/sdk/objc/base/RTCCodecSupport.h
 new file mode 100644
-index 0000000..03c64bd
+index 0000000..a061036
 --- /dev/null
 +++ b/src/sdk/objc/base/RTCCodecSupport.h
-@@ -0,0 +1,27 @@
+@@ -0,0 +1,25 @@
 +/*
 + *  Copyright 2023 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1557,8 +1557,6 @@ index 0000000..03c64bd
 +/** Holds information to identify a codec. Corresponds to webrtc::SdpVideoFormat. */
 +RTC_OBJC_EXPORT
 +@interface RTC_OBJC_TYPE (RTCCodecSupport) : NSObject
-+
-+- (instancetype)init NS_UNAVAILABLE;
 +
 +@property(nonatomic, assign) BOOL isSupported;
 +@property(nonatomic, assign) BOOL isPowerEfficient;
