@@ -2071,10 +2071,22 @@ index 0000000..48d809e
 +}
 +
 +@end
-diff --git a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
-index bdae19d..e69de29 100644
---- a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
-+++ b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
+index 45fc4be..dbd9801 100644
+--- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
++++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
+@@ -12,6 +12,7 @@
+ 
+ #import "RTCMacros.h"
+ #import "RTCVideoEncoderFactory.h"
++#include "api/video_codecs/video_encoder_factory.h"
+ 
+ RTC_OBJC_EXPORT
+ @interface RTC_OBJC_TYPE (RTCVideoEncoderFactoryH264) : NSObject <RTC_OBJC_TYPE(RTCVideoEncoderFactory)>
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
+index 9843849..e69de29 100644
+--- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
++++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.m
 @@ -1,49 +0,0 @@
 -/*
 - *  Copyright 2017 The WebRTC project authors. All Rights Reserved.
@@ -2086,12 +2098,12 @@ index bdae19d..e69de29 100644
 - *  be found in the AUTHORS file in the root of the source tree.
 - */
 -
--#import "RTCVideoDecoderFactoryH264.h"
+-#import "RTCVideoEncoderFactoryH264.h"
 -
 -#import "RTCH264ProfileLevelId.h"
--#import "RTCVideoDecoderH264.h"
+-#import "RTCVideoEncoderH264.h"
 -
--@implementation RTC_OBJC_TYPE (RTCVideoDecoderFactoryH264)
+-@implementation RTC_OBJC_TYPE (RTCVideoEncoderFactoryH264)
 -
 -- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
 -  NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *codecs = [NSMutableArray array];
@@ -2120,23 +2132,11 @@ index bdae19d..e69de29 100644
 -  return [codecs copy];
 -}
 -
--- (id<RTC_OBJC_TYPE(RTCVideoDecoder)>)createDecoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
--  return [[RTC_OBJC_TYPE(RTCVideoDecoderH264) alloc] init];
+-- (id<RTC_OBJC_TYPE(RTCVideoEncoder)>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
+-  return [[RTC_OBJC_TYPE(RTCVideoEncoderH264) alloc] initWithCodecInfo:info];
 -}
 -
 -@end
-diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
-index 45fc4be..dbd9801 100644
---- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
-+++ b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
-@@ -12,6 +12,7 @@
- 
- #import "RTCMacros.h"
- #import "RTCVideoEncoderFactory.h"
-+#include "api/video_codecs/video_encoder_factory.h"
- 
- RTC_OBJC_EXPORT
- @interface RTC_OBJC_TYPE (RTCVideoEncoderFactoryH264) : NSObject <RTC_OBJC_TYPE(RTCVideoEncoderFactory)>
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.mm
 new file mode 100644
 index 0000000..0ffe1e2
