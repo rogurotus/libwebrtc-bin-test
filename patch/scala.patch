@@ -1,5 +1,5 @@
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..29847c1 100644
+index 4f5ceb5..ea6e83a 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -11,7 +11,15 @@ index 4f5ceb5..29847c1 100644
        "objc/base/RTCI420Buffer.h",
        "objc/base/RTCLogging.h",
        "objc/base/RTCLogging.mm",
-@@ -718,7 +720,7 @@ if (is_ios || is_mac) {
+@@ -123,6 +125,7 @@ if (is_ios || is_mac) {
+     ]
+ 
+     deps = [
++      "../api/video_codecs:video_codecs_api",
+       "../rtc_base:checks",
+       "../rtc_base:logging",
+     ]
+@@ -718,7 +721,7 @@ if (is_ios || is_mac) {
          "objc/components/video_codec/RTCDefaultVideoDecoderFactory.h",
          "objc/components/video_codec/RTCDefaultVideoDecoderFactory.m",
          "objc/components/video_codec/RTCDefaultVideoEncoderFactory.h",
@@ -20,7 +28,7 @@ index 4f5ceb5..29847c1 100644
        ]
  
        deps = [
-@@ -991,6 +993,15 @@ if (is_ios || is_mac) {
+@@ -991,6 +994,15 @@ if (is_ios || is_mac) {
          "objc/api/peerconnection/RTCRtcpParameters+Private.h",
          "objc/api/peerconnection/RTCRtcpParameters.h",
          "objc/api/peerconnection/RTCRtcpParameters.mm",
@@ -36,7 +44,7 @@ index 4f5ceb5..29847c1 100644
          "objc/api/peerconnection/RTCRtpCodecParameters+Private.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.mm",
-@@ -1261,6 +1272,7 @@ if (is_ios || is_mac) {
+@@ -1261,6 +1273,7 @@ if (is_ios || is_mac) {
            "objc/base/RTCVideoDecoder.h",
            "objc/base/RTCVideoDecoderFactory.h",
            "objc/base/RTCVideoEncoder.h",
@@ -44,7 +52,7 @@ index 4f5ceb5..29847c1 100644
            "objc/base/RTCVideoEncoderFactory.h",
            "objc/base/RTCVideoEncoderQpThresholds.h",
            "objc/base/RTCVideoEncoderSettings.h",
-@@ -1309,6 +1321,9 @@ if (is_ios || is_mac) {
+@@ -1309,6 +1322,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -54,7 +62,15 @@ index 4f5ceb5..29847c1 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1423,6 +1438,9 @@ if (is_ios || is_mac) {
+@@ -1363,6 +1379,7 @@ if (is_ios || is_mac) {
+           ":videocapture_objc",
+           ":videocodec_objc",
+           ":videotoolbox_objc",
++          "../api/video_codecs:video_codecs_api",
+         ]
+         if (!build_with_chromium) {
+           deps += [
+@@ -1423,6 +1440,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -64,7 +80,7 @@ index 4f5ceb5..29847c1 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1457,6 +1475,7 @@ if (is_ios || is_mac) {
+@@ -1457,6 +1477,7 @@ if (is_ios || is_mac) {
            "objc/base/RTCVideoDecoder.h",
            "objc/base/RTCVideoDecoderFactory.h",
            "objc/base/RTCVideoEncoder.h",
@@ -72,7 +88,15 @@ index 4f5ceb5..29847c1 100644
            "objc/base/RTCVideoEncoderFactory.h",
            "objc/base/RTCVideoEncoderQpThresholds.h",
            "objc/base/RTCVideoEncoderSettings.h",
-@@ -1691,7 +1710,7 @@ if (is_ios || is_mac) {
+@@ -1495,6 +1516,7 @@ if (is_ios || is_mac) {
+           ":videocapture_objc",
+           ":videocodec_objc",
+           ":videotoolbox_objc",
++          "../api/video_codecs:video_codecs_api",
+         ]
+         if (!build_with_chromium) {
+           deps += [
+@@ -1691,7 +1713,7 @@ if (is_ios || is_mac) {
          "objc/components/video_codec/RTCVideoDecoderH264.h",
          "objc/components/video_codec/RTCVideoDecoderH264.mm",
          "objc/components/video_codec/RTCVideoEncoderFactoryH264.h",
@@ -161,11 +185,84 @@ index 0000000..5aa4e6d
 +  }
 +}
 \ No newline at end of file
+diff --git a/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java b/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java
+index d7a8694..2e16bca 100644
+--- a/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java
++++ b/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java
+@@ -26,6 +26,8 @@ public class DefaultVideoDecoderFactory implements VideoDecoderFactory {
+    * Create decoder factory using default hardware decoder factory.
+    */
+   public DefaultVideoDecoderFactory(@Nullable EglBase.Context eglContext) {
++    System.err.println("DefaultVideoDecoderFactory 1");
++
+     this.hardwareVideoDecoderFactory = new HardwareVideoDecoderFactory(eglContext);
+     this.platformSoftwareVideoDecoderFactory = new PlatformSoftwareVideoDecoderFactory(eglContext);
+   }
+@@ -34,22 +36,32 @@ public class DefaultVideoDecoderFactory implements VideoDecoderFactory {
+    * Create decoder factory using explicit hardware decoder factory.
+    */
+   DefaultVideoDecoderFactory(VideoDecoderFactory hardwareVideoDecoderFactory) {
++        System.err.println("DefaultVideoDecoderFactory 2");
++
+     this.hardwareVideoDecoderFactory = hardwareVideoDecoderFactory;
+     this.platformSoftwareVideoDecoderFactory = null;
+   }
+ 
+   @Override
+   public @Nullable VideoDecoder createDecoder(VideoCodecInfo codecType) {
++        System.err.println("DefaultVideoDecoderFactory 3");
++
+     VideoDecoder softwareDecoder = softwareVideoDecoderFactory.createDecoder(codecType);
+     final VideoDecoder hardwareDecoder = hardwareVideoDecoderFactory.createDecoder(codecType);
+     if (softwareDecoder == null && platformSoftwareVideoDecoderFactory != null) {
++          System.err.println("DefaultVideoDecoderFactory 4");
++
+       softwareDecoder = platformSoftwareVideoDecoderFactory.createDecoder(codecType);
+     }
+     if (hardwareDecoder != null && softwareDecoder != null) {
++                System.err.println("DefaultVideoDecoderFactory 5");
++
+       // Both hardware and software supported, wrap it in a software fallback
+       return new VideoDecoderFallback(
+           /* fallback= */ softwareDecoder, /* primary= */ hardwareDecoder);
+     }
++              System.err.println("DefaultVideoDecoderFactory 6");
++
+     return hardwareDecoder != null ? hardwareDecoder : softwareDecoder;
+   }
+ 
 diff --git a/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
-index 76896b6..09d6cce 100644
+index 76896b6..fa76de7 100644
 --- a/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
-@@ -53,4 +53,9 @@ public class DefaultVideoEncoderFactory implements VideoEncoderFactory {
+@@ -22,21 +22,26 @@ public class DefaultVideoEncoderFactory implements VideoEncoderFactory {
+   /** Create encoder factory using default hardware encoder factory. */
+   public DefaultVideoEncoderFactory(
+       EglBase.Context eglContext, boolean enableIntelVp8Encoder, boolean enableH264HighProfile) {
++        System.err.println("DefaultVideoEncoderFactory 1");
+     this.hardwareVideoEncoderFactory =
+         new HardwareVideoEncoderFactory(eglContext, enableIntelVp8Encoder, enableH264HighProfile);
+   }
+ 
+   /** Create encoder factory using explicit hardware encoder factory. */
+   DefaultVideoEncoderFactory(VideoEncoderFactory hardwareVideoEncoderFactory) {
++    System.err.println("DefaultVideoEncoderFactory 2");
+     this.hardwareVideoEncoderFactory = hardwareVideoEncoderFactory;
+   }
+ 
+   @Nullable
+   @Override
+   public VideoEncoder createEncoder(VideoCodecInfo info) {
++    System.err.println("DefaultVideoEncoderFactory 3");
+     final VideoEncoder softwareEncoder = softwareVideoEncoderFactory.createEncoder(info);
+     final VideoEncoder hardwareEncoder = hardwareVideoEncoderFactory.createEncoder(info);
++
+     if (hardwareEncoder != null && softwareEncoder != null) {
++          System.err.println("DefaultVideoEncoderFactory 4");
+       // Both hardware and software supported, wrap it in a software fallback
+       return new VideoEncoderFallback(
+           /* fallback= */ softwareEncoder, /* primary= */ hardwareEncoder);
+@@ -53,4 +58,9 @@ public class DefaultVideoEncoderFactory implements VideoEncoderFactory {
  
      return supportedCodecInfos.toArray(new VideoCodecInfo[supportedCodecInfos.size()]);
    }
