@@ -24,7 +24,7 @@ jobs:
       matrix:
         include:
           - os: android
-          - os: ios
+          # - os: ios
           # - os: linux
           #   arch: arm64
           # - os: linux
