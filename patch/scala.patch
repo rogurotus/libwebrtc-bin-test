@@ -1,5 +1,5 @@
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..ea6e83a 100644
+index 4f5ceb5..d19a595 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -15,7 +15,7 @@ index 4f5ceb5..ea6e83a 100644
      ]
  
      deps = [
-+      "../api/video_codecs:video_codecs_api",
++      "../api/video_codecs:video_encoder_factory_template",
        "../rtc_base:checks",
        "../rtc_base:logging",
      ]
@@ -66,7 +66,7 @@ index 4f5ceb5..ea6e83a 100644
            ":videocapture_objc",
            ":videocodec_objc",
            ":videotoolbox_objc",
-+          "../api/video_codecs:video_codecs_api",
++          "../api/video_codecs:video_encoder_factory_template",
          ]
          if (!build_with_chromium) {
            deps += [
@@ -92,7 +92,7 @@ index 4f5ceb5..ea6e83a 100644
            ":videocapture_objc",
            ":videocodec_objc",
            ":videotoolbox_objc",
-+          "../api/video_codecs:video_codecs_api",
++          "../api/video_codecs:video_encoder_factory_template",
          ]
          if (!build_with_chromium) {
            deps += [
