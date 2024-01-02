@@ -1,15 +1,3 @@
-diff --git a/src/examples/objcnativeapi/objc/objc_call_client.mm b/src/examples/objcnativeapi/objc/objc_call_client.mm
-index 90bcfcc..ce1254b 100644
---- a/src/examples/objcnativeapi/objc/objc_call_client.mm
-+++ b/src/examples/objcnativeapi/objc/objc_call_client.mm
-@@ -122,6 +122,7 @@ void ObjCCallClient::CreatePeerConnectionFactory() {
-   media_deps.task_queue_factory = dependencies.task_queue_factory.get();
-   media_deps.audio_encoder_factory = webrtc::CreateBuiltinAudioEncoderFactory();
-   media_deps.audio_decoder_factory = webrtc::CreateBuiltinAudioDecoderFactory();
-+  // here
-   media_deps.video_encoder_factory = webrtc::ObjCToNativeVideoEncoderFactory(
-       [[RTC_OBJC_TYPE(RTCDefaultVideoEncoderFactory) alloc] init]);
-   media_deps.video_decoder_factory = webrtc::ObjCToNativeVideoDecoderFactory(
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
 index 4f5ceb5..29847c1 100644
 --- a/src/sdk/BUILD.gn
@@ -2084,37 +2072,59 @@ index 0000000..48d809e
 +
 +@end
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
-index bdae19d..f38e962 100644
+index bdae19d..e69de29 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
 +++ b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
-@@ -12,6 +12,7 @@
- 
- #import "RTCH264ProfileLevelId.h"
- #import "RTCVideoDecoderH264.h"
-+#import "MediaCodecUtils.h"
- 
- @implementation RTC_OBJC_TYPE (RTCVideoDecoderFactoryH264)
- 
-@@ -26,7 +27,8 @@
-   };
-   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedHighInfo =
-       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
+@@ -1,49 +0,0 @@
+-/*
+- *  Copyright 2017 The WebRTC project authors. All Rights Reserved.
+- *
+- *  Use of this source code is governed by a BSD-style license
+- *  that can be found in the LICENSE file in the root of the source
+- *  tree. An additional intellectual property rights grant can be found
+- *  in the file PATENTS.  All contributing project authors may
+- *  be found in the AUTHORS file in the root of the source tree.
+- */
+-
+-#import "RTCVideoDecoderFactoryH264.h"
+-
+-#import "RTCH264ProfileLevelId.h"
+-#import "RTCVideoDecoderH264.h"
+-
+-@implementation RTC_OBJC_TYPE (RTCVideoDecoderFactoryH264)
+-
+-- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
+-  NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *codecs = [NSMutableArray array];
+-  NSString *codecName = kRTCVideoCodecH264Name;
+-
+-  NSDictionary<NSString *, NSString *> *constrainedHighParams = @{
+-    @"profile-level-id" : kRTCMaxSupportedH264ProfileLevelConstrainedHigh,
+-    @"level-asymmetry-allowed" : @"1",
+-    @"packetization-mode" : @"1",
+-  };
+-  RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedHighInfo =
+-      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
 -                                                  parameters:constrainedHighParams];
-+                                                  parameters:constrainedHighParams
-+                                                  scalabiltyModes: H264_SCALABILITY_MODES];
-   [codecs addObject:constrainedHighInfo];
- 
-   NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
-@@ -36,7 +38,8 @@
-   };
-   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
-       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
+-  [codecs addObject:constrainedHighInfo];
+-
+-  NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
+-    @"profile-level-id" : kRTCMaxSupportedH264ProfileLevelConstrainedBaseline,
+-    @"level-asymmetry-allowed" : @"1",
+-    @"packetization-mode" : @"1",
+-  };
+-  RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
+-      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
 -                                                  parameters:constrainedBaselineParams];
-+                                                  parameters:constrainedBaselineParams
-+                                                  scalabiltyModes: H264_SCALABILITY_MODES];
-   [codecs addObject:constrainedBaselineInfo];
- 
-   return [codecs copy];
+-  [codecs addObject:constrainedBaselineInfo];
+-
+-  return [codecs copy];
+-}
+-
+-- (id<RTC_OBJC_TYPE(RTCVideoDecoder)>)createDecoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
+-  return [[RTC_OBJC_TYPE(RTCVideoDecoderH264) alloc] init];
+-}
+-
+-@end
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
 index 45fc4be..dbd9801 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
