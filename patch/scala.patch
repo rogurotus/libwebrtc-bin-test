@@ -521,11 +521,84 @@ index 0000000..5aa4e6d
 +  }
 +}
 \ No newline at end of file
+diff --git a/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java b/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java
+index d7a8694..2e16bca 100644
+--- a/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java
++++ b/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java
+@@ -26,6 +26,8 @@ public class DefaultVideoDecoderFactory implements VideoDecoderFactory {
+    * Create decoder factory using default hardware decoder factory.
+    */
+   public DefaultVideoDecoderFactory(@Nullable EglBase.Context eglContext) {
++    System.err.println("DefaultVideoDecoderFactory 1");
++
+     this.hardwareVideoDecoderFactory = new HardwareVideoDecoderFactory(eglContext);
+     this.platformSoftwareVideoDecoderFactory = new PlatformSoftwareVideoDecoderFactory(eglContext);
+   }
+@@ -34,22 +36,32 @@ public class DefaultVideoDecoderFactory implements VideoDecoderFactory {
+    * Create decoder factory using explicit hardware decoder factory.
+    */
+   DefaultVideoDecoderFactory(VideoDecoderFactory hardwareVideoDecoderFactory) {
++        System.err.println("DefaultVideoDecoderFactory 2");
++
+     this.hardwareVideoDecoderFactory = hardwareVideoDecoderFactory;
+     this.platformSoftwareVideoDecoderFactory = null;
+   }
+ 
+   @Override
+   public @Nullable VideoDecoder createDecoder(VideoCodecInfo codecType) {
++        System.err.println("DefaultVideoDecoderFactory 3");
++
+     VideoDecoder softwareDecoder = softwareVideoDecoderFactory.createDecoder(codecType);
+     final VideoDecoder hardwareDecoder = hardwareVideoDecoderFactory.createDecoder(codecType);
+     if (softwareDecoder == null && platformSoftwareVideoDecoderFactory != null) {
++          System.err.println("DefaultVideoDecoderFactory 4");
++
+       softwareDecoder = platformSoftwareVideoDecoderFactory.createDecoder(codecType);
+     }
+     if (hardwareDecoder != null && softwareDecoder != null) {
++                System.err.println("DefaultVideoDecoderFactory 5");
++
+       // Both hardware and software supported, wrap it in a software fallback
+       return new VideoDecoderFallback(
+           /* fallback= */ softwareDecoder, /* primary= */ hardwareDecoder);
+     }
++              System.err.println("DefaultVideoDecoderFactory 6");
++
+     return hardwareDecoder != null ? hardwareDecoder : softwareDecoder;
+   }
+ 
 diff --git a/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
-index 76896b6..09d6cce 100644
+index 76896b6..fa76de7 100644
 --- a/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
-@@ -53,4 +53,9 @@ public class DefaultVideoEncoderFactory implements VideoEncoderFactory {
+@@ -22,21 +22,26 @@ public class DefaultVideoEncoderFactory implements VideoEncoderFactory {
+   /** Create encoder factory using default hardware encoder factory. */
+   public DefaultVideoEncoderFactory(
+       EglBase.Context eglContext, boolean enableIntelVp8Encoder, boolean enableH264HighProfile) {
++        System.err.println("DefaultVideoEncoderFactory 1");
+     this.hardwareVideoEncoderFactory =
+         new HardwareVideoEncoderFactory(eglContext, enableIntelVp8Encoder, enableH264HighProfile);
+   }
+ 
+   /** Create encoder factory using explicit hardware encoder factory. */
+   DefaultVideoEncoderFactory(VideoEncoderFactory hardwareVideoEncoderFactory) {
++    System.err.println("DefaultVideoEncoderFactory 2");
+     this.hardwareVideoEncoderFactory = hardwareVideoEncoderFactory;
+   }
+ 
+   @Nullable
+   @Override
+   public VideoEncoder createEncoder(VideoCodecInfo info) {
++    System.err.println("DefaultVideoEncoderFactory 3");
+     final VideoEncoder softwareEncoder = softwareVideoEncoderFactory.createEncoder(info);
+     final VideoEncoder hardwareEncoder = hardwareVideoEncoderFactory.createEncoder(info);
++
+     if (hardwareEncoder != null && softwareEncoder != null) {
++          System.err.println("DefaultVideoEncoderFactory 4");
+       // Both hardware and software supported, wrap it in a software fallback
+       return new VideoEncoderFallback(
+           /* fallback= */ softwareEncoder, /* primary= */ hardwareEncoder);
+@@ -53,4 +58,9 @@ public class DefaultVideoEncoderFactory implements VideoEncoderFactory {
  
      return supportedCodecInfos.toArray(new VideoCodecInfo[supportedCodecInfos.size()]);
    }
@@ -2431,6 +2504,38 @@ index 0000000..48d809e
 +}
 +
 +@end
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
+index bdae19d..f38e962 100644
+--- a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
++++ b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
+@@ -12,6 +12,7 @@
+ 
+ #import "RTCH264ProfileLevelId.h"
+ #import "RTCVideoDecoderH264.h"
++#import "MediaCodecUtils.h"
+ 
+ @implementation RTC_OBJC_TYPE (RTCVideoDecoderFactoryH264)
+ 
+@@ -26,7 +27,8 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedHighInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
+-                                                  parameters:constrainedHighParams];
++                                                  parameters:constrainedHighParams
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
+   [codecs addObject:constrainedHighInfo];
+ 
+   NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
+@@ -36,7 +38,8 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
+-                                                  parameters:constrainedBaselineParams];
++                                                  parameters:constrainedBaselineParams
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
+   [codecs addObject:constrainedBaselineInfo];
+ 
+   return [codecs copy];
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
 index 45fc4be..dbd9801 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
