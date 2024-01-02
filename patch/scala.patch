@@ -2071,6 +2071,38 @@ index 0000000..48d809e
 +}
 +
 +@end
+diff --git a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
+index bdae19d..f38e962 100644
+--- a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
++++ b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
+@@ -12,6 +12,7 @@
+ 
+ #import "RTCH264ProfileLevelId.h"
+ #import "RTCVideoDecoderH264.h"
++#import "MediaCodecUtils.h"
+ 
+ @implementation RTC_OBJC_TYPE (RTCVideoDecoderFactoryH264)
+ 
+@@ -26,7 +27,8 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedHighInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
+-                                                  parameters:constrainedHighParams];
++                                                  parameters:constrainedHighParams
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
+   [codecs addObject:constrainedHighInfo];
+ 
+   NSDictionary<NSString *, NSString *> *constrainedBaselineParams = @{
+@@ -36,7 +38,8 @@
+   };
+   RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
+       [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:codecName
+-                                                  parameters:constrainedBaselineParams];
++                                                  parameters:constrainedBaselineParams
++                                                  scalabiltyModes: H264_SCALABILITY_MODES];
+   [codecs addObject:constrainedBaselineInfo];
+ 
+   return [codecs copy];
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h b/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
 index 45fc4be..dbd9801 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoEncoderFactoryH264.h
