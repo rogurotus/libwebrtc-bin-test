@@ -360,7 +360,7 @@ index 215598a..4d0fa0c 100644
    }
  }
 diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
-index d43fc27..e9fbe02 100644
+index d43fc27..377adbf 100644
 --- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 @@ -13,6 +13,7 @@ package org.webrtc;
@@ -375,7 +375,7 @@ index d43fc27..e9fbe02 100644
    @Nullable
    @Override
    public VideoEncoder createEncoder(VideoCodecInfo input) {
-+    System.err.println("HW 1 " + input.toString());
++    System.err.println("HW 1 " + input.toString() + " " + input.getName());
      VideoCodecMimeType type = VideoCodecMimeType.valueOf(input.getName());
      MediaCodecInfo info = findCodecForType(type);
 +    System.err.println("HW 2 ");
@@ -429,15 +429,15 @@ index d43fc27..e9fbe02 100644
 +      System.err.println("HW 4 ");
        MediaCodecInfo info = null;
        try {
-+        System.err.println("HW 5 ");
          info = MediaCodecList.getCodecInfoAt(i);
++        System.err.println("HW 5 " + info.getName() + " " + info.getCanonicalName() );
        } catch (IllegalArgumentException e) {
 +        System.err.println("HW 6 ");
          Logging.e(TAG, "Cannot retrieve encoder codec info", e);
        }
  
        if (info == null || !info.isEncoder()) {
-+        System.err.println("HW 6 ");
++        System.err.println("HW 6 2 ");
          continue;
        }
  
@@ -450,7 +450,7 @@ index d43fc27..e9fbe02 100644
  
    // Returns true if the given MediaCodecInfo indicates a supported encoder for the given type.
    private boolean isSupportedCodec(MediaCodecInfo info, VideoCodecMimeType type) {
-+    System.err.println("HW 8 ");
++    System.err.println("HW 8 " + info.toString());
      if (!MediaCodecUtils.codecSupportsType(info, type)) {
 +      System.err.println("HW 9 ");
        return false;
@@ -2065,7 +2065,7 @@ index ce26ae1..31315cf 100644
  
  @end
 diff --git a/src/sdk/objc/base/RTCVideoEncoderFactory.h b/src/sdk/objc/base/RTCVideoEncoderFactory.h
-index a73cd77..be088a3 100644
+index a73cd77..467a9d8 100644
 --- a/src/sdk/objc/base/RTCVideoEncoderFactory.h
 +++ b/src/sdk/objc/base/RTCVideoEncoderFactory.h
 @@ -13,6 +13,8 @@
@@ -2073,7 +2073,7 @@ index a73cd77..be088a3 100644
  #import "RTCVideoCodecInfo.h"
  #import "RTCVideoEncoder.h"
 +#import "RTCCodecSupport.h"
-+#include "api/video_codecs/video_encoder_factory_template.h"
++#include "api/video_codecs/video_encoder.h"
  
  NS_ASSUME_NONNULL_BEGIN
  
