@@ -1,5 +1,5 @@
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..d19a595 100644
+index 4f5ceb5..f024004 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -28,7 +28,15 @@ index 4f5ceb5..d19a595 100644
        ]
  
        deps = [
-@@ -991,6 +994,15 @@ if (is_ios || is_mac) {
+@@ -729,6 +732,7 @@ if (is_ios || is_mac) {
+         ":vp8",
+         ":vp9",
+         ":vpx_codec_constants",
++        "../api/video_codecs:video_encoder_factory_template",
+       ]
+ 
+       defines = []
+@@ -991,6 +995,15 @@ if (is_ios || is_mac) {
          "objc/api/peerconnection/RTCRtcpParameters+Private.h",
          "objc/api/peerconnection/RTCRtcpParameters.h",
          "objc/api/peerconnection/RTCRtcpParameters.mm",
@@ -44,7 +52,7 @@ index 4f5ceb5..d19a595 100644
          "objc/api/peerconnection/RTCRtpCodecParameters+Private.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.mm",
-@@ -1261,6 +1273,7 @@ if (is_ios || is_mac) {
+@@ -1261,6 +1274,7 @@ if (is_ios || is_mac) {
            "objc/base/RTCVideoDecoder.h",
            "objc/base/RTCVideoDecoderFactory.h",
            "objc/base/RTCVideoEncoder.h",
@@ -52,7 +60,7 @@ index 4f5ceb5..d19a595 100644
            "objc/base/RTCVideoEncoderFactory.h",
            "objc/base/RTCVideoEncoderQpThresholds.h",
            "objc/base/RTCVideoEncoderSettings.h",
-@@ -1309,6 +1322,9 @@ if (is_ios || is_mac) {
+@@ -1309,6 +1323,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -62,7 +70,7 @@ index 4f5ceb5..d19a595 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1363,6 +1379,7 @@ if (is_ios || is_mac) {
+@@ -1363,6 +1380,7 @@ if (is_ios || is_mac) {
            ":videocapture_objc",
            ":videocodec_objc",
            ":videotoolbox_objc",
@@ -70,7 +78,7 @@ index 4f5ceb5..d19a595 100644
          ]
          if (!build_with_chromium) {
            deps += [
-@@ -1423,6 +1440,9 @@ if (is_ios || is_mac) {
+@@ -1423,6 +1441,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -80,7 +88,7 @@ index 4f5ceb5..d19a595 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1457,6 +1477,7 @@ if (is_ios || is_mac) {
+@@ -1457,6 +1478,7 @@ if (is_ios || is_mac) {
            "objc/base/RTCVideoDecoder.h",
            "objc/base/RTCVideoDecoderFactory.h",
            "objc/base/RTCVideoEncoder.h",
@@ -88,7 +96,7 @@ index 4f5ceb5..d19a595 100644
            "objc/base/RTCVideoEncoderFactory.h",
            "objc/base/RTCVideoEncoderQpThresholds.h",
            "objc/base/RTCVideoEncoderSettings.h",
-@@ -1495,6 +1516,7 @@ if (is_ios || is_mac) {
+@@ -1495,6 +1517,7 @@ if (is_ios || is_mac) {
            ":videocapture_objc",
            ":videocodec_objc",
            ":videotoolbox_objc",
@@ -96,7 +104,23 @@ index 4f5ceb5..d19a595 100644
          ]
          if (!build_with_chromium) {
            deps += [
-@@ -1691,7 +1713,7 @@ if (is_ios || is_mac) {
+@@ -1586,6 +1609,7 @@ if (is_ios || is_mac) {
+         "../rtc_base:logging",
+         "../rtc_base:ssl",
+         "../rtc_base:threading",
++        "../api/video_codecs:video_encoder_factory_template",
+       ]
+       if (is_ios) {
+         deps += [ ":native_network_monitor" ]
+@@ -1659,6 +1683,7 @@ if (is_ios || is_mac) {
+         "../rtc_base:logging",
+         "../rtc_base:timestamp_aligner",
+         "../rtc_base:timeutils",
++        "../api/video_codecs:video_encoder_factory_template",
+       ]
+     }
+ 
+@@ -1691,7 +1716,7 @@ if (is_ios || is_mac) {
          "objc/components/video_codec/RTCVideoDecoderH264.h",
          "objc/components/video_codec/RTCVideoDecoderH264.mm",
          "objc/components/video_codec/RTCVideoEncoderFactoryH264.h",
@@ -105,6 +129,14 @@ index 4f5ceb5..d19a595 100644
          "objc/components/video_codec/RTCVideoEncoderH264.h",
          "objc/components/video_codec/RTCVideoEncoderH264.mm",
        ]
+@@ -1713,6 +1738,7 @@ if (is_ios || is_mac) {
+         ":videocodec_objc",
+         ":videoframebuffer_objc",
+         "../api/video_codecs:video_codecs_api",
++        "../api/video_codecs:video_encoder_factory_template",
+         "../common_video",
+         "../modules/video_coding:video_codec_interface",
+         "../rtc_base:buffer",
 diff --git a/src/sdk/android/BUILD.gn b/src/sdk/android/BUILD.gn
 index 9aae8b9..496f791 100644
 --- a/src/sdk/android/BUILD.gn
@@ -186,7 +218,7 @@ index 0000000..5aa4e6d
 +}
 \ No newline at end of file
 diff --git a/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java b/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java
-index d7a8694..2e16bca 100644
+index d7a8694..daa4480 100644
 --- a/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/DefaultVideoDecoderFactory.java
 @@ -26,6 +26,8 @@ public class DefaultVideoDecoderFactory implements VideoDecoderFactory {
@@ -210,7 +242,7 @@ index d7a8694..2e16bca 100644
  
    @Override
    public @Nullable VideoDecoder createDecoder(VideoCodecInfo codecType) {
-+        System.err.println("DefaultVideoDecoderFactory 3");
++        System.err.println("DefaultVideoDecoderFactory 3 " + codecType.toString());
 +
      VideoDecoder softwareDecoder = softwareVideoDecoderFactory.createDecoder(codecType);
      final VideoDecoder hardwareDecoder = hardwareVideoDecoderFactory.createDecoder(codecType);
@@ -232,7 +264,7 @@ index d7a8694..2e16bca 100644
    }
  
 diff --git a/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
-index 76896b6..fa76de7 100644
+index 76896b6..11389bc 100644
 --- a/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/DefaultVideoEncoderFactory.java
 @@ -22,21 +22,26 @@ public class DefaultVideoEncoderFactory implements VideoEncoderFactory {
@@ -253,7 +285,7 @@ index 76896b6..fa76de7 100644
    @Nullable
    @Override
    public VideoEncoder createEncoder(VideoCodecInfo info) {
-+    System.err.println("DefaultVideoEncoderFactory 3");
++    System.err.println("DefaultVideoEncoderFactory 3 " + info.toString());
      final VideoEncoder softwareEncoder = softwareVideoEncoderFactory.createEncoder(info);
      final VideoEncoder hardwareEncoder = hardwareVideoEncoderFactory.createEncoder(info);
 +
@@ -272,8 +304,33 @@ index 76896b6..fa76de7 100644
 +    return softwareVideoEncoderFactory.queryCodecSupport(format, scalability_mode);
 +  }
  }
+diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoDecoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoDecoderFactory.java
+index 215598a..4d0fa0c 100644
+--- a/src/sdk/android/api/org/webrtc/HardwareVideoDecoderFactory.java
++++ b/src/sdk/android/api/org/webrtc/HardwareVideoDecoderFactory.java
+@@ -38,6 +38,8 @@ public class HardwareVideoDecoderFactory extends MediaCodecVideoDecoderFactory {
+    */
+   public HardwareVideoDecoderFactory(@Nullable EglBase.Context sharedContext) {
+     this(sharedContext, /* codecAllowedPredicate= */ null);
++      System.err.println("HW DEC 1 ");
++
+   }
+ 
+   /**
+@@ -50,8 +52,9 @@ public class HardwareVideoDecoderFactory extends MediaCodecVideoDecoderFactory {
+    */
+   public HardwareVideoDecoderFactory(@Nullable EglBase.Context sharedContext,
+       @Nullable Predicate<MediaCodecInfo> codecAllowedPredicate) {
+-    super(sharedContext,
++        super(sharedContext,
+         (codecAllowedPredicate == null ? defaultAllowedPredicate
+-                                       : codecAllowedPredicate.and(defaultAllowedPredicate)));
++        : codecAllowedPredicate.and(defaultAllowedPredicate)));
++        System.err.println("HW DEC 2 ");
+   }
+ }
 diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
-index d43fc27..5a7caa7 100644
+index d43fc27..5dad6d7 100644
 --- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 @@ -13,6 +13,7 @@ package org.webrtc;
@@ -284,7 +341,37 @@ index d43fc27..5a7caa7 100644
  
  import android.media.MediaCodecInfo;
  import android.media.MediaCodecList;
-@@ -143,17 +144,22 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
+@@ -94,8 +95,10 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
+   @Nullable
+   @Override
+   public VideoEncoder createEncoder(VideoCodecInfo input) {
++    System.err.println("HW 1 " + input.toString());
+     VideoCodecMimeType type = VideoCodecMimeType.valueOf(input.getName());
+     MediaCodecInfo info = findCodecForType(type);
++    System.err.println("HW 2 " + (info == null).toString());
+ 
+     if (info == null) {
+       return null;
+@@ -109,15 +112,18 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
+         MediaCodecUtils.ENCODER_COLOR_FORMATS, info.getCapabilitiesForType(mime));
+ 
+     if (type == VideoCodecMimeType.H264) {
++      System.err.println("HW 22 ");
+       boolean isHighProfile = H264Utils.isSameH264Profile(
+           input.params, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ true));
+       boolean isBaselineProfile = H264Utils.isSameH264Profile(
+           input.params, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false));
+ 
+       if (!isHighProfile && !isBaselineProfile) {
++              System.err.println("HW 22 1 ");
+         return null;
+       }
+       if (isHighProfile && !isH264HighProfileSupported(info)) {
++        System.err.println("HW 22 2 ");
+         return null;
+       }
+     }
+@@ -143,31 +149,42 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
          // supported by the decoder.
          if (type == VideoCodecMimeType.H264 && isH264HighProfileSupported(codec)) {
            supportedCodecInfos.add(new VideoCodecInfo(
@@ -307,8 +394,73 @@ index d43fc27..5a7caa7 100644
 +  }
 +
    private @Nullable MediaCodecInfo findCodecForType(VideoCodecMimeType type) {
++    System.err.println("HW 3 ");
      for (int i = 0; i < MediaCodecList.getCodecCount(); ++i) {
++      System.err.println("HW 4 ");
        MediaCodecInfo info = null;
+       try {
++        System.err.println("HW 5 ");
+         info = MediaCodecList.getCodecInfoAt(i);
+       } catch (IllegalArgumentException e) {
++        System.err.println("HW 6 ");
+         Logging.e(TAG, "Cannot retrieve encoder codec info", e);
+       }
+ 
+       if (info == null || !info.isEncoder()) {
++        System.err.println("HW 6 ");
+         continue;
+       }
+ 
+       if (isSupportedCodec(info, type)) {
++        System.err.println("HW 7 ");
+         return info;
+       }
+     }
+@@ -176,22 +193,28 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
+ 
+   // Returns true if the given MediaCodecInfo indicates a supported encoder for the given type.
+   private boolean isSupportedCodec(MediaCodecInfo info, VideoCodecMimeType type) {
++    System.err.println("HW 8 ");
+     if (!MediaCodecUtils.codecSupportsType(info, type)) {
++      System.err.println("HW 9 ");
+       return false;
+     }
+     // Check for a supported color format.
+     if (MediaCodecUtils.selectColorFormat(
+             MediaCodecUtils.ENCODER_COLOR_FORMATS, info.getCapabilitiesForType(type.mimeType()))
+         == null) {
++      System.err.println("HW 10 ");
+       return false;
+     }
++    System.err.println("HW 11 ");
+     return isHardwareSupportedInCurrentSdk(info, type) && isMediaCodecAllowed(info);
+   }
+ 
+   // Returns true if the given MediaCodecInfo indicates a hardware module that is supported on the
+   // current SDK.
+   private boolean isHardwareSupportedInCurrentSdk(MediaCodecInfo info, VideoCodecMimeType type) {
++    System.err.println("HW 12 " + type.mimeType());
+     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
++      System.err.println("HW 13 ");
+       return info.isHardwareAccelerated();
+     }
+ 
+@@ -237,9 +260,15 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
+   }
+ 
+   private boolean isMediaCodecAllowed(MediaCodecInfo info) {
++        System.err.println("HW 14 ");
++
+     if (codecAllowedPredicate == null) {
++          System.err.println("HW 15 ");
+       return true;
+     }
++    boolean a = codecAllowedPredicate.test(info);
++    String b = a ? "true" : "false";
++    System.err.println("HW 16 " + b);
+     return codecAllowedPredicate.test(info);
+   }
+ 
 diff --git a/src/sdk/android/api/org/webrtc/RtpParameters.java b/src/sdk/android/api/org/webrtc/RtpParameters.java
 index 9ca8311..1fcffe7 100644
 --- a/src/sdk/android/api/org/webrtc/RtpParameters.java
@@ -677,7 +829,7 @@ index 5417fec..39ed078 100644
      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
        return isHardwareAcceleratedQOrHigher(info);
 diff --git a/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java b/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
-index 9a73bc4..a14383d 100644
+index 9a73bc4..ec43d1b 100644
 --- a/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
 +++ b/src/sdk/android/src/java/org/webrtc/MediaCodecVideoDecoderFactory.java
 @@ -12,6 +12,7 @@ package org.webrtc;
@@ -688,7 +840,52 @@ index 9a73bc4..a14383d 100644
  
  import android.media.MediaCodecInfo;
  import android.media.MediaCodecInfo.CodecCapabilities;
-@@ -72,11 +73,11 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
+@@ -32,13 +33,16 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
+   /**
+    * MediaCodecVideoDecoderFactory with support of codecs filtering.
+    *
+-   * @param sharedContext The textures generated will be accessible from this context. May be null,
+-   *                      this disables texture support.
+-   * @param codecAllowedPredicate optional predicate to test if codec allowed. All codecs are
++   * @param sharedContext         The textures generated will be accessible from
++   *                              this context. May be null,
++   *                              this disables texture support.
++   * @param codecAllowedPredicate optional predicate to test if codec allowed. All
++   *                              codecs are
+    *                              allowed when predicate is not provided.
+    */
+   public MediaCodecVideoDecoderFactory(@Nullable EglBase.Context sharedContext,
+       @Nullable Predicate<MediaCodecInfo> codecAllowedPredicate) {
++    System.err.println("HW DEC 3 ");
+     this.sharedContext = sharedContext;
+     this.codecAllowedPredicate = codecAllowedPredicate;
+   }
+@@ -46,10 +50,14 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
+   @Nullable
+   @Override
+   public VideoDecoder createDecoder(VideoCodecInfo codecType) {
++    System.err.println("HW DEC 4 " + codecType.toString());
++
+     VideoCodecMimeType type = VideoCodecMimeType.valueOf(codecType.getName());
+     MediaCodecInfo info = findCodecForType(type);
++    System.err.println("HW DEC 5 ");
+ 
+     if (info == null) {
++      System.err.println("HW DEC 6 ");
+       return null;
+     }
+ 
+@@ -64,19 +72,18 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
+     List<VideoCodecInfo> supportedCodecInfos = new ArrayList<VideoCodecInfo>();
+     // Generate a list of supported codecs in order of preference:
+     // VP8, VP9, H264 (high profile), H264 (baseline profile), AV1 and H265.
+-    for (VideoCodecMimeType type :
+-        new VideoCodecMimeType[] {VideoCodecMimeType.VP8, VideoCodecMimeType.VP9,
+-            VideoCodecMimeType.H264, VideoCodecMimeType.AV1, VideoCodecMimeType.H265}) {
++    for (VideoCodecMimeType type : new VideoCodecMimeType[] { VideoCodecMimeType.VP8, VideoCodecMimeType.VP9,
++        VideoCodecMimeType.H264, VideoCodecMimeType.AV1, VideoCodecMimeType.H265 }) {
+       MediaCodecInfo codec = findCodecForType(type);
+       if (codec != null) {
          String name = type.name();
          if (type == VideoCodecMimeType.H264 && isH264HighProfileSupported(codec)) {
            supportedCodecInfos.add(new VideoCodecInfo(
@@ -702,6 +899,93 @@ index 9a73bc4..a14383d 100644
        }
      }
  
+@@ -84,19 +91,31 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
+   }
+ 
+   private @Nullable MediaCodecInfo findCodecForType(VideoCodecMimeType type) {
++    System.err.println("HW DEC 7 ");
++
+     for (int i = 0; i < MediaCodecList.getCodecCount(); ++i) {
++      System.err.println("HW DEC 8 ");
++
+       MediaCodecInfo info = null;
+       try {
++        System.err.println("HW DEC 9 ");
++
+         info = MediaCodecList.getCodecInfoAt(i);
+       } catch (IllegalArgumentException e) {
++        System.err.println("HW DEC 10 ");
++
+         Logging.e(TAG, "Cannot retrieve decoder codec info", e);
+       }
+ 
+       if (info == null || info.isEncoder()) {
++        System.err.println("HW DEC 11 ");
++
+         continue;
+       }
+ 
+       if (isSupportedCodec(info, type)) {
++        System.err.println("HW DEC 12 ");
++
+         return info;
+       }
+     }
+@@ -104,37 +123,51 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
+     return null; // No support for this type.
+   }
+ 
+-  // Returns true if the given MediaCodecInfo indicates a supported encoder for the given type.
++  // Returns true if the given MediaCodecInfo indicates a supported encoder for
++  // the given type.
+   private boolean isSupportedCodec(MediaCodecInfo info, VideoCodecMimeType type) {
++    System.err.println("HW DEC 13 ");
++
+     if (!MediaCodecUtils.codecSupportsType(info, type)) {
++      System.err.println("HW DEC 14 ");
++
+       return false;
+     }
+     // Check for a supported color format.
+     if (MediaCodecUtils.selectColorFormat(
+-            MediaCodecUtils.DECODER_COLOR_FORMATS, info.getCapabilitiesForType(type.mimeType()))
+-        == null) {
++        MediaCodecUtils.DECODER_COLOR_FORMATS, info.getCapabilitiesForType(type.mimeType())) == null) {
++      System.err.println("HW DEC 15 ");
+       return false;
+     }
+     return isCodecAllowed(info);
+   }
+ 
+   private boolean isCodecAllowed(MediaCodecInfo info) {
++    System.err.println("HW DEC 16 ");
+     if (codecAllowedPredicate == null) {
++      System.err.println("HW DEC 17 ");
+       return true;
+     }
++    System.err.println("HW DEC 18 ");
+     return codecAllowedPredicate.test(info);
+   }
+ 
+   private boolean isH264HighProfileSupported(MediaCodecInfo info) {
++    System.err.println("HW DEC 19 ");
+     String name = info.getName();
+     // Support H.264 HP decoding on QCOM chips.
+     if (name.startsWith(QCOM_PREFIX)) {
++      System.err.println("HW DEC 20 ");
+       return true;
+     }
+     // Support H.264 HP decoding on Exynos chips for Android M and above.
+     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && name.startsWith(EXYNOS_PREFIX)) {
++      System.err.println("HW DEC 21 ");
++
+       return true;
+     }
++    System.err.println("HW DEC 22 ");
++
+     return false;
+   }
+ }
 diff --git a/src/sdk/android/src/jni/pc/rtp_parameters.cc b/src/sdk/android/src/jni/pc/rtp_parameters.cc
 index 4bd9ee0..1f5957b 100644
 --- a/src/sdk/android/src/jni/pc/rtp_parameters.cc
