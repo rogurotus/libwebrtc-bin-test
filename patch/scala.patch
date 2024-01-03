@@ -330,7 +330,7 @@ index 215598a..4d0fa0c 100644
    }
  }
 diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
-index d43fc27..5dad6d7 100644
+index d43fc27..e9fbe02 100644
 --- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 @@ -13,6 +13,7 @@ package org.webrtc;
@@ -348,7 +348,7 @@ index d43fc27..5dad6d7 100644
 +    System.err.println("HW 1 " + input.toString());
      VideoCodecMimeType type = VideoCodecMimeType.valueOf(input.getName());
      MediaCodecInfo info = findCodecForType(type);
-+    System.err.println("HW 2 " + (info == null).toString());
++    System.err.println("HW 2 ");
  
      if (info == null) {
        return null;
