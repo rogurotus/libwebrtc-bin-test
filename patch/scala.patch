@@ -2073,7 +2073,7 @@ index a73cd77..be088a3 100644
  #import "RTCVideoCodecInfo.h"
  #import "RTCVideoEncoder.h"
 +#import "RTCCodecSupport.h"
-+#include "../api/video_codecs/video_encoder_factory_template.h"
++#include "api/video_codecs/video_encoder_factory_template.h"
  
  NS_ASSUME_NONNULL_BEGIN
  
