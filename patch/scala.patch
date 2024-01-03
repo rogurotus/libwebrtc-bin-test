@@ -1,3 +1,33 @@
+diff --git a/src/examples/BUILD.gn b/src/examples/BUILD.gn
+index 55a94fe..2b1fc38 100644
+--- a/src/examples/BUILD.gn
++++ b/src/examples/BUILD.gn
+@@ -255,7 +255,7 @@ if (is_ios || (is_mac && target_cpu != "x86")) {
+     sources = [
+       "objc/AppRTCMobile/ARDAppClient+Internal.h",
+       "objc/AppRTCMobile/ARDAppClient.h",
+-      "objc/AppRTCMobile/ARDAppClient.m",
++      "objc/AppRTCMobile/ARDAppClient.mm",
+       "objc/AppRTCMobile/ARDAppEngineClient.h",
+       "objc/AppRTCMobile/ARDAppEngineClient.m",
+       "objc/AppRTCMobile/ARDCaptureController.h",
+@@ -271,7 +271,7 @@ if (is_ios || (is_mac && target_cpu != "x86")) {
+       "objc/AppRTCMobile/ARDRoomServerClient.h",
+       "objc/AppRTCMobile/ARDSettingsModel+Private.h",
+       "objc/AppRTCMobile/ARDSettingsModel.h",
+-      "objc/AppRTCMobile/ARDSettingsModel.m",
++      "objc/AppRTCMobile/ARDSettingsModel.mm",
+       "objc/AppRTCMobile/ARDSettingsStore.h",
+       "objc/AppRTCMobile/ARDSettingsStore.m",
+       "objc/AppRTCMobile/ARDSignalingChannel.h",
+diff --git a/src/examples/objc/AppRTCMobile/ARDAppClient.m b/src/examples/objc/AppRTCMobile/ARDAppClient.mm
+similarity index 100%
+rename from examples/objc/AppRTCMobile/ARDAppClient.m
+rename to examples/objc/AppRTCMobile/ARDAppClient.mm
+diff --git a/src/examples/objc/AppRTCMobile/ARDSettingsModel.m b/src/examples/objc/AppRTCMobile/ARDSettingsModel.mm
+similarity index 100%
+rename from examples/objc/AppRTCMobile/ARDSettingsModel.m
+rename to examples/objc/AppRTCMobile/ARDSettingsModel.mm
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
 index 4f5ceb5..f024004 100644
 --- a/src/sdk/BUILD.gn
@@ -330,7 +360,7 @@ index 215598a..4d0fa0c 100644
    }
  }
 diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
-index d43fc27..e9fbe02 100644
+index d43fc27..377adbf 100644
 --- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 @@ -13,6 +13,7 @@ package org.webrtc;
@@ -345,7 +375,7 @@ index d43fc27..e9fbe02 100644
    @Nullable
    @Override
    public VideoEncoder createEncoder(VideoCodecInfo input) {
-+    System.err.println("HW 1 " + input.toString());
++    System.err.println("HW 1 " + input.toString() + " " + input.getName());
      VideoCodecMimeType type = VideoCodecMimeType.valueOf(input.getName());
      MediaCodecInfo info = findCodecForType(type);
 +    System.err.println("HW 2 ");
@@ -399,15 +429,15 @@ index d43fc27..e9fbe02 100644
 +      System.err.println("HW 4 ");
        MediaCodecInfo info = null;
        try {
-+        System.err.println("HW 5 ");
          info = MediaCodecList.getCodecInfoAt(i);
++        System.err.println("HW 5 " + info.getName() + " " + info.getCanonicalName() );
        } catch (IllegalArgumentException e) {
 +        System.err.println("HW 6 ");
          Logging.e(TAG, "Cannot retrieve encoder codec info", e);
        }
  
        if (info == null || !info.isEncoder()) {
-+        System.err.println("HW 6 ");
++        System.err.println("HW 6 2 ");
          continue;
        }
  
@@ -420,7 +450,7 @@ index d43fc27..e9fbe02 100644
  
    // Returns true if the given MediaCodecInfo indicates a supported encoder for the given type.
    private boolean isSupportedCodec(MediaCodecInfo info, VideoCodecMimeType type) {
-+    System.err.println("HW 8 ");
++    System.err.println("HW 8 " + info.toString());
      if (!MediaCodecUtils.codecSupportsType(info, type)) {
 +      System.err.println("HW 9 ");
        return false;
@@ -2035,7 +2065,7 @@ index ce26ae1..31315cf 100644
  
  @end
 diff --git a/src/sdk/objc/base/RTCVideoEncoderFactory.h b/src/sdk/objc/base/RTCVideoEncoderFactory.h
-index a73cd77..68089f4 100644
+index a73cd77..be088a3 100644
 --- a/src/sdk/objc/base/RTCVideoEncoderFactory.h
 +++ b/src/sdk/objc/base/RTCVideoEncoderFactory.h
 @@ -13,6 +13,8 @@
@@ -2043,7 +2073,7 @@ index a73cd77..68089f4 100644
  #import "RTCVideoCodecInfo.h"
  #import "RTCVideoEncoder.h"
 +#import "RTCCodecSupport.h"
-+#include "api/video_codecs/video_encoder_factory_template.h"
++#include "../api/video_codecs/video_encoder_factory_template.h"
  
  NS_ASSUME_NONNULL_BEGIN
  
