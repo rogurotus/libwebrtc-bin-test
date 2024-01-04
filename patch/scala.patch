@@ -29,7 +29,7 @@ similarity index 100%
 rename from examples/objc/AppRTCMobile/ARDSettingsModel.m
 rename to examples/objc/AppRTCMobile/ARDSettingsModel.mm
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..f024004 100644
+index 4f5ceb5..b314da5 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -41,15 +41,16 @@ index 4f5ceb5..f024004 100644
        "objc/base/RTCI420Buffer.h",
        "objc/base/RTCLogging.h",
        "objc/base/RTCLogging.mm",
-@@ -123,6 +125,7 @@ if (is_ios || is_mac) {
+@@ -123,6 +125,8 @@ if (is_ios || is_mac) {
      ]
  
      deps = [
++      "../api/video_codecs:video_codecs_api",
 +      "../api/video_codecs:video_encoder_factory_template",
        "../rtc_base:checks",
        "../rtc_base:logging",
      ]
-@@ -718,7 +721,7 @@ if (is_ios || is_mac) {
+@@ -718,10 +722,11 @@ if (is_ios || is_mac) {
          "objc/components/video_codec/RTCDefaultVideoDecoderFactory.h",
          "objc/components/video_codec/RTCDefaultVideoDecoderFactory.m",
          "objc/components/video_codec/RTCDefaultVideoEncoderFactory.h",
@@ -58,7 +59,11 @@ index 4f5ceb5..f024004 100644
        ]
  
        deps = [
-@@ -729,6 +732,7 @@ if (is_ios || is_mac) {
++        "../api/video_codecs:video_codecs_api",
+         ":base_objc",
+         ":native_video",
+         ":videocodec_objc",
+@@ -729,6 +734,7 @@ if (is_ios || is_mac) {
          ":vp8",
          ":vp9",
          ":vpx_codec_constants",
@@ -66,7 +71,7 @@ index 4f5ceb5..f024004 100644
        ]
  
        defines = []
-@@ -991,6 +995,15 @@ if (is_ios || is_mac) {
+@@ -991,6 +997,15 @@ if (is_ios || is_mac) {
          "objc/api/peerconnection/RTCRtcpParameters+Private.h",
          "objc/api/peerconnection/RTCRtcpParameters.h",
          "objc/api/peerconnection/RTCRtcpParameters.mm",
@@ -82,7 +87,7 @@ index 4f5ceb5..f024004 100644
          "objc/api/peerconnection/RTCRtpCodecParameters+Private.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.mm",
-@@ -1261,6 +1274,7 @@ if (is_ios || is_mac) {
+@@ -1261,6 +1276,7 @@ if (is_ios || is_mac) {
            "objc/base/RTCVideoDecoder.h",
            "objc/base/RTCVideoDecoderFactory.h",
            "objc/base/RTCVideoEncoder.h",
@@ -90,7 +95,7 @@ index 4f5ceb5..f024004 100644
            "objc/base/RTCVideoEncoderFactory.h",
            "objc/base/RTCVideoEncoderQpThresholds.h",
            "objc/base/RTCVideoEncoderSettings.h",
-@@ -1309,6 +1323,9 @@ if (is_ios || is_mac) {
+@@ -1309,6 +1325,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -100,15 +105,16 @@ index 4f5ceb5..f024004 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1363,6 +1380,7 @@ if (is_ios || is_mac) {
+@@ -1363,6 +1382,8 @@ if (is_ios || is_mac) {
            ":videocapture_objc",
            ":videocodec_objc",
            ":videotoolbox_objc",
 +          "../api/video_codecs:video_encoder_factory_template",
++          "../api/video_codecs:video_codecs_api",
          ]
          if (!build_with_chromium) {
            deps += [
-@@ -1423,6 +1441,9 @@ if (is_ios || is_mac) {
+@@ -1423,6 +1444,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -118,7 +124,7 @@ index 4f5ceb5..f024004 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1457,6 +1478,7 @@ if (is_ios || is_mac) {
+@@ -1457,6 +1481,7 @@ if (is_ios || is_mac) {
            "objc/base/RTCVideoDecoder.h",
            "objc/base/RTCVideoDecoderFactory.h",
            "objc/base/RTCVideoEncoder.h",
@@ -126,15 +132,16 @@ index 4f5ceb5..f024004 100644
            "objc/base/RTCVideoEncoderFactory.h",
            "objc/base/RTCVideoEncoderQpThresholds.h",
            "objc/base/RTCVideoEncoderSettings.h",
-@@ -1495,6 +1517,7 @@ if (is_ios || is_mac) {
+@@ -1495,6 +1520,8 @@ if (is_ios || is_mac) {
            ":videocapture_objc",
            ":videocodec_objc",
            ":videotoolbox_objc",
 +          "../api/video_codecs:video_encoder_factory_template",
++          "../api/video_codecs:video_codecs_api",
          ]
          if (!build_with_chromium) {
            deps += [
-@@ -1586,6 +1609,7 @@ if (is_ios || is_mac) {
+@@ -1586,6 +1613,7 @@ if (is_ios || is_mac) {
          "../rtc_base:logging",
          "../rtc_base:ssl",
          "../rtc_base:threading",
@@ -142,7 +149,7 @@ index 4f5ceb5..f024004 100644
        ]
        if (is_ios) {
          deps += [ ":native_network_monitor" ]
-@@ -1659,6 +1683,7 @@ if (is_ios || is_mac) {
+@@ -1659,6 +1687,7 @@ if (is_ios || is_mac) {
          "../rtc_base:logging",
          "../rtc_base:timestamp_aligner",
          "../rtc_base:timeutils",
@@ -150,7 +157,7 @@ index 4f5ceb5..f024004 100644
        ]
      }
  
-@@ -1691,7 +1716,7 @@ if (is_ios || is_mac) {
+@@ -1691,7 +1720,7 @@ if (is_ios || is_mac) {
          "objc/components/video_codec/RTCVideoDecoderH264.h",
          "objc/components/video_codec/RTCVideoDecoderH264.mm",
          "objc/components/video_codec/RTCVideoEncoderFactoryH264.h",
@@ -159,7 +166,7 @@ index 4f5ceb5..f024004 100644
          "objc/components/video_codec/RTCVideoEncoderH264.h",
          "objc/components/video_codec/RTCVideoEncoderH264.mm",
        ]
-@@ -1713,6 +1738,7 @@ if (is_ios || is_mac) {
+@@ -1713,6 +1742,7 @@ if (is_ios || is_mac) {
          ":videocodec_objc",
          ":videoframebuffer_objc",
          "../api/video_codecs:video_codecs_api",
