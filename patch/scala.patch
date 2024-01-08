@@ -1603,10 +1603,10 @@ index 0000000..dcf172d
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm
 new file mode 100644
-index 0000000..ee37b67
+index 0000000..96131ae
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm
-@@ -0,0 +1,80 @@
+@@ -0,0 +1,79 @@
 +/*
 + *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1622,7 +1622,6 @@ index 0000000..ee37b67
 +#import "RTCWrappedNativeVideoDecoderFactory.h"
 +#import "base/RTCMacros.h"
 +
-+#import "RTCH264ProfileLevelId.h"
 +#import "RTCVideoDecoderH264.h"
 +#import "base/RTCVideoCodecInfo.h"
 +#import "RTCWrappedNativeVideoDecoder.h"
@@ -1726,10 +1725,10 @@ index 0000000..d4562f1
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..9528a1e
+index 0000000..1382ab9
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
-@@ -0,0 +1,131 @@
+@@ -0,0 +1,130 @@
 +/*
 + *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1749,7 +1748,6 @@ index 0000000..9528a1e
 +#import "api/peerconnection/RTCVideoCodecInfo+Private.h"
 +#import "api/video_codec/RTCVideoCodecConstants.h"
 +#import "base/RTCVideoCodecInfo.h"
-+#import "MediaCodecUtils.h"
 +#import "RTCWrappedNativeVideoEncoder.h"
 +#include "api/video_codecs/scalability_mode.h"
 +#include "absl/container/inlined_vector.h"
