@@ -1,5 +1,5 @@
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..985e4ff 100644
+index 4f5ceb5..f20c71d 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -11,7 +11,15 @@ index 4f5ceb5..985e4ff 100644
        "objc/base/RTCI420Buffer.h",
        "objc/base/RTCLogging.h",
        "objc/base/RTCLogging.mm",
-@@ -991,6 +993,15 @@ if (is_ios || is_mac) {
+@@ -729,6 +731,7 @@ if (is_ios || is_mac) {
+         ":vp8",
+         ":vp9",
+         ":vpx_codec_constants",
++        ":wrapped_native_codec_objc",
+       ]
+ 
+       defines = []
+@@ -991,6 +994,15 @@ if (is_ios || is_mac) {
          "objc/api/peerconnection/RTCRtcpParameters+Private.h",
          "objc/api/peerconnection/RTCRtcpParameters.h",
          "objc/api/peerconnection/RTCRtcpParameters.mm",
@@ -27,7 +35,7 @@ index 4f5ceb5..985e4ff 100644
          "objc/api/peerconnection/RTCRtpCodecParameters+Private.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.h",
          "objc/api/peerconnection/RTCRtpCodecParameters.mm",
-@@ -1261,6 +1272,7 @@ if (is_ios || is_mac) {
+@@ -1261,6 +1273,7 @@ if (is_ios || is_mac) {
            "objc/base/RTCVideoDecoder.h",
            "objc/base/RTCVideoDecoderFactory.h",
            "objc/base/RTCVideoEncoder.h",
@@ -35,7 +43,7 @@ index 4f5ceb5..985e4ff 100644
            "objc/base/RTCVideoEncoderFactory.h",
            "objc/base/RTCVideoEncoderQpThresholds.h",
            "objc/base/RTCVideoEncoderSettings.h",
-@@ -1309,6 +1321,9 @@ if (is_ios || is_mac) {
+@@ -1309,6 +1322,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -45,7 +53,15 @@ index 4f5ceb5..985e4ff 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1423,6 +1438,9 @@ if (is_ios || is_mac) {
+@@ -1360,6 +1376,7 @@ if (is_ios || is_mac) {
+           ":native_api",
+           ":native_video",
+           ":peerconnectionfactory_base_objc",
++          ":wrapped_native_codec_objc",
+           ":videocapture_objc",
+           ":videocodec_objc",
+           ":videotoolbox_objc",
+@@ -1423,6 +1440,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -55,7 +71,7 @@ index 4f5ceb5..985e4ff 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1457,6 +1475,7 @@ if (is_ios || is_mac) {
+@@ -1457,6 +1477,7 @@ if (is_ios || is_mac) {
            "objc/base/RTCVideoDecoder.h",
            "objc/base/RTCVideoDecoderFactory.h",
            "objc/base/RTCVideoEncoder.h",
@@ -63,7 +79,15 @@ index 4f5ceb5..985e4ff 100644
            "objc/base/RTCVideoEncoderFactory.h",
            "objc/base/RTCVideoEncoderQpThresholds.h",
            "objc/base/RTCVideoEncoderSettings.h",
-@@ -1528,6 +1547,10 @@ if (is_ios || is_mac) {
+@@ -1492,6 +1513,7 @@ if (is_ios || is_mac) {
+           ":native_api",
+           ":native_video",
+           ":peerconnectionfactory_base_objc",
++          ":wrapped_native_codec_objc",
+           ":videocapture_objc",
+           ":videocodec_objc",
+           ":videotoolbox_objc",
+@@ -1528,6 +1550,10 @@ if (is_ios || is_mac) {
          "objc/api/video_codec/RTCWrappedNativeVideoDecoder.mm",
          "objc/api/video_codec/RTCWrappedNativeVideoEncoder.h",
          "objc/api/video_codec/RTCWrappedNativeVideoEncoder.mm",
@@ -74,7 +98,7 @@ index 4f5ceb5..985e4ff 100644
        ]
  
        configs += [ "..:common_objc" ]
-@@ -1537,6 +1560,7 @@ if (is_ios || is_mac) {
+@@ -1537,6 +1563,7 @@ if (is_ios || is_mac) {
          ":base_objc",
          ":helpers_objc",
          "../api/video_codecs:video_codecs_api",
