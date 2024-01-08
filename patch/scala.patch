@@ -2180,7 +2180,7 @@ index 6e3baa8..0000000
 -@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.mm b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.mm
 new file mode 100644
-index 0000000..cf571fe
+index 0000000..d44b528
 --- /dev/null
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.mm
 @@ -0,0 +1,33 @@
@@ -2213,12 +2213,12 @@ index 0000000..cf571fe
 +}
 +
 +- (id<RTC_OBJC_TYPE(RTCVideoDecoder)>)createDecoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
-+  return [_factory createDecode:info];
++  return [_factory createDecoder:info];
 +}
 +
 +@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
-index 92ab40c..5819e53 100644
+index 92ab40c..e0344d0 100644
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
 @@ -12,6 +12,7 @@
@@ -2229,13 +2229,16 @@ index 92ab40c..5819e53 100644
  
  NS_ASSUME_NONNULL_BEGIN
  
-@@ -23,6 +24,7 @@ RTC_OBJC_EXPORT
+@@ -23,8 +24,9 @@ RTC_OBJC_EXPORT
  @interface RTC_OBJC_TYPE (RTCDefaultVideoEncoderFactory) : NSObject <RTC_OBJC_TYPE(RTCVideoEncoderFactory)>
  
  @property(nonatomic, retain) RTC_OBJC_TYPE(RTCVideoCodecInfo) *preferredCodec;
 +@property(nonatomic, strong) RTC_OBJC_TYPE(RTCWrapperNativeVideoEncoderFactory) *factory;
  
- + (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs;
+-+ (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs;
++- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs;
+ 
+ @end
  
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
 deleted file mode 100644
@@ -2347,7 +2350,7 @@ index 8de55bd..0000000
 -@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..c7f2809
+index 0000000..120790e
 --- /dev/null
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
 @@ -0,0 +1,39 @@
@@ -2376,7 +2379,7 @@ index 0000000..c7f2809
 +  return self;
 +}
 +
-++ (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
++- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
 +  return [_factory supportedCodecs];
 +}
 +
@@ -2386,7 +2389,7 @@ index 0000000..c7f2809
 +
 +- (RTC_OBJC_TYPE(RTCCodecSupport*))queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
 +: (NSString *)scalabilityMode {
-+  return [_factory queryCodecSupport:info];
++  return [_factory queryCodecSupport:info:scalabilityMode];
 +}
 +
 +@end
