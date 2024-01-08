@@ -1,5 +1,5 @@
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..f20c71d 100644
+index 4f5ceb5..e6e6a79 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -11,6 +11,18 @@ index 4f5ceb5..f20c71d 100644
        "objc/base/RTCI420Buffer.h",
        "objc/base/RTCLogging.h",
        "objc/base/RTCLogging.mm",
+@@ -716,9 +718,9 @@ if (is_ios || is_mac) {
+     rtc_library("default_codec_factory_objc") {
+       sources = [
+         "objc/components/video_codec/RTCDefaultVideoDecoderFactory.h",
+-        "objc/components/video_codec/RTCDefaultVideoDecoderFactory.m",
++        "objc/components/video_codec/RTCDefaultVideoDecoderFactory.mm",
+         "objc/components/video_codec/RTCDefaultVideoEncoderFactory.h",
+-        "objc/components/video_codec/RTCDefaultVideoEncoderFactory.m",
++        "objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm",
+       ]
+ 
+       deps = [
 @@ -729,6 +731,7 @@ if (is_ios || is_mac) {
          ":vp8",
          ":vp9",
@@ -1967,10 +1979,18 @@ index ce26ae1..31315cf 100644
  
  @end
 diff --git a/src/sdk/objc/base/RTCVideoEncoderFactory.h b/src/sdk/objc/base/RTCVideoEncoderFactory.h
-index a73cd77..2fffe45 100644
+index a73cd77..15d0909 100644
 --- a/src/sdk/objc/base/RTCVideoEncoderFactory.h
 +++ b/src/sdk/objc/base/RTCVideoEncoderFactory.h
-@@ -42,6 +42,10 @@ RTC_OBJC_EXPORT
+@@ -13,6 +13,7 @@
+ #import "RTCMacros.h"
+ #import "RTCVideoCodecInfo.h"
+ #import "RTCVideoEncoder.h"
++#import "RTCCodecSupport.h"
+ 
+ NS_ASSUME_NONNULL_BEGIN
+ 
+@@ -42,6 +43,10 @@ RTC_OBJC_EXPORT
      : (RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info;
  - (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)
      supportedCodecs;  // TODO(andersc): "supportedFormats" instead?
@@ -2068,13 +2088,23 @@ index de5a9c4..0fe994a 100644
  
  NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
-index 6e3baa8..cf571fe 100644
+deleted file mode 100644
+index 6e3baa8..0000000
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
-+++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.m
-@@ -10,76 +10,24 @@
- 
- #import "RTCDefaultVideoDecoderFactory.h"
- 
++++ /dev/null
+@@ -1,85 +0,0 @@
+-/*
+- *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
+- *
+- *  Use of this source code is governed by a BSD-style license
+- *  that can be found in the LICENSE file in the root of the source
+- *  tree. An additional intellectual property rights grant can be found
+- *  in the file PATENTS.  All contributing project authors may
+- *  be found in the AUTHORS file in the root of the source tree.
+- */
+-
+-#import "RTCDefaultVideoDecoderFactory.h"
+-
 -#import "RTCH264ProfileLevelId.h"
 -#import "RTCVideoDecoderH264.h"
 -#import "api/video_codec/RTCVideoCodecConstants.h"
@@ -2086,8 +2116,8 @@ index 6e3baa8..cf571fe 100644
 -#import "api/video_codec/RTCVideoDecoderAV1.h"  // nogncheck
 -#endif
 -
- @implementation RTC_OBJC_TYPE (RTCDefaultVideoDecoderFactory)
- 
+-@implementation RTC_OBJC_TYPE (RTCDefaultVideoDecoderFactory)
+-
 -- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
 -  NSDictionary<NSString *, NSString *> *constrainedHighParams = @{
 -    @"profile-level-id" : kRTCMaxSupportedH264ProfileLevelConstrainedHigh,
@@ -2106,8 +2136,7 @@ index 6e3baa8..cf571fe 100644
 -  RTC_OBJC_TYPE(RTCVideoCodecInfo) *constrainedBaselineInfo =
 -      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecH264Name
 -                                                  parameters:constrainedBaselineParams];
-+@synthesize factory = _factory;
- 
+-
 -  RTC_OBJC_TYPE(RTCVideoCodecInfo) *vp8Info =
 -      [[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp8Name];
 -
@@ -2120,24 +2149,16 @@ index 6e3baa8..cf571fe 100644
 -  if ([RTC_OBJC_TYPE(RTCVideoDecoderVP9) isSupported]) {
 -    [result
 -        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name]];
-+- (instancetype)init {
-+    if (self = [super init]) {
-+    _factory =
-+      [[RTC_OBJC_TYPE(RTCWrapperNativeVideoDecoderFactory) alloc] initWithTemplateFactory];
-   }
-+  return self;
-+}
- 
+-  }
+-
 -#if defined(RTC_DAV1D_IN_INTERNAL_DECODER_FACTORY)
 -  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name]];
 -#endif
 -
 -  return result;
-+- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
-+  return [_factory supportedCodecs];
- }
- 
- - (id<RTC_OBJC_TYPE(RTCVideoDecoder)>)createDecoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
+-}
+-
+-- (id<RTC_OBJC_TYPE(RTCVideoDecoder)>)createDecoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
 -  if ([info.name isEqualToString:kRTCVideoCodecH264Name]) {
 -    return [[RTC_OBJC_TYPE(RTCVideoDecoderH264) alloc] init];
 -  } else if ([info.name isEqualToString:kRTCVideoCodecVp8Name]) {
@@ -2154,10 +2175,48 @@ index 6e3baa8..cf571fe 100644
 -#endif
 -
 -  return nil;
+-}
+-
+-@end
+diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.mm b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.mm
+new file mode 100644
+index 0000000..cf571fe
+--- /dev/null
++++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.mm
+@@ -0,0 +1,33 @@
++/*
++ *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++#import "RTCDefaultVideoDecoderFactory.h"
++
++@implementation RTC_OBJC_TYPE (RTCDefaultVideoDecoderFactory)
++
++@synthesize factory = _factory;
++
++- (instancetype)init {
++    if (self = [super init]) {
++    _factory =
++      [[RTC_OBJC_TYPE(RTCWrapperNativeVideoDecoderFactory) alloc] initWithTemplateFactory];
++  }
++  return self;
++}
++
++- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
++  return [_factory supportedCodecs];
++}
++
++- (id<RTC_OBJC_TYPE(RTCVideoDecoder)>)createDecoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
 +  return [_factory createDecode:info];
- }
- 
- @end
++}
++
++@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
 index 92ab40c..65d8ad8 100644
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
@@ -2179,13 +2238,23 @@ index 92ab40c..65d8ad8 100644
  + (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs;
  
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
-index 8de55bd..83bb846 100644
+deleted file mode 100644
+index 8de55bd..0000000
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
-+++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.m
-@@ -10,93 +10,29 @@
- 
- #import "RTCDefaultVideoEncoderFactory.h"
- 
++++ /dev/null
+@@ -1,102 +0,0 @@
+-/*
+- *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
+- *
+- *  Use of this source code is governed by a BSD-style license
+- *  that can be found in the LICENSE file in the root of the source
+- *  tree. An additional intellectual property rights grant can be found
+- *  in the file PATENTS.  All contributing project authors may
+- *  be found in the AUTHORS file in the root of the source tree.
+- */
+-
+-#import "RTCDefaultVideoEncoderFactory.h"
+-
 -#import "RTCH264ProfileLevelId.h"
 -#import "RTCVideoEncoderH264.h"
 -#import "api/video_codec/RTCVideoCodecConstants.h"
@@ -2197,11 +2266,10 @@ index 8de55bd..83bb846 100644
 -#import "api/video_codec/RTCVideoEncoderAV1.h"  // nogncheck
 -#endif
 -
- @implementation RTC_OBJC_TYPE (RTCDefaultVideoEncoderFactory)
- 
- @synthesize preferredCodec;
-+@synthesize factory = _factory;
- 
+-@implementation RTC_OBJC_TYPE (RTCDefaultVideoEncoderFactory)
+-
+-@synthesize preferredCodec;
+-
 -+ (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
 -  NSDictionary<NSString *, NSString *> *constrainedHighParams = @{
 -    @"profile-level-id" : kRTCMaxSupportedH264ProfileLevelConstrainedHigh,
@@ -2233,24 +2301,16 @@ index 8de55bd..83bb846 100644
 -  if ([RTC_OBJC_TYPE(RTCVideoEncoderVP9) isSupported]) {
 -    [result
 -        addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecVp9Name]];
-+- (instancetype)init {
-+    if (self = [super init]) {
-+    _factory =
-+      [[RTC_OBJC_TYPE(RTCWrapperNativeVideoEncoderFactory) alloc] initWithTemplateFactory];
-   }
-+  return self;
-+}
- 
+-  }
+-
 -#if defined(RTC_USE_LIBAOM_AV1_ENCODER)
 -  [result addObject:[[RTC_OBJC_TYPE(RTCVideoCodecInfo) alloc] initWithName:kRTCVideoCodecAv1Name]];
 -#endif
 -
 -  return result;
-++ (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
-+  return [_factory supportedCodecs];
- }
- 
- - (id<RTC_OBJC_TYPE(RTCVideoEncoder)>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
+-}
+-
+-- (id<RTC_OBJC_TYPE(RTCVideoEncoder)>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
 -  if ([info.name isEqualToString:kRTCVideoCodecH264Name]) {
 -    return [[RTC_OBJC_TYPE(RTCVideoEncoderH264) alloc] initWithCodecInfo:info];
 -  } else if ([info.name isEqualToString:kRTCVideoCodecVp8Name]) {
@@ -2267,10 +2327,9 @@ index 8de55bd..83bb846 100644
 -#endif
 -
 -  return nil;
-+  return [_factory createEncoder:info];
- }
- 
- - (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
+-}
+-
+-- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
 -  NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *codecs =
 -      [[[self class] supportedCodecs] mutableCopy];
 -
@@ -2283,10 +2342,53 @@ index 8de55bd..83bb846 100644
 -  [orderedCodecs addObjectsFromArray:codecs];
 -
 -  return [orderedCodecs copy];
+-}
+-
+-@end
+diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
+new file mode 100644
+index 0000000..83bb846
+--- /dev/null
++++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
+@@ -0,0 +1,38 @@
++/*
++ *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ */
++
++#import "RTCDefaultVideoEncoderFactory.h"
++
++@implementation RTC_OBJC_TYPE (RTCDefaultVideoEncoderFactory)
++
++@synthesize preferredCodec;
++@synthesize factory = _factory;
++
++- (instancetype)init {
++    if (self = [super init]) {
++    _factory =
++      [[RTC_OBJC_TYPE(RTCWrapperNativeVideoEncoderFactory) alloc] initWithTemplateFactory];
++  }
++  return self;
++}
++
+++ (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
 +  return [_factory supportedCodecs];
- }
- 
- @end
++}
++
++- (id<RTC_OBJC_TYPE(RTCVideoEncoder)>)createEncoder:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info {
++  return [_factory createEncoder:info];
++}
++
++- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
++  return [_factory supportedCodecs];
++}
++
++@end
 diff --git a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m b/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
 index bdae19d..f38e962 100644
 --- a/src/sdk/objc/components/video_codec/RTCVideoDecoderFactoryH264.m
