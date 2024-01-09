@@ -1,5 +1,5 @@
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..e5b140a 100644
+index 4f5ceb5..316eb7e 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -110,7 +110,7 @@ index 4f5ceb5..e5b140a 100644
        ]
  
        configs += [ "..:common_objc" ]
-@@ -1537,8 +1563,11 @@ if (is_ios || is_mac) {
+@@ -1537,8 +1563,12 @@ if (is_ios || is_mac) {
          ":base_objc",
          ":helpers_objc",
          "../api/video_codecs:video_codecs_api",
@@ -119,6 +119,7 @@ index 4f5ceb5..e5b140a 100644
          "../media:rtc_media_base",
 +        ":videocodec_objc",
 +        ":videotoolbox_objc",
++        ":base_native_additions_objc",
        ]
      }
  
@@ -1607,10 +1608,10 @@ index 0000000..dcf172d
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm
 new file mode 100644
-index 0000000..8308e3f
+index 0000000..b957a97
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm
-@@ -0,0 +1,80 @@
+@@ -0,0 +1,81 @@
 +/*
 + *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1629,6 +1630,7 @@ index 0000000..8308e3f
 +#import "components/video_codec/RTCVideoDecoderH264.h"
 +#import "components/video_codec/RTCH264ProfileLevelId.h"
 +#import "base/RTCVideoCodecInfo.h"
++#import "api/peerconnection/RTCVideoCodecInfo+Private.h"
 +#import "RTCWrappedNativeVideoDecoder.h"
 +
 +#include "api/video_codecs/video_decoder_factory_template.h"
@@ -1730,7 +1732,7 @@ index 0000000..d4562f1
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..69d8777
+index 0000000..08fa5b6
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
 @@ -0,0 +1,132 @@
@@ -1775,7 +1777,7 @@ index 0000000..69d8777
 +          webrtc::LibvpxVp8EncoderTemplateAdapter,
 +          webrtc::LibvpxVp9EncoderTemplateAdapter,
 +          webrtc::OpenH264EncoderTemplateAdapter,
-+          webrtc::LibaomAv1EncoderTemplateAdapter>>(),
++          webrtc::LibaomAv1EncoderTemplateAdapter>>();
 +  }
 +  return self;
 +}
