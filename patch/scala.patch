@@ -1,5 +1,5 @@
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..40c88c2 100644
+index 4f5ceb5..e5b140a 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -110,13 +110,14 @@ index 4f5ceb5..40c88c2 100644
        ]
  
        configs += [ "..:common_objc" ]
-@@ -1537,8 +1563,10 @@ if (is_ios || is_mac) {
+@@ -1537,8 +1563,11 @@ if (is_ios || is_mac) {
          ":base_objc",
          ":helpers_objc",
          "../api/video_codecs:video_codecs_api",
 +        "../api/video_codecs:video_encoder_factory_template",
          "../media:codec",
          "../media:rtc_media_base",
++        ":videocodec_objc",
 +        ":videotoolbox_objc",
        ]
      }
@@ -1606,10 +1607,10 @@ index 0000000..dcf172d
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm
 new file mode 100644
-index 0000000..6023663
+index 0000000..8308e3f
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm
-@@ -0,0 +1,79 @@
+@@ -0,0 +1,80 @@
 +/*
 + *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1624,8 +1625,9 @@ index 0000000..6023663
 +
 +#import "RTCWrappedNativeVideoDecoderFactory.h"
 +#import "base/RTCMacros.h"
-+
++#import "helpers/NSString+StdString.h"
 +#import "components/video_codec/RTCVideoDecoderH264.h"
++#import "components/video_codec/RTCH264ProfileLevelId.h"
 +#import "base/RTCVideoCodecInfo.h"
 +#import "RTCWrappedNativeVideoDecoder.h"
 +
@@ -1728,7 +1730,7 @@ index 0000000..d4562f1
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..132beef
+index 0000000..69d8777
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
 @@ -0,0 +1,132 @@
@@ -1747,12 +1749,12 @@ index 0000000..132beef
 +#import "RTCWrappedNativeVideoEncoderFactory.h"
 +#import "base/RTCMacros.h"
 +#import "helpers/NSString+StdString.h"
-+
++#import "components/video_codec/RTCVideoEncoderH264.h"
++#import "components/video_codec/RTCH264ProfileLevelId.h"
 +#import "api/peerconnection/RTCVideoCodecInfo+Private.h"
 +#import "api/video_codec/RTCVideoCodecConstants.h"
 +#import "base/RTCVideoCodecInfo.h"
 +#import "RTCWrappedNativeVideoEncoder.h"
-+#import "components/video_codec/RTCVideoEncoderH264.h"
 +
 +#include "api/video_codecs/scalability_mode.h"
 +#include "absl/container/inlined_vector.h"
