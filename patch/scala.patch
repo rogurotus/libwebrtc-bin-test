@@ -1732,7 +1732,7 @@ index 0000000..d4562f1
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..d1f345a
+index 0000000..3e8dbae
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
 @@ -0,0 +1,131 @@
@@ -1816,7 +1816,7 @@ index 0000000..d1f345a
 +      initWithNativeEncoder:_wrappedFactory->CreateVideoEncoder(format)];
 +}
 +
-+- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodec {
++- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs {
 +  auto formats = _wrappedFactory->GetSupportedFormats();
 +  NSMutableArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *result = [@[] mutableCopy];
 +
