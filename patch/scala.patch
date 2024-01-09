@@ -1,5 +1,5 @@
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..e6e6a79 100644
+index 4f5ceb5..40c88c2 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -110,14 +110,17 @@ index 4f5ceb5..e6e6a79 100644
        ]
  
        configs += [ "..:common_objc" ]
-@@ -1537,6 +1563,7 @@ if (is_ios || is_mac) {
+@@ -1537,8 +1563,10 @@ if (is_ios || is_mac) {
          ":base_objc",
          ":helpers_objc",
          "../api/video_codecs:video_codecs_api",
 +        "../api/video_codecs:video_encoder_factory_template",
          "../media:codec",
          "../media:rtc_media_base",
++        ":videotoolbox_objc",
        ]
+     }
+ 
 diff --git a/src/sdk/android/BUILD.gn b/src/sdk/android/BUILD.gn
 index 9aae8b9..496f791 100644
 --- a/src/sdk/android/BUILD.gn
@@ -1603,7 +1606,7 @@ index 0000000..dcf172d
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm
 new file mode 100644
-index 0000000..96131ae
+index 0000000..6023663
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm
 @@ -0,0 +1,79 @@
@@ -1622,7 +1625,7 @@ index 0000000..96131ae
 +#import "RTCWrappedNativeVideoDecoderFactory.h"
 +#import "base/RTCMacros.h"
 +
-+#import "RTCVideoDecoderH264.h"
++#import "components/video_codec/RTCVideoDecoderH264.h"
 +#import "base/RTCVideoCodecInfo.h"
 +#import "RTCWrappedNativeVideoDecoder.h"
 +
@@ -1725,10 +1728,10 @@ index 0000000..d4562f1
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..1382ab9
+index 0000000..132beef
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
-@@ -0,0 +1,130 @@
+@@ -0,0 +1,132 @@
 +/*
 + *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1749,6 +1752,8 @@ index 0000000..1382ab9
 +#import "api/video_codec/RTCVideoCodecConstants.h"
 +#import "base/RTCVideoCodecInfo.h"
 +#import "RTCWrappedNativeVideoEncoder.h"
++#import "components/video_codec/RTCVideoEncoderH264.h"
++
 +#include "api/video_codecs/scalability_mode.h"
 +#include "absl/container/inlined_vector.h"
 +#include "api/video_codecs/video_encoder_factory_template.h"
@@ -1764,11 +1769,11 @@ index 0000000..1382ab9
 +- (instancetype)initWithTemplateFactory {
 +  if (self = [super init]) {
 +    _wrappedFactory =
-+      std::make_unique<webrtc::VideoDecoderFactoryTemplate<
-+          webrtc::LibvpxVp8DecoderTemplateAdapter,
-+          webrtc::LibvpxVp9DecoderTemplateAdapter,
-+          webrtc::OpenH264DecoderTemplateAdapter,
-+          webrtc::Dav1dDecoderTemplateAdapter>>();
++      std::make_unique<webrtc::VideoEncoderFactoryTemplate<
++          webrtc::LibvpxVp8EncoderTemplateAdapter,
++          webrtc::LibvpxVp9EncoderTemplateAdapter,
++          webrtc::OpenH264EncoderTemplateAdapter,
++          webrtc::LibaomAv1EncoderTemplateAdapter>>(),
 +  }
 +  return self;
 +}
