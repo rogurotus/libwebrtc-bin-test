@@ -1,5 +1,5 @@
 diff --git a/src/sdk/BUILD.gn b/src/sdk/BUILD.gn
-index 4f5ceb5..316eb7e 100644
+index 4f5ceb5..d24320c 100644
 --- a/src/sdk/BUILD.gn
 +++ b/src/sdk/BUILD.gn
 @@ -96,6 +96,8 @@ if (is_ios || is_mac) {
@@ -65,7 +65,16 @@ index 4f5ceb5..316eb7e 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1360,6 +1376,7 @@ if (is_ios || is_mac) {
+@@ -1334,6 +1350,8 @@ if (is_ios || is_mac) {
+           "objc/api/video_codec/RTCVideoEncoderAV1.h",
+           "objc/api/video_frame_buffer/RTCNativeI420Buffer.h",
+           "objc/api/video_frame_buffer/RTCNativeMutableI420Buffer.h",
++          "objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.h",
++          "objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.h",
+         ]
+ 
+         if (!build_with_chromium) {
+@@ -1360,6 +1378,7 @@ if (is_ios || is_mac) {
            ":native_api",
            ":native_video",
            ":peerconnectionfactory_base_objc",
@@ -73,7 +82,7 @@ index 4f5ceb5..316eb7e 100644
            ":videocapture_objc",
            ":videocodec_objc",
            ":videotoolbox_objc",
-@@ -1423,6 +1440,9 @@ if (is_ios || is_mac) {
+@@ -1423,6 +1442,9 @@ if (is_ios || is_mac) {
            "objc/api/peerconnection/RTCPeerConnectionFactory.h",
            "objc/api/peerconnection/RTCPeerConnectionFactoryOptions.h",
            "objc/api/peerconnection/RTCRtcpParameters.h",
@@ -83,7 +92,7 @@ index 4f5ceb5..316eb7e 100644
            "objc/api/peerconnection/RTCRtpCodecParameters.h",
            "objc/api/peerconnection/RTCRtpEncodingParameters.h",
            "objc/api/peerconnection/RTCRtpHeaderExtension.h",
-@@ -1457,6 +1477,7 @@ if (is_ios || is_mac) {
+@@ -1457,6 +1479,7 @@ if (is_ios || is_mac) {
            "objc/base/RTCVideoDecoder.h",
            "objc/base/RTCVideoDecoderFactory.h",
            "objc/base/RTCVideoEncoder.h",
@@ -91,7 +100,7 @@ index 4f5ceb5..316eb7e 100644
            "objc/base/RTCVideoEncoderFactory.h",
            "objc/base/RTCVideoEncoderQpThresholds.h",
            "objc/base/RTCVideoEncoderSettings.h",
-@@ -1492,6 +1513,7 @@ if (is_ios || is_mac) {
+@@ -1492,6 +1515,7 @@ if (is_ios || is_mac) {
            ":native_api",
            ":native_video",
            ":peerconnectionfactory_base_objc",
@@ -99,7 +108,7 @@ index 4f5ceb5..316eb7e 100644
            ":videocapture_objc",
            ":videocodec_objc",
            ":videotoolbox_objc",
-@@ -1528,6 +1550,10 @@ if (is_ios || is_mac) {
+@@ -1528,6 +1552,10 @@ if (is_ios || is_mac) {
          "objc/api/video_codec/RTCWrappedNativeVideoDecoder.mm",
          "objc/api/video_codec/RTCWrappedNativeVideoEncoder.h",
          "objc/api/video_codec/RTCWrappedNativeVideoEncoder.mm",
@@ -110,7 +119,7 @@ index 4f5ceb5..316eb7e 100644
        ]
  
        configs += [ "..:common_objc" ]
-@@ -1537,8 +1563,12 @@ if (is_ios || is_mac) {
+@@ -1537,8 +1565,12 @@ if (is_ios || is_mac) {
          ":base_objc",
          ":helpers_objc",
          "../api/video_codecs:video_codecs_api",
@@ -222,7 +231,7 @@ index 76896b6..9be1c7e 100644
 +  }
  }
 diff --git a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
-index d43fc27..0dd9b12 100644
+index d43fc27..9876b77 100644
 --- a/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/HardwareVideoEncoderFactory.java
 @@ -13,6 +13,7 @@ package org.webrtc;
@@ -250,7 +259,7 @@ index d43fc27..0dd9b12 100644
      return supportedCodecInfos.toArray(new VideoCodecInfo[supportedCodecInfos.size()]);
    }
  
-+  @Override 
++@Override
 +  public CodecSupport queryCodecSupport(VideoCodecInfo format, String scalability_mode) {
 +    VideoCodecMimeType type = VideoCodecMimeType.valueOf(format.getName());
 +    MediaCodecInfo codec = findCodecForType(type);
@@ -308,14 +317,14 @@ index 9ca8311..1fcffe7 100644
      @CalledByNative("Encoding")
      Double getScaleResolutionDownBy() {
 diff --git a/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java b/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
-index 7f4c457..0458d34 100644
+index 7f4c457..98ac43a 100644
 --- a/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
 +++ b/src/sdk/android/api/org/webrtc/SoftwareVideoEncoderFactory.java
 @@ -50,9 +50,17 @@ public class SoftwareVideoEncoderFactory implements VideoEncoderFactory {
      return nativeGetSupportedCodecs(nativeFactory).toArray(new VideoCodecInfo[0]);
    }
  
-+  @Override 
++@Override
 +  public CodecSupport queryCodecSupport(VideoCodecInfo format, String scalability_mode) {
 +    return nativeQueryCodecSupport(nativeFactory, format, scalability_mode);
 +  }
@@ -1576,10 +1585,10 @@ index 2eb8d36..b5f0b0f 100644
  @end
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.h b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.h
 new file mode 100644
-index 0000000..dcf172d
+index 0000000..608910f
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.h
-@@ -0,0 +1,26 @@
+@@ -0,0 +1,25 @@
 +/*
 + *  Copyright 2017 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1594,7 +1603,6 @@ index 0000000..dcf172d
 +
 +#import "RTCMacros.h"
 +#import "RTCVideoDecoderFactory.h"
-+#include "api/video_codecs/video_decoder_factory.h"
 +
 +NS_ASSUME_NONNULL_BEGIN
 +
@@ -1608,10 +1616,10 @@ index 0000000..dcf172d
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm
 new file mode 100644
-index 0000000..b957a97
+index 0000000..c4eea8b
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoDecoderFactory.mm
-@@ -0,0 +1,81 @@
+@@ -0,0 +1,82 @@
 +/*
 + *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1632,6 +1640,7 @@ index 0000000..b957a97
 +#import "base/RTCVideoCodecInfo.h"
 +#import "api/peerconnection/RTCVideoCodecInfo+Private.h"
 +#import "RTCWrappedNativeVideoDecoder.h"
++#include "api/video_codecs/video_decoder_factory.h"
 +
 +#include "api/video_codecs/video_decoder_factory_template.h"
 +#include "api/video_codecs/video_decoder_factory_template_dav1d_adapter.h"
@@ -1695,10 +1704,10 @@ index 0000000..b957a97
 +@end
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.h b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.h
 new file mode 100644
-index 0000000..d4562f1
+index 0000000..da7cada
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.h
-@@ -0,0 +1,31 @@
+@@ -0,0 +1,30 @@
 +/*
 + *  Copyright 2017 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1713,7 +1722,6 @@ index 0000000..d4562f1
 +
 +#import "RTCMacros.h"
 +#import "RTCVideoEncoderFactory.h"
-+#include "api/video_codecs/video_encoder_factory.h"
 +
 +NS_ASSUME_NONNULL_BEGIN
 +
@@ -1732,10 +1740,10 @@ index 0000000..d4562f1
 +NS_ASSUME_NONNULL_END
 diff --git a/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..3e8dbae
+index 0000000..f5db63d
 --- /dev/null
 +++ b/src/sdk/objc/api/video_codec/RTCWrappedNativeVideoEncoderFactory.mm
-@@ -0,0 +1,131 @@
+@@ -0,0 +1,132 @@
 +/*
 + *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
 + *
@@ -1758,6 +1766,7 @@ index 0000000..3e8dbae
 +#import "base/RTCVideoCodecInfo.h"
 +#import "RTCWrappedNativeVideoEncoder.h"
 +
++#include "api/video_codecs/video_encoder_factory.h"
 +#include "api/video_codecs/scalability_mode.h"
 +#include "absl/container/inlined_vector.h"
 +#include "api/video_codecs/video_encoder_factory_template.h"
@@ -2074,14 +2083,22 @@ index 0000000..3f21e09
 +    nil]
 \ No newline at end of file
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.h b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.h
-index de5a9c4..454cf4b 100644
+index de5a9c4..54d1f69 100644
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.h
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.h
-@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
+@@ -12,6 +12,7 @@
+ 
+ #import "RTCMacros.h"
+ #import "RTCVideoDecoderFactory.h"
++#import "api/video_codec/RTCWrappedNativeVideoDecoderFactory.h"
+ 
+ NS_ASSUME_NONNULL_BEGIN
+ 
+@@ -21,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
   */
  RTC_OBJC_EXPORT
  @interface RTC_OBJC_TYPE (RTCDefaultVideoDecoderFactory) : NSObject <RTC_OBJC_TYPE(RTCVideoDecoderFactory)>
-+@property(nonatomic, strong) RTC_OBJC_TYPE(RTCVideoDecoderFactory) *factory;
++@property(nonatomic, strong) RTC_OBJC_TYPE(RTCWrapperNativeVideoDecoderFactory) *factory;
  @end
  
  NS_ASSUME_NONNULL_END
@@ -2178,10 +2195,10 @@ index 6e3baa8..0000000
 -@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.mm b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.mm
 new file mode 100644
-index 0000000..9897563
+index 0000000..d44b528
 --- /dev/null
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoDecoderFactory.mm
-@@ -0,0 +1,34 @@
+@@ -0,0 +1,33 @@
 +/*
 + *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
 + *
@@ -2193,7 +2210,6 @@ index 0000000..9897563
 + */
 +
 +#import "RTCDefaultVideoDecoderFactory.h"
-+#import "api/video_codec/RTCWrappedNativeVideoDecoderFactory.h"
 +
 +@implementation RTC_OBJC_TYPE (RTCDefaultVideoDecoderFactory)
 +
@@ -2217,14 +2233,22 @@ index 0000000..9897563
 +
 +@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
-index 92ab40c..278f6a9 100644
+index 92ab40c..e0344d0 100644
 --- a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.h
-@@ -23,8 +23,9 @@ RTC_OBJC_EXPORT
+@@ -12,6 +12,7 @@
+ 
+ #import "RTCMacros.h"
+ #import "RTCVideoEncoderFactory.h"
++#import "api/video_codec/RTCWrappedNativeVideoEncoderFactory.h"
+ 
+ NS_ASSUME_NONNULL_BEGIN
+ 
+@@ -23,8 +24,9 @@ RTC_OBJC_EXPORT
  @interface RTC_OBJC_TYPE (RTCDefaultVideoEncoderFactory) : NSObject <RTC_OBJC_TYPE(RTCVideoEncoderFactory)>
  
  @property(nonatomic, retain) RTC_OBJC_TYPE(RTCVideoCodecInfo) *preferredCodec;
-+@property(nonatomic, strong) RTC_OBJC_TYPE(RTCVideoEncoderFactory) *factory;
++@property(nonatomic, strong) RTC_OBJC_TYPE(RTCWrapperNativeVideoEncoderFactory) *factory;
  
 -+ (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs;
 +- (NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *> *)supportedCodecs;
@@ -2341,10 +2365,10 @@ index 8de55bd..0000000
 -@end
 diff --git a/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
 new file mode 100644
-index 0000000..820b136
+index 0000000..120790e
 --- /dev/null
 +++ b/src/sdk/objc/components/video_codec/RTCDefaultVideoEncoderFactory.mm
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,39 @@
 +/*
 + *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
 + *
@@ -2356,7 +2380,6 @@ index 0000000..820b136
 + */
 +
 +#import "RTCDefaultVideoEncoderFactory.h"
-+#import "api/video_codec/RTCWrappedNativeVideoEncoderFactory.h"
 +
 +@implementation RTC_OBJC_TYPE (RTCDefaultVideoEncoderFactory)
 +
