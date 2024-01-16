@@ -18,6 +18,3 @@ sudo rm -rf /opt/ghc
 sudo rm -rf /usr/local/lib/android
 
 df -h
-
-
-# mvn install:install-file -DgroupId=com.github.instrumentisto -DartifactId=libwebrtc-bin -Dversion=119.0.0.1 -Dfile=/home/human/Downloads/build/libwebrtc-android/aar/libwebrtc.aar -Dpackaging=aar -DgeneratePom=true -DlocalRepositoryPath=./android/ -DcreateChecksum=true
