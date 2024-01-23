@@ -51,7 +51,7 @@ index 1ef42cc..6e8bc20 100644
      if (msg->integrity() != StunMessage::IntegrityStatus::kIntegrityOk) {
 +    __android_log_print(ANDROID_LOG_ERROR, "BUGDE5", "%s", StunMethodToString(msg->type()).c_str());
 +    __android_log_print(ANDROID_LOG_ERROR, "BUGDE6", "%s", msg->transaction_id().c_str());
-+    __android_log_print(ANDROID_LOG_ERROR, "BUGDE7", "%s", msg->integrity().c_str());
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE7", "%s", "msg->integrity().c_str()");
        // "silently" discard the request.
        RTC_LOG(LS_VERBOSE) << ToString() << ": Discarding "
                            << StunMethodToString(msg->type())
@@ -66,7 +66,7 @@ index 1ef42cc..6e8bc20 100644
          StunMessage::IntegrityStatus::kIntegrityOk) {
 +              __android_log_print(ANDROID_LOG_ERROR, "BUGDE9", "%s", StunMethodToString(msg->type()).c_str());
 +    __android_log_print(ANDROID_LOG_ERROR, "BUGDE10", "%s", msg->transaction_id().c_str());
-+    __android_log_print(ANDROID_LOG_ERROR, "BUGDE11", "%s", msg->integrity().c_str());
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE11", "%s", "msg->integrity().c_str()");
 +
        // "silently" discard the response.
        RTC_LOG(LS_VERBOSE) << ToString() << ": Discarding "
