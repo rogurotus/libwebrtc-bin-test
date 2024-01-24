@@ -1,5 +1,5 @@
 diff --git a/src/p2p/base/connection.cc b/src/p2p/base/connection.cc
-index 1ef42cc..6e8bc20 100644
+index 1ef42cc..f80c333 100644
 --- a/src/p2p/base/connection.cc
 +++ b/src/p2p/base/connection.cc
 @@ -34,6 +34,7 @@
@@ -10,21 +10,17 @@ index 1ef42cc..6e8bc20 100644
  
  namespace cricket {
  namespace {
-@@ -445,11 +446,13 @@ void Connection::OnSendStunPacket(const void* data,
- void Connection::OnReadPacket(const char* data,
-                               size_t size,
-                               int64_t packet_time_us) {
-+  __android_log_print(ANDROID_LOG_ERROR, "BUGDE", "%s", data);
-   RTC_DCHECK_RUN_ON(network_thread_);
-   std::unique_ptr<IceMessage> msg;
+@@ -450,6 +451,9 @@ void Connection::OnReadPacket(const char* data,
    std::string remote_ufrag;
    const rtc::SocketAddress& addr(remote_candidate_.address());
    if (!port_->GetStunMessage(data, size, addr, &msg, &remote_ufrag)) {
-+    __android_log_print(ANDROID_LOG_ERROR, "BUGDE1", "%s", "RZ");
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE1", "%s", StunMethodToString(msg->type()).c_str());
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE1", "%s", msg->transaction_id().c_str());
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE1", "%s", remote_ufrag.c_str());
      // The packet did not parse as a valid STUN message
      // This is a data packet, pass it along.
      last_data_received_ = rtc::TimeMillis();
-@@ -460,6 +463,8 @@ void Connection::OnReadPacket(const char* data,
+@@ -460,6 +464,8 @@ void Connection::OnReadPacket(const char* data,
  
      // If timed out sending writability checks, start up again
      if (!pruned_ && (write_state_ == STATE_WRITE_TIMEOUT)) {
@@ -33,7 +29,7 @@ index 1ef42cc..6e8bc20 100644
        RTC_LOG(LS_WARNING)
            << "Received a data packet on a timed-out Connection. "
               "Resetting state to STATE_WRITE_INIT.";
-@@ -467,6 +472,8 @@ void Connection::OnReadPacket(const char* data,
+@@ -467,6 +473,8 @@ void Connection::OnReadPacket(const char* data,
      }
      return;
    } else if (!msg) {
@@ -42,7 +38,7 @@ index 1ef42cc..6e8bc20 100644
      // The packet was STUN, but failed a check and was handled internally.
      return;
    }
-@@ -481,7 +488,12 @@ void Connection::OnReadPacket(const char* data,
+@@ -481,7 +489,11 @@ void Connection::OnReadPacket(const char* data,
    // RESPONSEs  have msg->integrity() checked below.
    // INDICATION does not have any integrity.
    if (IsStunRequestType(msg->type())) {
@@ -51,11 +47,10 @@ index 1ef42cc..6e8bc20 100644
      if (msg->integrity() != StunMessage::IntegrityStatus::kIntegrityOk) {
 +    __android_log_print(ANDROID_LOG_ERROR, "BUGDE5", "%s", StunMethodToString(msg->type()).c_str());
 +    __android_log_print(ANDROID_LOG_ERROR, "BUGDE6", "%s", msg->transaction_id().c_str());
-+    __android_log_print(ANDROID_LOG_ERROR, "BUGDE7", "%s", "msg->integrity().c_str()");
        // "silently" discard the request.
        RTC_LOG(LS_VERBOSE) << ToString() << ": Discarding "
                            << StunMethodToString(msg->type())
-@@ -493,9 +505,15 @@ void Connection::OnReadPacket(const char* data,
+@@ -493,9 +505,14 @@ void Connection::OnReadPacket(const char* data,
      // fall-through
    } else if (IsStunSuccessResponseType(msg->type()) ||
               IsStunErrorResponseType(msg->type())) {
@@ -66,12 +61,11 @@ index 1ef42cc..6e8bc20 100644
          StunMessage::IntegrityStatus::kIntegrityOk) {
 +              __android_log_print(ANDROID_LOG_ERROR, "BUGDE9", "%s", StunMethodToString(msg->type()).c_str());
 +    __android_log_print(ANDROID_LOG_ERROR, "BUGDE10", "%s", msg->transaction_id().c_str());
-+    __android_log_print(ANDROID_LOG_ERROR, "BUGDE11", "%s", "msg->integrity().c_str()");
 +
        // "silently" discard the response.
        RTC_LOG(LS_VERBOSE) << ToString() << ": Discarding "
                            << StunMethodToString(msg->type())
-@@ -505,6 +523,7 @@ void Connection::OnReadPacket(const char* data,
+@@ -505,6 +522,7 @@ void Connection::OnReadPacket(const char* data,
        return;
      }
    } else {
@@ -79,7 +73,7 @@ index 1ef42cc..6e8bc20 100644
      RTC_DCHECK(IsStunIndicationType(msg->type()));
      // No message integrity.
    }
-@@ -512,14 +531,18 @@ void Connection::OnReadPacket(const char* data,
+@@ -512,14 +530,18 @@ void Connection::OnReadPacket(const char* data,
    rtc::LoggingSeverity sev = (!writable() ? rtc::LS_INFO : rtc::LS_VERBOSE);
    switch (msg->type()) {
      case STUN_BINDING_REQUEST:
@@ -98,7 +92,7 @@ index 1ef42cc..6e8bc20 100644
          RTC_LOG(LS_ERROR) << ToString()
                            << ": Received STUN request with bad remote username "
                            << remote_ufrag;
-@@ -534,6 +557,7 @@ void Connection::OnReadPacket(const char* data,
+@@ -534,6 +556,7 @@ void Connection::OnReadPacket(const char* data,
        // id's match.
      case STUN_BINDING_RESPONSE:
      case STUN_BINDING_ERROR_RESPONSE:
@@ -106,7 +100,7 @@ index 1ef42cc..6e8bc20 100644
        requests_.CheckResponse(msg.get());
        break;
  
-@@ -541,14 +565,17 @@ void Connection::OnReadPacket(const char* data,
+@@ -541,14 +564,17 @@ void Connection::OnReadPacket(const char* data,
        // request. In this case `last_ping_received_` will be updated but no
        // response will be sent.
      case STUN_BINDING_INDICATION:
@@ -124,3 +118,112 @@ index 1ef42cc..6e8bc20 100644
        requests_.CheckResponse(msg.get());
        break;
      default:
+@@ -562,12 +588,18 @@ void Connection::HandleStunBindingOrGoogPingRequest(IceMessage* msg) {
+   // This connection should now be receiving.
+   ReceivedPing(msg->transaction_id());
+   if (field_trials_->extra_ice_ping && last_ping_response_received_ == 0) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D", "%s", "RZ");
++
+     if (local_candidate().type() == RELAY_PORT_TYPE ||
+         local_candidate().type() == PRFLX_PORT_TYPE ||
+         remote_candidate().type() == RELAY_PORT_TYPE ||
+         remote_candidate().type() == PRFLX_PORT_TYPE) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D2", "%s", "RZ");
++
+       const int64_t now = rtc::TimeMillis();
+       if (last_ping_sent_ + kMinExtraPingDelayMs <= now) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D3", "%s", ToString().c_str());
++
+         RTC_LOG(LS_INFO) << ToString()
+                          << "WebRTC-ExtraICEPing/Sending extra ping"
+                             " last_ping_sent_: "
+@@ -575,6 +607,7 @@ void Connection::HandleStunBindingOrGoogPingRequest(IceMessage* msg) {
+                          << " (diff: " << (now - last_ping_sent_) << ")";
+         Ping(now);
+       } else {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D4", "%s", ToString().c_str());
+         RTC_LOG(LS_INFO) << ToString()
+                          << "WebRTC-ExtraICEPing/Not sending extra ping"
+                             " last_ping_sent_: "
+@@ -586,9 +619,13 @@ void Connection::HandleStunBindingOrGoogPingRequest(IceMessage* msg) {
+ 
+   const rtc::SocketAddress& remote_addr = remote_candidate_.address();
+   if (msg->type() == STUN_BINDING_REQUEST) {
++
+     // Check for role conflicts.
+     const std::string& remote_ufrag = remote_candidate_.username();
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D5", "%s", remote_ufrag.c_str());
+     if (!port_->MaybeIceRoleConflict(remote_addr, msg, remote_ufrag)) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D6", "%s", "RZ");
++
+       // Received conflicting role from the peer.
+       RTC_LOG(LS_INFO) << "Received conflicting role from the peer.";
+       return;
+@@ -601,35 +638,46 @@ void Connection::HandleStunBindingOrGoogPingRequest(IceMessage* msg) {
+ 
+   // This is a validated stun request from remote peer.
+   if (msg->type() == STUN_BINDING_REQUEST) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D7", "%s", "RZ");
++
+     SendStunBindingResponse(msg);
+   } else {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D8", "%s", "RZ");
+     RTC_DCHECK(msg->type() == GOOG_PING_REQUEST);
+     SendGoogPingResponse(msg);
+   }
+ 
+   // If it timed out on writing check, start up again
+   if (!pruned_ && write_state_ == STATE_WRITE_TIMEOUT) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D9", "%s", "RZ");
+     set_write_state(STATE_WRITE_INIT);
+   }
+ 
+   if (port_->GetIceRole() == ICEROLE_CONTROLLED) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D10", "%s", "RZ");
++
+     const StunUInt32Attribute* nomination_attr =
+         msg->GetUInt32(STUN_ATTR_NOMINATION);
+     uint32_t nomination = 0;
+     if (nomination_attr) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D11", "%s", "RZ");
+       nomination = nomination_attr->value();
+       if (nomination == 0) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D12", "%s", "RZ");
+         RTC_LOG(LS_ERROR) << "Invalid nomination: " << nomination;
+       }
+     } else {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D13", "%s", "RZ");
+       const StunByteStringAttribute* use_candidate_attr =
+           msg->GetByteString(STUN_ATTR_USE_CANDIDATE);
+       if (use_candidate_attr) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D14", "%s", "RZ");
+         nomination = 1;
+       }
+     }
+     // We don't un-nominate a connection, so we only keep a larger nomination.
+     if (nomination > remote_nomination_) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D15", "%s", "RZ");
+       set_remote_nomination(nomination);
+       SignalNominated(this);
+     }
+@@ -640,9 +688,12 @@ void Connection::HandleStunBindingOrGoogPingRequest(IceMessage* msg) {
+   const StunUInt32Attribute* network_attr =
+       msg->GetUInt32(STUN_ATTR_GOOG_NETWORK_INFO);
+   if (network_attr) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D16", "%s", "RZ");
++
+     uint32_t network_info = network_attr->value();
+     uint16_t network_cost = static_cast<uint16_t>(network_info);
+     if (network_cost != remote_candidate_.network_cost()) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D17", "%s", "RZ");
+       remote_candidate_.set_network_cost(network_cost);
+       // Network cost change will affect the connection ranking, so signal
+       // state change to force a re-sort in P2PTransportChannel.
+@@ -651,6 +702,7 @@ void Connection::HandleStunBindingOrGoogPingRequest(IceMessage* msg) {
+   }
+ 
+   if (field_trials_->piggyback_ice_check_acknowledgement) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE D18", "%s", "RZ");
+     HandlePiggybackCheckAcknowledgementIfAny(msg);
+   }
+ }
