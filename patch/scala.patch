@@ -1,5 +1,5 @@
 diff --git a/src/p2p/base/connection.cc b/src/p2p/base/connection.cc
-index 1ef42cc..ee77354 100644
+index 1ef42cc..390f9ef 100644
 --- a/src/p2p/base/connection.cc
 +++ b/src/p2p/base/connection.cc
 @@ -34,6 +34,7 @@
@@ -236,3 +236,108 @@ index 1ef42cc..ee77354 100644
      HandlePiggybackCheckAcknowledgementIfAny(msg);
    }
  }
+@@ -659,11 +720,13 @@ void Connection::SendStunBindingResponse(const StunMessage* message) {
+   RTC_DCHECK_RUN_ON(network_thread_);
+   RTC_DCHECK_EQ(message->type(), STUN_BINDING_REQUEST);
+ 
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD1", "%s", "RZ");
+   // Retrieve the username from the `message`.
+   const StunByteStringAttribute* username_attr =
+       message->GetByteString(STUN_ATTR_USERNAME);
+   RTC_DCHECK(username_attr != NULL);
+   if (username_attr == NULL) {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD2", "%s", "RZ");
+     // No valid username, skip the response.
+     return;
+   }
+@@ -673,12 +736,16 @@ void Connection::SendStunBindingResponse(const StunMessage* message) {
+   const StunUInt32Attribute* retransmit_attr =
+       message->GetUInt32(STUN_ATTR_RETRANSMIT_COUNT);
+   if (retransmit_attr) {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD3", "%s", "RZ");
++
+     // Inherit the incoming retransmit value in the response so the other side
+     // can see our view of lost pings.
+     response.AddAttribute(std::make_unique<StunUInt32Attribute>(
+         STUN_ATTR_RETRANSMIT_COUNT, retransmit_attr->value()));
+ 
+     if (retransmit_attr->value() > CONNECTION_WRITE_CONNECT_FAILURES) {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD4", "%s", "RZ");
++
+       RTC_LOG(LS_INFO)
+           << ToString()
+           << ": Received a remote ping with high retransmit count: "
+@@ -690,12 +757,16 @@ void Connection::SendStunBindingResponse(const StunMessage* message) {
+       STUN_ATTR_XOR_MAPPED_ADDRESS, remote_candidate_.address()));
+ 
+   if (field_trials_->announce_goog_ping) {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD5", "%s", "RZ");
++
+     // Check if message contains a announce-request.
+     auto goog_misc = message->GetUInt16List(STUN_ATTR_GOOG_MISC_INFO);
+     if (goog_misc != nullptr &&
+         goog_misc->Size() >= kSupportGoogPingVersionRequestIndex &&
+         // Which version can we handle...currently any >= 1
+         goog_misc->GetType(kSupportGoogPingVersionRequestIndex) >= 1) {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD6", "%s", "RZ");
++
+       auto list =
+           StunAttribute::CreateUInt16ListAttribute(STUN_ATTR_GOOG_MISC_INFO);
+       list->AddTypeAtIndex(kSupportGoogPingVersionResponseIndex,
+@@ -707,16 +778,22 @@ void Connection::SendStunBindingResponse(const StunMessage* message) {
+   const StunByteStringAttribute* delta =
+       message->GetByteString(STUN_ATTR_GOOG_DELTA);
+   if (delta) {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD7", "%s", "RZ");
++
+     if (field_trials_->answer_goog_delta && goog_delta_consumer_) {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD8", "%s", "RZ");
+       auto ack = (*goog_delta_consumer_)(delta);
+       if (ack) {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD9", "%s", "RZ");
+         RTC_LOG(LS_INFO) << "Sending GOOG_DELTA_ACK"
+                          << " delta len: " << delta->length();
+         response.AddAttribute(std::move(ack));
+       } else {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD10", "%s", "RZ");
+         RTC_LOG(LS_ERROR) << "GOOG_DELTA consumer did not return ack!";
+       }
+     } else {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD11", "%s", "RZ");
+       RTC_LOG(LS_WARNING) << "Ignore GOOG_DELTA"
+                           << " len: " << delta->length()
+                           << " answer_goog_delta = "
+@@ -728,6 +805,7 @@ void Connection::SendStunBindingResponse(const StunMessage* message) {
+ 
+   response.AddMessageIntegrity(local_candidate().password());
+   response.AddFingerprint();
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE DDD12", "%s", "RZ");
+ 
+   SendResponseMessage(response);
+ }
+@@ -743,6 +821,9 @@ void Connection::SendGoogPingResponse(const StunMessage* message) {
+ }
+ 
+ void Connection::SendResponseMessage(const StunMessage& response) {
++
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE CC1", "%s", "RZ");
++
+   RTC_DCHECK_RUN_ON(network_thread_);
+   // Where I send the response.
+   const rtc::SocketAddress& addr = remote_candidate_.address();
+@@ -755,11 +836,15 @@ void Connection::SendResponseMessage(const StunMessage& response) {
+       rtc::PacketType::kIceConnectivityCheckResponse;
+   auto err = port_->SendTo(buf.Data(), buf.Length(), addr, options, false);
+   if (err < 0) {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE CC2", "%s", "RZ");
++
+     RTC_LOG(LS_ERROR) << ToString() << ": Failed to send "
+                       << StunMethodToString(response.type())
+                       << ", to=" << addr.ToSensitiveString() << ", err=" << err
+                       << ", id=" << rtc::hex_encode(response.transaction_id());
+   } else {
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE CC3", "%s", response.transaction_id().c_str());
++
+     // Log at LS_INFO if we send a stun ping response on an unwritable
+     // connection.
+     rtc::LoggingSeverity sev = (!writable()) ? rtc::LS_INFO : rtc::LS_VERBOSE;
