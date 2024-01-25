@@ -1,5 +1,5 @@
 diff --git a/src/p2p/base/connection.cc b/src/p2p/base/connection.cc
-index 1ef42cc..390f9ef 100644
+index 1ef42cc..2d7a26b 100644
 --- a/src/p2p/base/connection.cc
 +++ b/src/p2p/base/connection.cc
 @@ -34,6 +34,7 @@
@@ -325,11 +325,14 @@ index 1ef42cc..390f9ef 100644
    RTC_DCHECK_RUN_ON(network_thread_);
    // Where I send the response.
    const rtc::SocketAddress& addr = remote_candidate_.address();
-@@ -755,11 +836,15 @@ void Connection::SendResponseMessage(const StunMessage& response) {
+@@ -753,13 +834,18 @@ void Connection::SendResponseMessage(const StunMessage& response) {
+   rtc::PacketOptions options(port_->StunDscpValue());
+   options.info_signaled_after_sent.packet_type =
        rtc::PacketType::kIceConnectivityCheckResponse;
++  __android_log_print(ANDROID_LOG_ERROR, "BUGDE CC2-0", "%s", addr.ToSensitiveString().c_str());
    auto err = port_->SendTo(buf.Data(), buf.Length(), addr, options, false);
    if (err < 0) {
-+__android_log_print(ANDROID_LOG_ERROR, "BUGDE CC2", "%s", "RZ");
++__android_log_print(ANDROID_LOG_ERROR, "BUGDE CC2", "%i", (int)err);
 +
      RTC_LOG(LS_ERROR) << ToString() << ": Failed to send "
                        << StunMethodToString(response.type())
@@ -341,3 +344,72 @@ index 1ef42cc..390f9ef 100644
      // Log at LS_INFO if we send a stun ping response on an unwritable
      // connection.
      rtc::LoggingSeverity sev = (!writable()) ? rtc::LS_INFO : rtc::LS_VERBOSE;
+diff --git a/src/p2p/base/stun_port.cc b/src/p2p/base/stun_port.cc
+index 3b024bd..eb98440 100644
+--- a/src/p2p/base/stun_port.cc
++++ b/src/p2p/base/stun_port.cc
+@@ -26,6 +26,7 @@
+ #include "rtc_base/ip_address.h"
+ #include "rtc_base/logging.h"
+ #include "rtc_base/strings/string_builder.h"
++#include <android/log.h>
+ 
+ namespace cricket {
+ 
+@@ -294,21 +295,28 @@ int UDPPort::SendTo(const void* data,
+                     const rtc::SocketAddress& addr,
+                     const rtc::PacketOptions& options,
+                     bool payload) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE SENDAUDP", "%s %i", "1", (int)0);
++
+   rtc::PacketOptions modified_options(options);
+   CopyPortInformationToPacketInfo(&modified_options.info_signaled_after_sent);
+   int sent = socket_->SendTo(data, size, addr, modified_options);
+   if (sent < 0) {
+     error_ = socket_->GetError();
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE SENDAUDP", "%s %i", "2", (int)error_);
++
+     // Rate limiting added for crbug.com/856088.
+     // TODO(webrtc:9622): Use general rate limiting mechanism once it exists.
+     if (send_error_count_ < kSendErrorLogLimit) {
+       ++send_error_count_;
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE SENDAUDP", "%s %s %i-%i<%i", "3", addr.ToSensitiveNameAndAddressString().c_str(), (int)error_, (int)send_error_count_, (int)kSendErrorLogLimit);
++
+       RTC_LOG(LS_ERROR) << ToString() << ": UDP send of " << size
+                         << " bytes to host "
+                         << addr.ToSensitiveNameAndAddressString()
+                         << " failed with error " << error_;
+     }
+   } else {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE SENDAUDP UWU", "%s", "2");
+     send_error_count_ = 0;
+   }
+   return sent;
+diff --git a/src/p2p/base/turn_port.cc b/src/p2p/base/turn_port.cc
+index 88c9a45..0b63e6c 100644
+--- a/src/p2p/base/turn_port.cc
++++ b/src/p2p/base/turn_port.cc
+@@ -31,6 +31,7 @@
+ #include "rtc_base/net_helpers.h"
+ #include "rtc_base/socket_address.h"
+ #include "rtc_base/strings/string_builder.h"
++#include <android/log.h>
+ 
+ namespace cricket {
+ 
+@@ -646,6 +647,7 @@ int TurnPort::SendTo(const void* data,
+ 
+   if (!ready()) {
+     error_ = ENOTCONN;
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE SENDA", "%s %i", "1", (int)error_);
+     return SOCKET_ERROR;
+   }
+ 
+@@ -655,6 +657,7 @@ int TurnPort::SendTo(const void* data,
+   int sent = entry->Send(data, size, payload, modified_options);
+   if (sent <= 0) {
+     error_ = socket_->GetError();
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE SENDA", "%s %i", "2", (int)error_)
+     return SOCKET_ERROR;
+   }
+ 
