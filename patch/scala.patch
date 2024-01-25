@@ -386,7 +386,7 @@ index 3b024bd..eb98440 100644
    }
    return sent;
 diff --git a/src/p2p/base/turn_port.cc b/src/p2p/base/turn_port.cc
-index 88c9a45..0b63e6c 100644
+index 88c9a45..9edf586 100644
 --- a/src/p2p/base/turn_port.cc
 +++ b/src/p2p/base/turn_port.cc
 @@ -31,6 +31,7 @@
@@ -409,7 +409,7 @@ index 88c9a45..0b63e6c 100644
    int sent = entry->Send(data, size, payload, modified_options);
    if (sent <= 0) {
      error_ = socket_->GetError();
-+    __android_log_print(ANDROID_LOG_ERROR, "BUGDE SENDA", "%s %i", "2", (int)error_)
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE SENDA", "%s %i", "2", (int)error_);
      return SOCKET_ERROR;
    }
  
