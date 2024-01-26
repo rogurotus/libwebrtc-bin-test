@@ -413,3 +413,135 @@ index 88c9a45..9edf586 100644
      return SOCKET_ERROR;
    }
  
+diff --git a/src/rtc_base/async_socket.cc b/src/rtc_base/async_socket.cc
+index 7289b5c..edb6d4e 100644
+--- a/src/rtc_base/async_socket.cc
++++ b/src/rtc_base/async_socket.cc
+@@ -12,12 +12,14 @@
+ 
+ #include "absl/memory/memory.h"
+ #include "rtc_base/checks.h"
++#include <android/log.h>
+ 
+ namespace rtc {
+ 
+ AsyncSocketAdapter::AsyncSocketAdapter(Socket* socket)
+     : socket_(absl::WrapUnique(socket)) {
+   RTC_DCHECK(socket_);
++  __android_log_print(ANDROID_LOG_ERROR, "BUGDE CREATE ADAP", "%s", "1");
+   socket_->SignalConnectEvent.connect(this,
+                                       &AsyncSocketAdapter::OnConnectEvent);
+   socket_->SignalReadEvent.connect(this, &AsyncSocketAdapter::OnReadEvent);
+@@ -48,6 +50,7 @@ int AsyncSocketAdapter::Send(const void* pv, size_t cb) {
+ int AsyncSocketAdapter::SendTo(const void* pv,
+                                size_t cb,
+                                const SocketAddress& addr) {
++  __android_log_print(ANDROID_LOG_ERROR, "BUGDE SCP", "%s", "1");
+   return socket_->SendTo(pv, cb, addr);
+ }
+ 
+diff --git a/src/rtc_base/async_tcp_socket.cc b/src/rtc_base/async_tcp_socket.cc
+index 367c5b0..66f2a0b 100644
+--- a/src/rtc_base/async_tcp_socket.cc
++++ b/src/rtc_base/async_tcp_socket.cc
+@@ -22,6 +22,7 @@
+ #include "rtc_base/logging.h"
+ #include "rtc_base/network/sent_packet.h"
+ #include "rtc_base/time_utils.h"  // for TimeMillis
++#include <android/log.h>
+ 
+ #if defined(WEBRTC_POSIX)
+ #include <errno.h>
+@@ -244,6 +245,7 @@ void AsyncTCPSocketBase::OnCloseEvent(Socket* socket, int error) {
+ AsyncTCPSocket* AsyncTCPSocket::Create(Socket* socket,
+                                        const SocketAddress& bind_address,
+                                        const SocketAddress& remote_address) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE TCP", "%s %s", bind_address.ToString().c_str(), remote_address.ToString().c_str());
+   return new AsyncTCPSocket(
+       AsyncTCPSocketBase::ConnectSocket(socket, bind_address, remote_address));
+ }
+diff --git a/src/rtc_base/async_udp_socket.cc b/src/rtc_base/async_udp_socket.cc
+index af7ae56..0bc8346 100644
+--- a/src/rtc_base/async_udp_socket.cc
++++ b/src/rtc_base/async_udp_socket.cc
+@@ -16,6 +16,7 @@
+ #include "rtc_base/network/sent_packet.h"
+ #include "rtc_base/time_utils.h"
+ #include "system_wrappers/include/field_trial.h"
++#include <android/log.h>
+ 
+ namespace rtc {
+ 
+@@ -27,9 +28,11 @@ static bool IsScmTimeStampExperimentDisabled() {
+ 
+ AsyncUDPSocket* AsyncUDPSocket::Create(Socket* socket,
+                                        const SocketAddress& bind_address) {
++  __android_log_print(ANDROID_LOG_ERROR, "BUGDE CREATE UDP", "%s", bind_address.ToString().c_str());
+   std::unique_ptr<Socket> owned_socket(socket);
+   if (socket->Bind(bind_address) < 0) {
+     RTC_LOG(LS_ERROR) << "Bind() failed with error " << socket->GetError();
++  __android_log_print(ANDROID_LOG_ERROR, "BUGDE CREATE UDP", "%i", (int)socket->GetError());
+     return nullptr;
+   }
+   return new AsyncUDPSocket(owned_socket.release());
+@@ -38,8 +41,12 @@ AsyncUDPSocket* AsyncUDPSocket::Create(Socket* socket,
+ AsyncUDPSocket* AsyncUDPSocket::Create(SocketFactory* factory,
+                                        const SocketAddress& bind_address) {
+   Socket* socket = factory->CreateSocket(bind_address.family(), SOCK_DGRAM);
+-  if (!socket)
++  __android_log_print(ANDROID_LOG_ERROR, "BUGDE CREATE FACTROY", "%s", bind_address.ToString().c_str());
++  if (!socket) {
++  __android_log_print(ANDROID_LOG_ERROR, "BUGDE XZC", "%s", bind_address.ToString().c_str());
++
+     return nullptr;
++  }
+   return Create(socket, bind_address);
+ }
+ 
+@@ -73,10 +80,15 @@ int AsyncUDPSocket::SendTo(const void* pv,
+                            size_t cb,
+                            const SocketAddress& addr,
+                            const rtc::PacketOptions& options) {
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE ASYNCADD", "%s", "1");
++
+   rtc::SentPacket sent_packet(options.packet_id, rtc::TimeMillis(),
+                               options.info_signaled_after_sent);
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE ASYNCADD", "%s", "2");
+   CopySocketInformationToPacketInfo(cb, *this, true, &sent_packet.info);
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE ASYNCADD", "%s", "3");
+   int ret = socket_->SendTo(pv, cb, addr);
++    __android_log_print(ANDROID_LOG_ERROR, "BUGDE ASYNCADD", "%s", "4");
+   SignalSentPacket(this, sent_packet);
+   return ret;
+ }
+diff --git a/src/rtc_base/firewall_socket_server.cc b/src/rtc_base/firewall_socket_server.cc
+index db88d19..c9b5be1 100644
+--- a/src/rtc_base/firewall_socket_server.cc
++++ b/src/rtc_base/firewall_socket_server.cc
+@@ -20,6 +20,8 @@
+ #include "rtc_base/async_socket.h"
+ #include "rtc_base/checks.h"
+ #include "rtc_base/logging.h"
++#include <android/log.h>
++
+ 
+ namespace rtc {
+ 
+@@ -30,6 +32,7 @@ class FirewallSocket : public AsyncSocketAdapter {
+ 
+   int Bind(const SocketAddress& addr) override {
+     if (!server_->IsBindableIp(addr.ipaddr())) {
++      __android_log_print(ANDROID_LOG_ERROR, "BUGDE GOTCHA", "%s", "1");
+       SetError(EINVAL);
+       return SOCKET_ERROR;
+     }
+@@ -195,6 +198,9 @@ bool FirewallSocketServer::Check(FirewallProtocol p,
+ 
+ void FirewallSocketServer::SetUnbindableIps(
+     const std::vector<rtc::IPAddress>& unbindable_ips) {
++    for (int i = 0; i < unbindable_ips.size(); ++i) {
++      __android_log_print(ANDROID_LOG_ERROR, "BUGDE GOTCHA Unbindable", "%s", unbindable_ips[i].ToString().c_str());
++    }
+   unbindable_ips_ = unbindable_ips;
+ }
+ 
