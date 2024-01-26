@@ -1,3 +1,54 @@
+diff --git a/src/p2p/base/basic_packet_socket_factory.cc b/src/p2p/base/basic_packet_socket_factory.cc
+index 5bc02dd..d5f300e 100644
+--- a/src/p2p/base/basic_packet_socket_factory.cc
++++ b/src/p2p/base/basic_packet_socket_factory.cc
+@@ -25,6 +25,8 @@
+ #include "rtc_base/socket.h"
+ #include "rtc_base/socket_adapters.h"
+ #include "rtc_base/ssl_adapter.h"
++#include <android/log.h>
++
+ 
+ namespace rtc {
+ 
+@@ -40,11 +42,14 @@ AsyncPacketSocket* BasicPacketSocketFactory::CreateUdpSocket(
+     uint16_t max_port) {
+   // UDP sockets are simple.
+   Socket* socket = socket_factory_->CreateSocket(address.family(), SOCK_DGRAM);
++  __android_log_print(ANDROID_LOG_ERROR, "GRDP", "%s %i - %i", address.ToString().c_str(), (int)min_port, (int)max_port);
+   if (!socket) {
++  __android_log_print(ANDROID_LOG_ERROR, "GRDP NOPE", "%s %i - %i", address.ToString().c_str(), (int)min_port, (int)max_port);
+     return NULL;
+   }
+   if (BindSocket(socket, address, min_port, max_port) < 0) {
+     RTC_LOG(LS_ERROR) << "UDP bind failed with error " << socket->GetError();
++  __android_log_print(ANDROID_LOG_ERROR, "GRDP DEL", "%i %s %i - %i", (int)socket->GetError(), address.ToString().c_str(), (int)min_port, (int)max_port);
+     delete socket;
+     return NULL;
+   }
+@@ -194,16 +199,22 @@ int BasicPacketSocketFactory::BindSocket(Socket* socket,
+                                          const SocketAddress& local_address,
+                                          uint16_t min_port,
+                                          uint16_t max_port) {
++  __android_log_print(ANDROID_LOG_ERROR, "GRDP BIND", "%s %i - %i", local_address.ToString().c_str(), (int)min_port, (int)max_port);
++
+   int ret = -1;
+   if (min_port == 0 && max_port == 0) {
++  __android_log_print(ANDROID_LOG_ERROR, "GRDP BIND2", "%s %i - %i", local_address.ToString().c_str(), (int)min_port, (int)max_port);
+     // If there's no port range, let the OS pick a port for us.
+     ret = socket->Bind(local_address);
+   } else {
++  __android_log_print(ANDROID_LOG_ERROR, "GRDP BIND3", "%s %i - %i", local_address.ToString().c_str(), (int)min_port, (int)max_port);
+     // Otherwise, try to find a port in the provided range.
+     for (int port = min_port; ret < 0 && port <= max_port; ++port) {
++  __android_log_print(ANDROID_LOG_ERROR, "GRDP BIND4", "%s %i - %i", local_address.ToString().c_str(), (int)min_port, (int)max_port);
+       ret = socket->Bind(SocketAddress(local_address.ipaddr(), port));
+     }
+   }
++  __android_log_print(ANDROID_LOG_ERROR, "GRDP BIND5", "%i %s %i - %i", (int)ret, local_address.ToString().c_str(), (int)min_port, (int)max_port);
+   return ret;
+ }
+ 
 diff --git a/src/p2p/base/connection.cc b/src/p2p/base/connection.cc
 index 1ef42cc..2d7a26b 100644
 --- a/src/p2p/base/connection.cc
@@ -385,6 +436,35 @@ index 3b024bd..eb98440 100644
      send_error_count_ = 0;
    }
    return sent;
+diff --git a/src/p2p/base/stun_port.h b/src/p2p/base/stun_port.h
+index 3df725e..85162eb 100644
+--- a/src/p2p/base/stun_port.h
++++ b/src/p2p/base/stun_port.h
+@@ -23,6 +23,7 @@
+ #include "p2p/base/stun_request.h"
+ #include "rtc_base/async_packet_socket.h"
+ #include "rtc_base/system/rtc_export.h"
++#include <android/log.h>
+ 
+ namespace cricket {
+ 
+@@ -45,6 +46,8 @@ class RTC_EXPORT UDPPort : public Port {
+       absl::optional<int> stun_keepalive_interval,
+       const webrtc::FieldTrialsView* field_trials = nullptr) {
+     // Using `new` to access a non-public constructor.
++
++    __android_log_print(ANDROID_LOG_ERROR, "RAZ", "%s", "1");
+     auto port = absl::WrapUnique(
+         new UDPPort(thread, LOCAL_PORT_TYPE, factory, network, socket, username,
+                     password, emit_local_for_anyaddress, field_trials));
+@@ -66,6 +69,7 @@ class RTC_EXPORT UDPPort : public Port {
+       bool emit_local_for_anyaddress,
+       absl::optional<int> stun_keepalive_interval,
+       const webrtc::FieldTrialsView* field_trials = nullptr) {
++    __android_log_print(ANDROID_LOG_ERROR, "RAZ", "%s", "2");
+     // Using `new` to access a non-public constructor.
+     auto port = absl::WrapUnique(new UDPPort(
+         thread, LOCAL_PORT_TYPE, factory, network, min_port, max_port, username,
 diff --git a/src/p2p/base/turn_port.cc b/src/p2p/base/turn_port.cc
 index 88c9a45..9edf586 100644
 --- a/src/p2p/base/turn_port.cc
@@ -461,7 +541,7 @@ index 367c5b0..66f2a0b 100644
        AsyncTCPSocketBase::ConnectSocket(socket, bind_address, remote_address));
  }
 diff --git a/src/rtc_base/async_udp_socket.cc b/src/rtc_base/async_udp_socket.cc
-index af7ae56..0bc8346 100644
+index af7ae56..0e283d6 100644
 --- a/src/rtc_base/async_udp_socket.cc
 +++ b/src/rtc_base/async_udp_socket.cc
 @@ -16,6 +16,7 @@
@@ -484,7 +564,7 @@ index af7ae56..0bc8346 100644
      return nullptr;
    }
    return new AsyncUDPSocket(owned_socket.release());
-@@ -38,8 +41,12 @@ AsyncUDPSocket* AsyncUDPSocket::Create(Socket* socket,
+@@ -38,12 +41,17 @@ AsyncUDPSocket* AsyncUDPSocket::Create(Socket* socket,
  AsyncUDPSocket* AsyncUDPSocket::Create(SocketFactory* factory,
                                         const SocketAddress& bind_address) {
    Socket* socket = factory->CreateSocket(bind_address.family(), SOCK_DGRAM);
@@ -498,7 +578,12 @@ index af7ae56..0bc8346 100644
    return Create(socket, bind_address);
  }
  
-@@ -73,10 +80,15 @@ int AsyncUDPSocket::SendTo(const void* pv,
+ AsyncUDPSocket::AsyncUDPSocket(Socket* socket) : socket_(socket) {
++  __android_log_print(ANDROID_LOG_ERROR, "BUGDE CREATEEEEEE UDP", "%s", "l");
+   sequence_checker_.Detach();
+   // The socket should start out readable but not writable.
+   socket_->SignalReadEvent.connect(this, &AsyncUDPSocket::OnReadEvent);
+@@ -73,10 +81,15 @@ int AsyncUDPSocket::SendTo(const void* pv,
                             size_t cb,
                             const SocketAddress& addr,
                             const rtc::PacketOptions& options) {
