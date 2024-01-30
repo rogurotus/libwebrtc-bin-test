@@ -1046,8 +1046,8 @@ index 0000000..f5db63d
 +}
 +
 +- (RTC_OBJC_TYPE(RTCCodecSupport*))
-+    queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)
-+                 info:(NSString*)scalabilityMode {
++    queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
++                 :(NSString*)scalabilityMode {
 +  absl::InlinedVector<webrtc::ScalabilityMode, webrtc::kScalabilityModeCount>
 +      scalability_modes;
 +  for (NSString* scalabiltyMode in info.scalabiltyModes) {
@@ -1534,8 +1534,8 @@ index 8de55bd..120790e 100644
 -
 -  return [orderedCodecs copy];
 +- (RTC_OBJC_TYPE(RTCCodecSupport*))
-+    queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)
-+                 info:(NSString*)scalabilityMode {
++    queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
++                 :(NSString*)scalabilityMode {
 +  return [_factory queryCodecSupport:info:scalabilityMode];
  }
  
@@ -1609,8 +1609,8 @@ index 9843849..2216432 100644
  }
  
 +- (RTC_OBJC_TYPE(RTCCodecSupport*))
-+    queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)
-+                 info:(NSString*)scalabilityMode {
++    queryCodecSupport:(RTC_OBJC_TYPE(RTCVideoCodecInfo) *)info
++                 :(NSString*)scalabilityMode {
 +  RTC_OBJC_TYPE(RTCCodecSupport)* codecSupport =
 +      [[RTC_OBJC_TYPE(RTCCodecSupport) alloc] init];
 +  codecSupport.isSupported =
