@@ -24,7 +24,7 @@ index fd59013..1701f68 100644
   *  future calls to createOffer and createAnswer mark the corresponding media
   *  descriptions as sendrecv, sendonly, recvonly, or inactive.
 diff --git a/src/sdk/objc/api/peerconnection/RTCRtpTransceiver.mm b/src/sdk/objc/api/peerconnection/RTCRtpTransceiver.mm
-index ae1cf79..eb0ad96 100644
+index ae1cf79..4c4a4ea 100644
 --- a/src/sdk/objc/api/peerconnection/RTCRtpTransceiver.mm
 +++ b/src/sdk/objc/api/peerconnection/RTCRtpTransceiver.mm
 @@ -10,6 +10,7 @@
@@ -51,7 +51,7 @@ index ae1cf79..eb0ad96 100644
 +- (void)setCodecPreferences:(NSArray<RTC_OBJC_TYPE(RTCRtpCodecCapability) *> *)codecs {
 +  std::vector<webrtc::RtpCodecCapability> codecCapabilities;
 +  for (RTC_OBJC_TYPE(RTCRtpCodecCapability) * rtpCodecCapability in codecs) {
-+    codecCapabilities.push_back(rtpCodecCapability.nativeRtpCodecCapability);
++    codecCapabilities.push_back(rtpCodecCapability.nativeCodecCapability);
 +  }
 +  _nativeRtpTransceiver->SetCodecPreferences(codecCapabilities);
 +}
