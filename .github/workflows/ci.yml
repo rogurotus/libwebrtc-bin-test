@@ -56,9 +56,9 @@ jobs:
       - run: powershell .\build.windows.bat
         if: ${{ contains('windows', matrix.os) }}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: build
+          name: build-${{ matrix.os }}${{ matrix.arch != '' && format('-{0}', matrix.arch) || '' }}
           path: package/libwebrtc-${{ matrix.os }}${{ matrix.arch != '' && format('-{0}', matrix.arch) || '' }}.${{ (matrix.os == 'ios' && 'zip') || 'tar.gz' }}
           if-no-files-found: error
 
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: gh-pages
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           java-version: "17"
           distribution: temurin
@@ -88,9 +88,9 @@ jobs:
         run: echo "version=${GITHUB_REF#refs/tags/}"
              >> $GITHUB_OUTPUT
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: build
+          name: build-android
           path: package/
       - run: tar -xzvf libwebrtc-android.tar.gz
         working-directory: package/
@@ -151,9 +151,33 @@ jobs:
             == "$(grep 'WEBRTC_VERSION=' VERSION | cut -d '=' -f2 | tr -d '\n')"
         if: ${{ !contains(steps.release.outputs.version, '-') }}
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: build
+          name: build-android
+          path: package/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-ios
+          path: package/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-linux-arm64
+          path: package/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-linux-x64
+          path: package/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-macos-arm64
+          path: package/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-macos-x64
+          path: package/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-windows-x64
           path: package/
 
       - name: Generate SHA256 checksums
