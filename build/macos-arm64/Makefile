@@ -16,6 +16,7 @@ EXTRA_GN_ARGS := \
 	enable_dsyms=true \
 	treat_warnings_as_errors=false \
 	rtc_use_h264=true \
+	ffmpeg_branding="Chrome" \
 	rtc_include_tests=false \
 	rtc_build_tools=false \
 	rtc_build_examples=false \
