@@ -43,12 +43,12 @@ define generateRules
 
 .PHONY: $(1)
 $(1): 
-	$(1).clean
-	$(1).build
+	make $(1).clean
+	make $(1).build
 ifeq ($(static),yes)
-	$(1).package-static
+	make $(1).package-static
 else
-	$(1).package
+	make $(1).package
 endif
 	
 
