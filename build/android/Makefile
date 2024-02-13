@@ -76,16 +76,16 @@ endef
 
 .PHONY: build
 build: patch
+ifeq ($(static),yes)
+	$(call build-android, $(arch), $(target_cpu), $(version))
+else
 	cd $(SRC_DIR) && \
 	vpython3 $(SRC_DIR)/tools_webrtc/android/build_aar.py \
 		--build-dir $(BUILD_DIR)/aar \
 		--output $(BUILD_DIR)/libwebrtc.aar \
 		--arch armeabi-v7a arm64-v8a x86_64 \
 		--extra-gn-args '$(EXTRA_GN_ARGS) $(CC_WRAPPER)'
-
-	$(call build-android,armeabi-v7a,arm,arm_version=7)
-	$(call build-android,arm64-v8a,arm64)
-	$(call build-android,x86_64,x64)
+endif
 
 	cd $(BUILD_DIR) && \
 	unzip -q libwebrtc.aar && \
