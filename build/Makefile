@@ -42,7 +42,15 @@ endif
 define generateRules
 
 .PHONY: $(1)
-$(1): $(1).clean $(1).build
+$(1): 
+	$(1).clean
+	$(1).build
+ifeq ($(static),yes)
+	$(1).package-static
+else
+	$(1).package
+endif
+	
 
 .PHONY: $(1).clean
 $(1).clean:
