@@ -29,6 +29,12 @@ package: copy
 	cd $(PACKAGE_DIR) && \
 	tar -czvf $(subst $(space),,$(PACKAGE_NAME)).tar.gz aar jar include lib NOTICE VERSION
 
+.PHONY: package-static
+package-static:
+	cp -f $(BUILD_DIR)/static/$(arch)/libwebrtc.a $(PACKAGE_DIR)/lib/$(arch)/
+	cd $(PACKAGE_DIR) && \
+	tar -czvf android-static-$(arch).tar.gz lib
+
 .PHONY: copy
 copy:
 	rm -rf $(PACKAGE_DIR)/aar

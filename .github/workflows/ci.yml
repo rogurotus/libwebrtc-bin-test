@@ -49,7 +49,7 @@ jobs:
       - run: pip install setuptools
         if: ${{ contains('ios macos', matrix.os) }}
 
-      - run: make -C docker ${{ matrix.os }}${{ matrix.arch != '' && format('-{0}', matrix.arch) || '' }} && make -C docker ${{ matrix.os }}${{ matrix.arch != '' && format('-{0}', matrix.arch) || '' }}.package
+      - run: make -C docker ${{ matrix.os }}${{ matrix.arch != '' && format('-{0}', matrix.arch) || '' }} && make -C build/${{ matrix.os }}${{ matrix.arch != '' && format('-{0}', matrix.arch) || '' }} package
         if: ${{ contains('linux', matrix.os) }}
 
       - run: make -C docker ${{ matrix.os }}${{ matrix.arch != '' && format('-{0}', matrix.arch) || '' }} static=no
@@ -86,6 +86,8 @@ jobs:
 
       - run: ./disk_cleanup.sh
       - run: make -C docker ${{ matrix.os }} static=yes arch=${{ matrix.arch }}, target_cpu=${{ matrix.target_cpu }} version=${{ matrix.version }}
+      - run: make -C build/android package-static arch=${{ matrix.arch }}
+
 
       - uses: actions/upload-artifact@v4
         with:
@@ -139,7 +141,7 @@ jobs:
       - run: tar -xzvf libwebrtc-android.tar.gz android-static-armeabi-v7a.tar.gz android-static-armeabi-v7a android-static-x86_64
         working-directory: package/
 
-      - run: make -C docker android.package
+      - run: make -C buil/android package
 
       - name: Build Maven files
         run: mvn install:install-file
