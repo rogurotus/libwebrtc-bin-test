@@ -67,11 +67,7 @@ $(1).copy:
 
 .PHONY: $(1).package
 $(1).package:
-ifeq ($(static),yes)
-	make $(1).package-static
-else
 	make $(SUB_DIR_OPTS) -C $(1) package
-endif
 
 endef
 
