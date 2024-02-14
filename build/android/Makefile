@@ -80,7 +80,7 @@ endef
 .PHONY: build
 build: patch
 ifeq ($(static),yes)
-	$(call build-android, $(arch), $(target_cpu), $(version))
+	$(call build-android,$(arch),$(target_cpu),$(version))
 else
 	cd $(SRC_DIR) && \
 	vpython3 $(SRC_DIR)/tools_webrtc/android/build_aar.py \
