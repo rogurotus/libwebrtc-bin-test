@@ -89,10 +89,10 @@ else
 		--output $(BUILD_DIR)/libwebrtc.aar \
 		--arch armeabi-v7a arm64-v8a x86_64 \
 		--extra-gn-args '$(EXTRA_GN_ARGS) $(CC_WRAPPER)'
-endif
 
 	cd $(BUILD_DIR) && \
-	unzip -q libwebrtc.aar && \
-	rm -rf jni && \
-	rm -f AndroidManifest.xml && \
-	mv classes.jar libwebrtc.jar
+		unzip -q libwebrtc.aar && \
+		rm -rf jni && \
+		rm -f AndroidManifest.xml && \
+		mv classes.jar libwebrtc.jar
+endif
