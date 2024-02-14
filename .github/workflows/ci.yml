@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["*"]
     tags: ["*"]
   pull_request:
     branches: ["main"]
@@ -24,17 +24,17 @@ jobs:
       matrix:
         include:
           - os: android
-          - os: ios
-          - os: linux
-            arch: arm64
-          - os: linux
-            arch: x64
-          - os: macos
-            arch: arm64
-          - os: macos
-            arch: x64
-          - os: windows
-            arch: x64
+          # - os: ios
+          # - os: linux
+          #   arch: arm64
+          # - os: linux
+          #   arch: x64
+          # - os: macos
+          #   arch: arm64
+          # - os: macos
+          #   arch: x64
+          # - os: windows
+          #   arch: x64
     runs-on: ${{ (contains('ios macos', matrix.os) && 'macos-11')
               || (contains('windows', matrix.os)   && 'windows-2019')
               ||                                      'ubuntu-latest' }}
@@ -100,8 +100,7 @@ jobs:
 
   publish-android:
     name: publish (Android)
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    needs: ["release-github"]
+    needs: ["build", "build-android-static"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
