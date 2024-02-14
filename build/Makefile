@@ -42,14 +42,7 @@ endif
 define generateRules
 
 .PHONY: $(1)
-$(1): 
-	make $(1).clean
-	make $(1).build
-ifeq ($(static),yes)
-	make $(1).package-static
-else
-	make $(1).package
-endif
+$(1): $(1).clean $(1).build $(1).package
 	
 
 .PHONY: $(1).clean
@@ -74,7 +67,11 @@ $(1).copy:
 
 .PHONY: $(1).package
 $(1).package:
+ifeq ($(static),yes)
+	make $(1).package-static
+else
 	make $(SUB_DIR_OPTS) -C $(1) package
+endif
 
 endef
 
