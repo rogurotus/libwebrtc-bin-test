@@ -34,7 +34,7 @@ ifeq ($(static),yes)
 else
 	make copy
 	cd $(PACKAGE_DIR) && \
-	tar -czvf $(subst $(space),,$(PACKAGE_NAME)).tar.gz aar jar include lib NOTICE VERSION
+	tar -czvf android-aar.tar.gz aar jar include lib NOTICE VERSION
 endif
 
 .PHONY: copy
