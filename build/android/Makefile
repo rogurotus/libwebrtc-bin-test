@@ -27,6 +27,7 @@ all: clean build package
 .PHONY: package
 package:
 ifeq ($(static),yes)
+	mkdir -p $(PACKAGE_DIR)/lib/$(arch)
 	cp -f $(BUILD_DIR)/static/$(arch)/libwebrtc.a $(PACKAGE_DIR)/lib/$(arch)/
 	cd $(PACKAGE_DIR) && \
 	tar -czvf android-static-$(arch).tar.gz lib
