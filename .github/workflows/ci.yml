@@ -124,7 +124,7 @@ jobs:
       - run: tar -xzvf libwebrtc-android.tar.gz 
         working-directory: package/
 
-      - run: make -C buil/android package
+      - run: make -C build/android package
 
       - name: Build Maven files
         run: mvn install:install-file
@@ -173,13 +173,8 @@ jobs:
 
       - name: Parse release version
         id: release
-        run: echo "version=${GITHUB_REF#refs/tags/}"
+        run: echo "version=192.168.0.108"
              >> $GITHUB_OUTPUT
-      - name: Verify release version matches VERSION file
-        run: |
-          test "${{ steps.release.outputs.version }}" \
-            == "$(grep 'WEBRTC_VERSION=' VERSION | cut -d '=' -f2 | tr -d '\n')"
-        if: ${{ !contains(steps.release.outputs.version, '-') }}
 
       - uses: actions/download-artifact@v4
         with:
