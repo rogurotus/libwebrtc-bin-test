@@ -124,8 +124,6 @@ jobs:
       - run: tar -xzvf libwebrtc-android.tar.gz 
         working-directory: package/
 
-      - run: make -C build/android package
-
       - name: Build Maven files
         run: mvn install:install-file
                  -DgroupId=com.github.instrumentisto
@@ -198,7 +196,7 @@ jobs:
       - run: for i in android-static*.gz; do tar -xzvf "$i" -C . ;done
         working-directory: package/
       - run: tar -czvf libwebrtc-android.tar.gz aar jar include lib NOTICE VERSION
-        working-directory: package/libwebrtc-android
+        working-directory: package/
 
       - uses: actions/download-artifact@v4
         with:
