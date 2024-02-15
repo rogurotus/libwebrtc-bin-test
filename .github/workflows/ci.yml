@@ -198,31 +198,6 @@ jobs:
       - run: tar -czvf libwebrtc-android.tar.gz aar jar include lib NOTICE VERSION
         working-directory: package/
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-ios
-          path: package/
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-linux-arm64
-          path: package/
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-linux-x64
-          path: package/
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-macos-arm64
-          path: package/
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-macos-x64
-          path: package/
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-windows-x64
-          path: package/
-
       - name: Generate SHA256 checksums
         run: ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"
         working-directory: package/
