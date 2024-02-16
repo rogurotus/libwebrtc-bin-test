@@ -25,9 +25,17 @@ EXTRA_GN_ARGS := \
 all: clean build package
 
 .PHONY: package
-package: copy
+package:
+ifeq ($(static),yes)
+	mkdir -p $(PACKAGE_DIR)/lib/$(arch)/
+	cp -f $(BUILD_DIR)/static/$(arch)/libwebrtc.a $(PACKAGE_DIR)/lib/$(arch)/
+	cd $(PACKAGE_DIR) && \
+	tar -czvf libwebrtc-android-$(target_cpu).tar.gz lib
+else
+	make copy
 	cd $(PACKAGE_DIR) && \
 	tar -czvf $(subst $(space),,$(PACKAGE_NAME)).tar.gz aar jar include lib NOTICE VERSION
+endif
 
 .PHONY: copy
 copy:
@@ -43,9 +51,6 @@ copy:
 	mkdir -p $(PACKAGE_DIR)/lib/arm64-v8a
 	mkdir -p $(PACKAGE_DIR)/lib/x86_64
 	mkdir -p $(PACKAGE_DIR)/include
-	cp -f $(BUILD_DIR)/static/armeabi-v7a/libwebrtc.a $(PACKAGE_DIR)/lib/armeabi-v7a/
-	cp -f $(BUILD_DIR)/static/arm64-v8a/libwebrtc.a $(PACKAGE_DIR)/lib/arm64-v8a/
-	cp -f $(BUILD_DIR)/static/x86_64/libwebrtc.a $(PACKAGE_DIR)/lib/x86_64/
 	cp -f $(BUILD_DIR)/libwebrtc.jar $(PACKAGE_DIR)/jar/
 	cp -f $(BUILD_DIR)/libwebrtc.aar $(PACKAGE_DIR)/aar/
 	rsync -amv '--include=*/' '--include=*.h' '--include=*.hpp' '--exclude=*' $(SRC_DIR)/. $(PACKAGE_DIR)/include/.
@@ -76,6 +81,9 @@ endef
 
 .PHONY: build
 build: patch
+ifeq ($(static),yes)
+	$(call build-android,$(arch),$(target_cpu),$(version))
+else
 	cd $(SRC_DIR) && \
 	vpython3 $(SRC_DIR)/tools_webrtc/android/build_aar.py \
 		--build-dir $(BUILD_DIR)/aar \
@@ -83,12 +91,9 @@ build: patch
 		--arch armeabi-v7a arm64-v8a x86_64 \
 		--extra-gn-args '$(EXTRA_GN_ARGS) $(CC_WRAPPER)'
 
-	$(call build-android,armeabi-v7a,arm,arm_version=7)
-	$(call build-android,arm64-v8a,arm64)
-	$(call build-android,x86_64,x64)
-
 	cd $(BUILD_DIR) && \
 	unzip -q libwebrtc.aar && \
 	rm -rf jni && \
 	rm -f AndroidManifest.xml && \
 	mv classes.jar libwebrtc.jar
+endif

@@ -70,7 +70,7 @@ $(1).nobuild:
 .PHONY: $(1)
 $(1): $(1).prepare
 	mkdir -p $(PACKAGE_DIR)
-	$(DOCKER) run $(DOCKER_RUN_ARGS) libwebrtc-$(1):$(IMAGE_VERSION) /bin/bash -c 'cd /root && make $(1)'
+	$(DOCKER) run $(DOCKER_RUN_ARGS) libwebrtc-$(1):$(IMAGE_VERSION) /bin/bash -c 'cd /root && make $(1) static=$(static) arch=$(arch) target_cpu=$(target_cpu) version=$(version)'
 
 endef
 
