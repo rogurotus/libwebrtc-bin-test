@@ -1,5 +1,5 @@
 diff --git a/src/api/transport/stun.cc b/src/api/transport/stun.cc
-index 7ef6852..0e3bb7f 100644
+index 7ef6852..fde03ff 100644
 --- a/src/api/transport/stun.cc
 +++ b/src/api/transport/stun.cc
 @@ -590,26 +590,31 @@ bool StunMessage::Read(ByteBufferReader* buf) {
@@ -83,41 +83,34 @@ index 7ef6852..0e3bb7f 100644
          return false;
        }
        attrs_.push_back(std::move(attr));
-@@ -949,12 +965,14 @@ bool StunAddressAttribute::Write(ByteBufferWriter* buf) const {
+@@ -949,10 +965,15 @@ bool StunAddressAttribute::Write(ByteBufferWriter* buf) const {
    switch (address_.family()) {
      case AF_INET: {
        in_addr v4addr = address_.ipaddr().ipv4_address();
--      buf->WriteBytes(reinterpret_cast<char*>(&v4addr), sizeof(v4addr));
-+    RTC_LOG(LS_ERROR) << "Error writing address attribute: unknown family.";
++    RTC_LOG(LS_ERROR) << "HMDTF 1";
 +
-+      buf->WriteBytes(reinterpret_cast<char*>(&v4addr), sizeof(v6addr));
+       buf->WriteBytes(reinterpret_cast<char*>(&v4addr), sizeof(v4addr));
        break;
      }
      case AF_INET6: {
++              RTC_LOG(LS_ERROR) << "HMDTF 2";
++
++
        in6_addr v6addr = address_.ipaddr().ipv6_address();
--      buf->WriteBytes(reinterpret_cast<char*>(&v6addr), sizeof(v6addr));
-+      buf->WriteBytes(reinterpret_cast<char*>(&v4addr), sizeof(v6addr));
+       buf->WriteBytes(reinterpret_cast<char*>(&v6addr), sizeof(v6addr));
        break;
-     }
-   }
-@@ -1039,12 +1057,18 @@ bool StunXorAddressAttribute::Write(ByteBufferWriter* buf) const {
+@@ -1039,10 +1060,14 @@ bool StunXorAddressAttribute::Write(ByteBufferWriter* buf) const {
    switch (xored_ip.family()) {
      case AF_INET: {
        in_addr v4addr = xored_ip.ipv4_address();
--      buf->WriteBytes(reinterpret_cast<const char*>(&v4addr), sizeof(v4addr));
 +    RTC_LOG(LS_ERROR) << "DUM DUM";
 +
-+      buf->WriteBytes(reinterpret_cast<const uint8_t*>(&v4addr),
-+                      sizeof(v4addr));
+       buf->WriteBytes(reinterpret_cast<const char*>(&v4addr), sizeof(v4addr));
        break;
      }
      case AF_INET6: {
 +    RTC_LOG(LS_ERROR) << "DUM DUM2";
 +
        in6_addr v6addr = xored_ip.ipv6_address();
--      buf->WriteBytes(reinterpret_cast<const char*>(&v6addr), sizeof(v6addr));
-+      buf->WriteBytes(reinterpret_cast<const uint8_t*>(&v6addr),
-+                      sizeof(v6addr));
+       buf->WriteBytes(reinterpret_cast<const char*>(&v6addr), sizeof(v6addr));
        break;
-     }
-   }
