@@ -1,5 +1,5 @@
 diff --git a/src/api/transport/stun.cc b/src/api/transport/stun.cc
-index 7ef6852..6da5d41 100644
+index 7ef6852..d3e475f 100644
 --- a/src/api/transport/stun.cc
 +++ b/src/api/transport/stun.cc
 @@ -590,26 +590,31 @@ bool StunMessage::Read(ByteBufferReader* buf) {
@@ -22,8 +22,7 @@ index 7ef6852..6da5d41 100644
      return false;
    }
  
--  std::string magic_cookie;
-+  absl::string_view magic_cookie;
+   std::string magic_cookie;
    if (!buf->ReadString(&magic_cookie, kStunMagicCookieLength)) {
 +    RTC_LOG(LS_ERROR) << "EARLY 4";
      return false;
@@ -113,3 +112,24 @@ index 7ef6852..6da5d41 100644
        in6_addr v6addr = xored_ip.ipv6_address();
        buf->WriteBytes(reinterpret_cast<const char*>(&v6addr), sizeof(v6addr));
        break;
+diff --git a/src/p2p/base/port.cc b/src/p2p/base/port.cc
+index 3069799..15a9ed2 100644
+--- a/src/p2p/base/port.cc
++++ b/src/p2p/base/port.cc
+@@ -448,6 +448,7 @@ bool Port::GetStunMessage(const char* data,
+                  GOOG_PING_ERROR_RESPONSE};
+   if (!StunMessage::IsStunMethod(types, data, size) &&
+       !StunMessage::ValidateFingerprint(data, size)) {
++              RTC_LOG(LS_ERROR) << "PRE1 " << !StunMessage::IsStunMethod(types, data, size) << " " << !StunMessage::ValidateFingerprint(data, size);
+     return false;
+   }
+ 
+@@ -457,6 +458,8 @@ bool Port::GetStunMessage(const char* data,
+   rtc::ByteBufferReader buf(
+       rtc::MakeArrayView(reinterpret_cast<const uint8_t*>(data), size));
+   if (!stun_msg->Read(&buf) || (buf.Length() > 0)) {
++              RTC_LOG(LS_ERROR) << "PRE2 " << !stun_msg->Read(&buf) << " " << (buf.Length() > 0);
++
+     return false;
+   }
+ 
