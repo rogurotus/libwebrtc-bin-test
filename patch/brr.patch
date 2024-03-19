@@ -172,17 +172,26 @@ index 7ef6852..9bc13ca 100644
        buf->WriteBytes(reinterpret_cast<const char*>(&v6addr), sizeof(v6addr));
        break;
 diff --git a/src/p2p/base/connection.cc b/src/p2p/base/connection.cc
-index d0e6f1b..495f5a4 100644
+index d0e6f1b..48fd175 100644
 --- a/src/p2p/base/connection.cc
 +++ b/src/p2p/base/connection.cc
-@@ -474,6 +474,7 @@ void Connection::OnReadPacket(const rtc::ReceivedPacket& packet) {
+@@ -474,11 +474,16 @@ void Connection::OnReadPacket(const rtc::ReceivedPacket& packet) {
    std::unique_ptr<IceMessage> msg;
    std::string remote_ufrag;
    const rtc::SocketAddress& addr(remote_candidate_.address());
-+  RTC_LOG(LS_ERROR) << "JUMP " << ToString() << " " << StunMethodToString(msg->type());
++  RTC_LOG(LS_ERROR) << "JUMP " << ToString();
    if (!port_->GetStunMessage(
            reinterpret_cast<const char*>(packet.payload().data()),
            packet.payload().size(), addr, &msg, &remote_ufrag)) {
+     // The packet did not parse as a valid STUN message
+     // This is a data packet, pass it along.
++
++  RTC_LOG(LS_ERROR) << "JUMP2 " << ToString();
++
++
+     last_data_received_ = rtc::TimeMillis();
+     UpdateReceiving(last_data_received_);
+     recv_rate_tracker_.AddSamples(packet.payload().size());
 diff --git a/src/p2p/base/port.cc b/src/p2p/base/port.cc
 index 3069799..15a9ed2 100644
 --- a/src/p2p/base/port.cc
