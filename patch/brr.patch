@@ -213,3 +213,54 @@ index 3069799..15a9ed2 100644
      return false;
    }
  
+diff --git a/src/p2p/base/turn_port.cc b/src/p2p/base/turn_port.cc
+index e6f5e77..2ffd0ca 100644
+--- a/src/p2p/base/turn_port.cc
++++ b/src/p2p/base/turn_port.cc
+@@ -388,6 +388,10 @@ void TurnPort::PrepareAddress() {
+     if (server_address_.proto == PROTO_UDP) {
+       // If its UDP, send AllocateRequest now.
+       // For TCP and TLS AllcateRequest will be sent by OnSocketConnect.
++
++      // mb here
++      RTC_LOG(LS_ERROR) << "ALLOD IDK";
++
+       SendRequest(new TurnAllocateRequest(this), 0);
+     }
+   }
+@@ -520,6 +524,9 @@ void TurnPort::OnSocketConnect(rtc::AsyncPacketSocket* socket) {
+   RTC_LOG(LS_INFO) << "TurnPort connected to "
+                    << socket->GetRemoteAddress().ToSensitiveString()
+                    << " using tcp.";
++
++  RTC_LOG(LS_ERROR) << "ALLOD NOPE ";
++
+   SendRequest(new TurnAllocateRequest(this), 0);
+ }
+ 
+@@ -965,9 +972,15 @@ bool TurnPort::AllowedTurnPort(int port,
+ }
+ 
+ void TurnPort::TryAlternateServer() {
++  RTC_LOG(LS_ERROR) << "ALLOD 3 " << server_address().address.ToString();
++
+   if (server_address().proto == PROTO_UDP) {
+     // Send another allocate request to alternate server, with the received
+     // realm and nonce values.
++
++    //mb here
++  RTC_LOG(LS_ERROR) << "ALLOD 2";
++
+     SendRequest(new TurnAllocateRequest(this), 0);
+   } else {
+     // Since it's TCP, we have to delete the connected socket and reconnect
+@@ -1450,6 +1463,9 @@ void TurnAllocateRequest::OnAuthChallenge(StunMessage* response, int code) {
+   port_->set_nonce(nonce_attr->string_view());
+ 
+   // Send another allocate request, with the received realm and nonce values.
++
++  // mb here
++  RTC_LOG(LS_ERROR) << "ALLOD 1";
+   port_->SendRequest(new TurnAllocateRequest(port_), 0);
+ }
+ 
