@@ -214,7 +214,7 @@ index 3069799..15a9ed2 100644
    }
  
 diff --git a/src/p2p/base/turn_port.cc b/src/p2p/base/turn_port.cc
-index e6f5e77..8760e90 100644
+index e6f5e77..eb0f351 100644
 --- a/src/p2p/base/turn_port.cc
 +++ b/src/p2p/base/turn_port.cc
 @@ -375,6 +375,7 @@ void TurnPort::PrepareAddress() {
@@ -262,16 +262,17 @@ index e6f5e77..8760e90 100644
      SendRequest(new TurnAllocateRequest(this), 0);
    } else {
      // Since it's TCP, we have to delete the connected socket and reconnect
-@@ -1313,18 +1327,30 @@ TurnAllocateRequest::TurnAllocateRequest(TurnPort* port)
+@@ -1313,18 +1327,31 @@ TurnAllocateRequest::TurnAllocateRequest(TurnPort* port)
      : StunRequest(port->request_manager(),
                    std::make_unique<TurnMessage>(TURN_ALLOCATE_REQUEST)),
        port_(port) {
 +
-+      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << server_address_.address.ToString() << " " << TURN_ALLOCATE_REQUEST;
++      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << port.server_address().ToString() << " " << TURN_ALLOCATE_REQUEST << " " << port.connected();
++      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << port.credentials().username << " " << port.credentials().password;
 +  
    StunMessage* message = mutable_msg();
    // Create the request as indicated in RFC 5766, Section 6.1.
-+      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << server_address_.address.ToString() << " " << TURN_ALLOCATE_REQUEST;
++      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << port.address.ToString() << " " << TURN_ALLOCATE_REQUEST;
 +
    RTC_DCHECK_EQ(message->type(), TURN_ALLOCATE_REQUEST);
    auto transport_attr =
@@ -293,7 +294,7 @@ index e6f5e77..8760e90 100644
    port_->MaybeAddTurnLoggingId(message);
    port_->TurnCustomizerMaybeModifyOutgoingStunMessage(message);
  }
-@@ -1450,6 +1476,9 @@ void TurnAllocateRequest::OnAuthChallenge(StunMessage* response, int code) {
+@@ -1450,6 +1477,9 @@ void TurnAllocateRequest::OnAuthChallenge(StunMessage* response, int code) {
    port_->set_nonce(nonce_attr->string_view());
  
    // Send another allocate request, with the received realm and nonce values.
