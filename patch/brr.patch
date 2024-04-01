@@ -214,21 +214,29 @@ index 3069799..15a9ed2 100644
    }
  
 diff --git a/src/p2p/base/turn_port.cc b/src/p2p/base/turn_port.cc
-index e6f5e77..2ffd0ca 100644
+index e6f5e77..8760e90 100644
 --- a/src/p2p/base/turn_port.cc
 +++ b/src/p2p/base/turn_port.cc
-@@ -388,6 +388,10 @@ void TurnPort::PrepareAddress() {
+@@ -375,6 +375,7 @@ void TurnPort::PrepareAddress() {
+     // Insert the current address to prevent redirection pingpong.
+     attempted_server_addresses_.insert(server_address_.address);
+ 
++    // here
+     RTC_LOG(LS_INFO)
+         << ToString() << ": Trying to connect to TURN server via "
+         << ProtoToString(server_address_.proto) << " @ "
+@@ -388,6 +389,10 @@ void TurnPort::PrepareAddress() {
      if (server_address_.proto == PROTO_UDP) {
        // If its UDP, send AllocateRequest now.
        // For TCP and TLS AllcateRequest will be sent by OnSocketConnect.
 +
 +      // mb here
-+      RTC_LOG(LS_ERROR) << "ALLOD IDK";
++      RTC_LOG(LS_ERROR) << "ALLOD IDK" << server_address_.address.ToString();
 +
        SendRequest(new TurnAllocateRequest(this), 0);
      }
    }
-@@ -520,6 +524,9 @@ void TurnPort::OnSocketConnect(rtc::AsyncPacketSocket* socket) {
+@@ -520,6 +525,9 @@ void TurnPort::OnSocketConnect(rtc::AsyncPacketSocket* socket) {
    RTC_LOG(LS_INFO) << "TurnPort connected to "
                     << socket->GetRemoteAddress().ToSensitiveString()
                     << " using tcp.";
@@ -238,7 +246,7 @@ index e6f5e77..2ffd0ca 100644
    SendRequest(new TurnAllocateRequest(this), 0);
  }
  
-@@ -965,9 +972,15 @@ bool TurnPort::AllowedTurnPort(int port,
+@@ -965,9 +973,15 @@ bool TurnPort::AllowedTurnPort(int port,
  }
  
  void TurnPort::TryAlternateServer() {
@@ -254,7 +262,38 @@ index e6f5e77..2ffd0ca 100644
      SendRequest(new TurnAllocateRequest(this), 0);
    } else {
      // Since it's TCP, we have to delete the connected socket and reconnect
-@@ -1450,6 +1463,9 @@ void TurnAllocateRequest::OnAuthChallenge(StunMessage* response, int code) {
+@@ -1313,18 +1327,30 @@ TurnAllocateRequest::TurnAllocateRequest(TurnPort* port)
+     : StunRequest(port->request_manager(),
+                   std::make_unique<TurnMessage>(TURN_ALLOCATE_REQUEST)),
+       port_(port) {
++
++      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << server_address_.address.ToString() << " " << TURN_ALLOCATE_REQUEST;
++  
+   StunMessage* message = mutable_msg();
+   // Create the request as indicated in RFC 5766, Section 6.1.
++      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << server_address_.address.ToString() << " " << TURN_ALLOCATE_REQUEST;
++
+   RTC_DCHECK_EQ(message->type(), TURN_ALLOCATE_REQUEST);
+   auto transport_attr =
+       StunAttribute::CreateUInt32(STUN_ATTR_REQUESTED_TRANSPORT);
+   transport_attr->SetValue(IPPROTO_UDP << 24);
+   message->AddAttribute(std::move(transport_attr));
++    RTC_LOG(LS_ERROR) << "ALLOD IDK AGA 21 " << port_->hash();
++
+   if (!port_->hash().empty()) {
++    RTC_LOG(LS_ERROR) << "ALLOD IDK AGA 22";
+     port_->AddRequestAuthInfo(message);
+   } else {
++    RTC_LOG(LS_ERROR) << "ALLOD IDK AGA 23";
++
+     SetAuthenticationRequired(false);
+   }
++    RTC_LOG(LS_ERROR) << "ALLOD IDK AGA 24";
++
+   port_->MaybeAddTurnLoggingId(message);
+   port_->TurnCustomizerMaybeModifyOutgoingStunMessage(message);
+ }
+@@ -1450,6 +1476,9 @@ void TurnAllocateRequest::OnAuthChallenge(StunMessage* response, int code) {
    port_->set_nonce(nonce_attr->string_view());
  
    // Send another allocate request, with the received realm and nonce values.
@@ -264,3 +303,16 @@ index e6f5e77..2ffd0ca 100644
    port_->SendRequest(new TurnAllocateRequest(port_), 0);
  }
  
+diff --git a/src/p2p/base/turn_port.h b/src/p2p/base/turn_port.h
+index 686edaf..e959d08 100644
+--- a/src/p2p/base/turn_port.h
++++ b/src/p2p/base/turn_port.h
+@@ -132,7 +132,7 @@ class TurnPort : public Port {
+   // Sets state to STATE_RECEIVEONLY.
+   void Release();
+ 
+-  void PrepareAddress() override;
++  void PrepareAddress() override; //hmm
+   Connection* CreateConnection(const Candidate& c,
+                                PortInterface::CandidateOrigin origin) override;
+   int SendTo(const void* data,
