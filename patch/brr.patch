@@ -214,7 +214,7 @@ index 3069799..15a9ed2 100644
    }
  
 diff --git a/src/p2p/base/turn_port.cc b/src/p2p/base/turn_port.cc
-index e6f5e77..3dc67f4 100644
+index e6f5e77..e9e6f46 100644
 --- a/src/p2p/base/turn_port.cc
 +++ b/src/p2p/base/turn_port.cc
 @@ -375,6 +375,7 @@ void TurnPort::PrepareAddress() {
@@ -267,12 +267,12 @@ index e6f5e77..3dc67f4 100644
                    std::make_unique<TurnMessage>(TURN_ALLOCATE_REQUEST)),
        port_(port) {
 +
-+      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << port->server_address().ToString() << " " << TURN_ALLOCATE_REQUEST << " " << port->connected();
++      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << port->server_address().address.ToString() << " " << TURN_ALLOCATE_REQUEST << " " << port->connected();
 +      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << port->credentials().username << " " << port->credentials().password;
 +  
    StunMessage* message = mutable_msg();
    // Create the request as indicated in RFC 5766, Section 6.1.
-+      RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << port->address.ToString() << " " << TURN_ALLOCATE_REQUEST;
++      // RTC_LOG(LS_ERROR) << "ALLOD IDK AGA " << port->address.ToString() << " " << TURN_ALLOCATE_REQUEST;
 +
    RTC_DCHECK_EQ(message->type(), TURN_ALLOCATE_REQUEST);
    auto transport_attr =
